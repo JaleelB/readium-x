@@ -5,6 +5,7 @@ import { buttonVariants } from "./ui/button";
 import { Icons } from "./icons";
 import { siteConfig } from "@/config/site";
 import { cn } from "@/lib/utils";
+import { OptionsMenu } from "./menu";
 
 function SiteHeader() {
   return (
@@ -16,16 +17,18 @@ function SiteHeader() {
         </Link>
       </div>
 
-      <div className={`flex h-full w-1/2 items-center justify-end`}>
+      <div className={`flex h-full w-1/2 items-center justify-end gap-2`}>
         <Link
           href="/bookmarks"
           className={cn(
-            buttonVariants({ variant: "outline", size: "icon" }),
-            "rounded-full w-9 h-9"
+            buttonVariants({ variant: "outline", size: "sm" }),
+            "rounded-full h-9 dark:border-white/20"
           )}
         >
-          <Icons.bookmark className="w-4 h-4" />
+          <span>Bookmarks</span>
+          <Icons.bookmark className="w-4 h-4 ml-2" />
         </Link>
+        <OptionsMenu />
       </div>
     </header>
   );
