@@ -45,3 +45,34 @@ export const getUrlWithoutPaywall = async (
     return new Error("An error occurred while processing the URL.");
   }
 };
+
+export async function validateMediumArticle(url: string) {
+  try {
+    const response = await fetch(url);
+    if (!response.body) throw new Error("Response body is null");
+
+    // streaming response body to check for meta tags
+    const reader = response.body.getReader();
+    let body = "";
+    let completed = false;
+
+    while (!completed) {
+      const { done, value } = await reader.read();
+      if (done) break;
+
+      body += new TextDecoder().decode(value);
+      if (body.includes("</head>")) {
+        completed = true;
+      }
+    }
+
+    const metaTagRegex =
+      /<meta[^>]+(property="og:site_name"[^>]+content="Medium"|name="twitter:site"[^>]+content="@Medium")[^>]*>/;
+    const isMedium = metaTagRegex.test(body);
+
+    return isMedium;
+  } catch (error) {
+    console.error("Failed to fetch or parse the URL:", error);
+    return false;
+  }
+}
