@@ -22,3 +22,27 @@ export function calculateReadTime(text: string[] | string | undefined): string {
 
   return `${roundedMinutes} min read`;
 }
+
+export function formatDate(dateStr: string | null): string {
+  let date: Date;
+
+  if (dateStr === null) {
+    // Use today's date if no date string is provided
+    date = new Date();
+    const options: Intl.DateTimeFormatOptions = {
+      year: "numeric",
+      month: "long",
+      day: "numeric",
+    };
+    const formattedDate = new Intl.DateTimeFormat("en-US", options).format(
+      date
+    );
+    return `Fetched at: ${formattedDate}`;
+  } else {
+    const primaryDateMatch = dateStr.match(/^(.*?)\s\(Updated:/);
+    if (primaryDateMatch && primaryDateMatch[1]) {
+      return primaryDateMatch[1].trim();
+    }
+    return dateStr;
+  }
+}
