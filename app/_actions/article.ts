@@ -6,7 +6,8 @@ import { urlSchema } from "@/schemas/url";
 type ArticleURL = typeof urlSchema;
 export type ArticleDetails = {
   title: string;
-  content: string[];
+  // content: string[];
+  content: string;
   articleImageSrc: string | null;
   authorInformation: {
     authorName: string | null;
@@ -26,22 +27,15 @@ export async function scrapeArticleContent(url: string | ArticleURL) {
 
   try {
     await page.goto(url as unknown as string, { waitUntil: "networkidle" });
-    // await page.waitForTimeout(500); // Wait for the page to load.
+    await page.waitForTimeout(5000); // Wait for the page to load.
 
     const articleTitle = await page.$eval(
       "h1",
       (el) => el?.innerHTML ?? "No title available"
     );
-    const articleContent = await page.$$eval(".main-content", (nodes) =>
-      nodes
-        .map((node) => {
-          return node.nodeType === Node.ELEMENT_NODE
-            ? (node as HTMLElement).outerHTML
-            : node.textContent;
-        })
-        .filter(
-          (text): text is string => text !== null && text.trim().length > 0
-        )
+    const articleContent = await page.$eval(
+      ".main-content",
+      (div) => div.outerHTML
     );
     // Extract the main image from the article
     const articleImageSrc = await page.$eval(
