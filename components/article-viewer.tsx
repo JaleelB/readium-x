@@ -1,8 +1,10 @@
 "use client";
 
+import { useZoom } from "@/hooks/use-zoom";
 import { useEditor, EditorContent } from "@tiptap/react";
 import StarterKit from "@tiptap/starter-kit";
 import DOMPurify from "dompurify";
+import { MagnificationController } from "./magnification-controller";
 
 export function ArticleViewer({ content }: { content: string }) {
   const safeHTMLContent = DOMPurify.sanitize(content || "", {
@@ -48,9 +50,15 @@ export function ArticleViewer({ content }: { content: string }) {
     },
   });
 
+  const { zoom, zoomIn, zoomOut } = useZoom();
+
   return (
     <div className="prose dark:prose-dark">
-      <EditorContent editor={editor} />
+      <EditorContent
+        editor={editor}
+        style={{ zoom: zoom, transition: "zoom 0.2s" }}
+      />
+      <MagnificationController zoom={zoom} zoomIn={zoomIn} zoomOut={zoomOut} />
     </div>
   );
 }
