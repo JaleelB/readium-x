@@ -23,6 +23,15 @@ import {
   X,
   SquareLibrary,
   Bookmark,
+  Sparkles,
+  RefreshCcw,
+  LogOut,
+  SwatchBook,
+  LaptopMinimal,
+  LogIn,
+  AlignJustify,
+  ChevronDown,
+  Minus,
   type Icon as LucideIcon,
 } from "lucide-react";
 
@@ -35,6 +44,7 @@ export const Icons = {
   bookmark: Bookmark,
   chevronLeft: ChevronLeft,
   chevronRight: ChevronRight,
+  chevronDown: ChevronDown,
   trash: Trash,
   post: FileText,
   page: File,
@@ -50,8 +60,17 @@ export const Icons = {
   pizza: Pizza,
   sun: SunMedium,
   moon: Moon,
+  sparkles: Sparkles,
   laptop: Laptop,
-  gitHub: ({ ...props }: LucideProps) => (
+  retry: RefreshCcw,
+  logout: LogOut,
+  login: LogIn,
+  theme: SwatchBook,
+  system: LaptopMinimal,
+  menu: AlignJustify,
+  zoomIn: Plus,
+  zoomOut: Minus,
+  github: ({ ...props }: LucideProps) => (
     <svg
       aria-hidden="true"
       focusable="false"
