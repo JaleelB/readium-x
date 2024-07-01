@@ -3,7 +3,6 @@
 import { useZoom } from "@/hooks/use-zoom";
 import { useEditor, EditorContent } from "@tiptap/react";
 import StarterKit from "@tiptap/starter-kit";
-import DOMPurify from "dompurify";
 import { MagnificationController } from "./magnification-controller";
 import {
   CustomHeading,
@@ -22,9 +21,26 @@ import {
   CustomOL,
 } from "@/lib/tiptap-extensions";
 
+function literalTemplate(
+  strings: TemplateStringsArray,
+  ...values: any[]
+): string {
+  let str = "";
+  strings.forEach((string, i) => {
+    str += string + (values[i] || "");
+  });
+  return str;
+}
+
+function forceReflow(element: HTMLElement) {
+  element.offsetHeight; // Reading offsetHeight to force reflow
+}
+
 export function ArticleViewer({ content }: { content: string }) {
+  const staticHTMLContent = literalTemplate`${content}`;
+
   const editor = useEditor({
-    content: content,
+    content: staticHTMLContent,
     editable: false, // Make it non-editable initially
     extensions: [
       StarterKit.configure({
@@ -61,6 +77,9 @@ export function ArticleViewer({ content }: { content: string }) {
       attributes: {
         class: "prose dark:prose-dark",
       },
+    },
+    onUpdate: ({ editor }) => {
+      forceReflow(editor.view.dom);
     },
   });
 
