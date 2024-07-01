@@ -3,6 +3,8 @@
 import { useZoom } from "@/hooks/use-zoom";
 import { useEditor, EditorContent } from "@tiptap/react";
 import StarterKit from "@tiptap/starter-kit";
+import Document from "@tiptap/extension-document";
+import Text from "@tiptap/extension-text";
 import { MagnificationController } from "./magnification-controller";
 import {
   CustomHeading,
@@ -43,15 +45,17 @@ export function ArticleViewer({ content }: { content: string }) {
     content: staticHTMLContent,
     editable: false, // Make it non-editable initially
     extensions: [
-      StarterKit.configure({
-        heading: false,
-        codeBlock: false,
-        bulletList: false,
-        orderedList: false,
-        blockquote: false,
-        listItem: false,
-        paragraph: false,
-      }),
+      // StarterKit.configure({
+      //   heading: false,
+      //   codeBlock: false,
+      //   bulletList: false,
+      //   orderedList: false,
+      //   blockquote: false,
+      //   listItem: false,
+      //   paragraph: false,
+      // }),
+      Document,
+      Text,
       CustomHeading(1),
       CustomHeading(2),
       CustomHeading(3),

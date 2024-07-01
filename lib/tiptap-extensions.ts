@@ -50,7 +50,8 @@ const CustomBlockquote = Node.create({
   addAttributes() {
     return {
       class: {
-        default: "pl-4 border-l-4 border-gray-500",
+        default:
+          "border-l-4 border-primary p-4 bg-muted text-muted-foreground dark:bg-accent dark:text-muted",
         parseHTML: (element) => element.getAttribute("class"),
         renderHTML: (attributes) => {
           return { class: attributes.class };
@@ -72,7 +73,11 @@ const CustomBlockquote = Node.create({
         getAttrs: (node) => ({
           class:
             node instanceof HTMLElement && node.getAttribute("class")
-              ? { class: node.getAttribute("class") }
+              ? {
+                  class: `${node.getAttribute(
+                    "class"
+                  )} border-t-4 border-primary p-4 bg-muted text-muted-foreground dark:bg-muted-foreground dark:text-muted`,
+                }
               : null,
           style:
             node instanceof HTMLElement && node.getAttribute("style")
@@ -82,8 +87,15 @@ const CustomBlockquote = Node.create({
       },
     ];
   },
-  renderHTML({ HTMLAttributes }) {
-    return ["blockquote", mergeAttributes(HTMLAttributes), 0];
+  renderHTML({ node, HTMLAttributes }) {
+    return [
+      "blockquote",
+      mergeAttributes({
+        ...HTMLAttributes,
+        class: `${node.attrs.class} border-l-4 border-primary p-4 bg-muted text-muted-foreground dark:bg-muted-foreground dark:text-muted`,
+      }),
+      0,
+    ];
   },
 });
 
@@ -119,10 +131,10 @@ const CustomCodeBlock = Node.create({
         tag: "pre",
         preserveWhitespace: "full",
         getAttrs: (node) => ({
-          //   class:
-          //     node instanceof HTMLElement && node.getAttribute("class")
-          //       ? { class: node.getAttribute("class") }
-          //       : null,
+          class:
+            node instanceof HTMLElement && node.getAttribute("class")
+              ? { class: node.getAttribute("class") }
+              : null,
           style:
             node instanceof HTMLElement && node.getAttribute("style")
               ? { style: node.getAttribute("style") }
@@ -131,8 +143,22 @@ const CustomCodeBlock = Node.create({
       },
     ];
   },
-  renderHTML({ HTMLAttributes }) {
-    return ["pre", mergeAttributes(HTMLAttributes), ["code", 0]];
+  renderHTML({ HTMLAttributes, node }) {
+    return [
+      "pre",
+      mergeAttributes({
+        ...HTMLAttributes,
+        class: `${node.attrs.class} relative h-full w-full max-h-[500px] whitespace-pre-wrap rounded-lg py-4 px-6 text-sm border border-border text-white/75 bg-muted`,
+      }),
+      [
+        "code",
+        {
+          class:
+            "relative rounded bg-zinc-950 bg-muted px-[0.3rem] py-[0.2rem] font-mono text-sm",
+        },
+        0,
+      ],
+    ];
   },
 });
 
@@ -210,7 +236,9 @@ const CustomFigcaption = Node.create({
         default: "text-center text-sm text-gray-500",
         parseHTML: (element) => element.getAttribute("class"),
         renderHTML: (attributes) => {
-          return { class: attributes.class };
+          return {
+            class: attributes.class,
+          };
         },
       },
       style: {
@@ -239,8 +267,15 @@ const CustomFigcaption = Node.create({
       },
     ];
   },
-  renderHTML({ HTMLAttributes }) {
-    return ["figcaption", mergeAttributes(HTMLAttributes), 0];
+  renderHTML({ HTMLAttributes, node }) {
+    return [
+      "figcaption",
+      mergeAttributes({
+        ...HTMLAttributes,
+        class: `${node.attrs.class} w-full text-center text-sm text-muted-foreground`,
+      }),
+      0,
+    ];
   },
 });
 
@@ -332,7 +367,8 @@ const CustomParagraph = Node.create({
   renderHTML({ node, HTMLAttributes }) {
     return [
       "p",
-      mergeAttributes(HTMLAttributes, {
+      mergeAttributes({
+        ...HTMLAttributes,
         class: `${node.attrs.class} text-muted-foreground dark:text-muted-foreground`,
         style: node.attrs.style,
       }),
@@ -585,8 +621,15 @@ const CustomOL = Node.create({
       },
     ];
   },
-  renderHTML({ HTMLAttributes }) {
-    return ["ol", mergeAttributes(HTMLAttributes), 0];
+  renderHTML({ HTMLAttributes, node }) {
+    return [
+      "ol",
+      mergeAttributes({
+        ...HTMLAttributes,
+        class: `${node.attrs.class} list-decimal list-inside text-muted-foreground dark:text-muted-foreground`,
+      }),
+      0,
+    ];
   },
 });
 
@@ -623,6 +666,33 @@ const CustomLI = Node.create({
   },
 });
 
+const RawHTML = Node.create({
+  name: "rawHtml",
+  group: "block",
+  content: "inline*",
+  atom: true,
+  addAttributes() {
+    return {
+      html: {
+        default: null,
+      },
+    };
+  },
+  parseHTML() {
+    return [
+      {
+        tag: "*",
+        getAttrs: (node) => ({ html: node.outerHTML }),
+      },
+    ];
+  },
+  renderHTML({ node }) {
+    return {
+      dom: document.createRange().createContextualFragment(node.attrs.html),
+    };
+  },
+});
+
 export {
   CustomHeading,
   CustomBlockquote,
@@ -641,4 +711,5 @@ export {
   CustomUL,
   CustomOL,
   CustomLI,
+  RawHTML,
 };
