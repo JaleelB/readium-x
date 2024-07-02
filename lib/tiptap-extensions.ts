@@ -227,9 +227,62 @@ const CustomImage = Node.create({
   },
 });
 
+// const CustomFigcaption = Node.create({
+//   name: "figcaption",
+//   content: "inline*",
+//   addAttributes() {
+//     return {
+//       class: {
+//         default: "text-center text-sm text-muted-foreground",
+//         parseHTML: (element) => element.getAttribute("class"),
+//         renderHTML: (attributes) => {
+//           return {
+//             class: attributes.class,
+//           };
+//         },
+//       },
+//       style: {
+//         default: null,
+//         parseHTML: (element) => element.getAttribute("style"),
+//         renderHTML: (attributes) => {
+//           return { style: attributes.style };
+//         },
+//       },
+//     };
+//   },
+//   parseHTML() {
+//     return [
+//       {
+//         tag: "figcaption",
+//         getAttrs: (node) => ({
+//           class:
+//             node instanceof HTMLElement && node.getAttribute("class")
+//               ? { class: node.getAttribute("class") }
+//               : null,
+//           style:
+//             node instanceof HTMLElement && node.getAttribute("style")
+//               ? { style: node.getAttribute("style") }
+//               : null,
+//         }),
+//       },
+//     ];
+//   },
+//   renderHTML({ HTMLAttributes, node }) {
+//     return [
+//       "figcaption",
+//       mergeAttributes({
+//         ...HTMLAttributes,
+//         class: `${node.attrs.class} w-full text-center text-sm text-muted-foreground`,
+//       }),
+//       0,
+//     ];
+//   },
+// });
 const CustomFigcaption = Node.create({
   name: "figcaption",
-  content: "inline*",
+  content: "text*", // allow inline content only
+  inline: true, // make it an inline node
+  group: "inline", // belongs to inline content group
   addAttributes() {
     return {
       class: {
@@ -254,22 +307,12 @@ const CustomFigcaption = Node.create({
     return [
       {
         tag: "figcaption",
-        getAttrs: (node) => ({
-          class:
-            node instanceof HTMLElement && node.getAttribute("class")
-              ? { class: node.getAttribute("class") }
-              : null,
-          style:
-            node instanceof HTMLElement && node.getAttribute("style")
-              ? { style: node.getAttribute("style") }
-              : null,
-        }),
       },
     ];
   },
   renderHTML({ HTMLAttributes, node }) {
     return [
-      "figcaption",
+      "span",
       mergeAttributes({
         ...HTMLAttributes,
         class: `${node.attrs.class} w-full text-center text-sm text-muted-foreground`,
