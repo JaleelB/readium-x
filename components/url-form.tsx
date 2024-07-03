@@ -18,7 +18,7 @@ import { useRouter } from "next/navigation";
 import { v4 as uuidv4 } from "uuid";
 import { urlSchema } from "@/schemas/url";
 import Cookies from "js-cookie";
-import { validateMediumArticle } from "@/app/_actions/url";
+import { validateMediumArticle } from "@/app/article/actions/url";
 import { SubmitButton } from "./form-submit-button";
 
 const FormSchema = z.object({

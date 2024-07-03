@@ -1,6 +1,6 @@
 "use client";
 
-import { ArticleDetails } from "@/app/_actions/article";
+import { ArticleDetails } from "@/app/article/actions/article";
 import { AspectRatio } from "./ui/aspect-ratio";
 import Image from "next/image";
 import { Avatar, AvatarFallback, AvatarImage } from "./ui/avatar";

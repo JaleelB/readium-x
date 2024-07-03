@@ -1,4 +1,7 @@
-import { ArticleDetails, scrapeArticleContent } from "@/app/_actions/article";
+import {
+  ArticleDetails,
+  scrapeArticleContent,
+} from "@/app/article/actions/article";
 import { headers } from "next/headers";
 import { SuspenseIf } from "./suspense-if";
 import { Article } from "./article";
