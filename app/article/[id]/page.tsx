@@ -1,4 +1,4 @@
-import { getUrlWithoutPaywall } from "@/app/_actions/url";
+import { getUrlWithoutPaywall } from "@/app/article/actions/url";
 import UrlForm from "@/components/url-form";
 import { notFound, redirect } from "next/navigation";
 import { cookies } from "next/headers";
