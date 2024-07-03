@@ -3,9 +3,9 @@ import Link from "next/link";
 
 import { buttonVariants } from "./ui/button";
 import { Icons } from "./icons";
-import { siteConfig } from "@/config/site";
 import { cn } from "@/lib/utils";
 import { OptionsMenu } from "./menu";
+import { siteConfig } from "@/app-config";
 
 function SiteHeader() {
   return (

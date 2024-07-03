@@ -1,12 +1,14 @@
-export type SiteConfig = typeof siteConfig;
+export const applicationName = "ReadiumX";
+
+export const afterLoginUrl = "/dashboard";
 
 export const siteConfig = {
-  name: "ReadiumX - Read and Manage Premium Medium Articles for Free",
-  short_name: "ReadiumX",
+  name: `${applicationName} - Read and Manage Premium Medium Articles for Free`,
+  short_name: applicationName,
   description:
     "An open source tool that provides access to premium Medium articles without the paywall, allowing you to bookmark, and manage your reading experience across any device.",
-  url: "https://readiumx.vercel.app",
-  ogImage: "https://readiumx.vercel.app/og.png",
+  url: "https://readium-x.vercel.app",
+  ogImage: "https://readium-x.vercel.app/og.png",
   links: {
     twitter: "https://twitter.com/jal_eelll",
     github: "https://github.com/JaleelB/readium-x",
@@ -20,3 +22,5 @@ export const siteConfig = {
     mail: "jaleelcodes@gmail.com",
   },
 };
+
+export type SiteConfig = typeof siteConfig;

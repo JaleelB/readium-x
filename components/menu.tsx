@@ -18,8 +18,8 @@ import { Icons } from "./icons";
 import { cn } from "@/lib/utils";
 import { useState } from "react";
 import { useTheme } from "next-themes";
-import { siteConfig } from "@/config/site";
 import Link from "next/link";
+import { siteConfig } from "@/app-config";
 
 export function OptionsMenu() {
   const [open, setOpen] = useState(false);
