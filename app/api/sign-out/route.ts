@@ -17,5 +17,5 @@ export async function GET(): Promise<Response> {
     sessionCookie.value,
     sessionCookie.attributes
   );
-  redirect("/signed-out");
+  redirect("/sign-in");
 }

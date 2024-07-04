@@ -20,8 +20,9 @@ import { useState } from "react";
 import { useTheme } from "next-themes";
 import Link from "next/link";
 import { siteConfig } from "@/app-config";
+import { UserInfo } from "./site-header";
 
-export function OptionsMenu() {
+export function OptionsMenu({ user }: { user: UserInfo }) {
   const [open, setOpen] = useState(false);
   const { setTheme } = useTheme();
 
@@ -41,8 +42,22 @@ export function OptionsMenu() {
           />
         </Button>
       </DropdownMenuTrigger>
-      <DropdownMenuContent className="w-56">
-        <DropdownMenuLabel>My Account</DropdownMenuLabel>
+      <DropdownMenuContent className="w-60">
+        <DropdownMenuLabel className="p-1 px-0">
+          {!user && (
+            <Link href="/signin">
+              <DropdownMenuItem>
+                <Icons.user className="mr-2 h-4 w-4" />
+                <span>Login</span>
+              </DropdownMenuItem>
+            </Link>
+          )}
+          {user && (
+            <DropdownMenuItem className="text-muted-foreground text-sm py-0.5">
+              {user.email}
+            </DropdownMenuItem>
+          )}
+        </DropdownMenuLabel>
         <DropdownMenuSeparator />
         <DropdownMenuGroup>
           <DropdownMenuSub>
@@ -96,11 +111,14 @@ export function OptionsMenu() {
             <span>Home</span>
           </DropdownMenuItem>
         </Link>
-        <DropdownMenuSeparator />
-        <DropdownMenuItem>
-          <Icons.login className="mr-2 h-4 w-4" />
-          <span>Log in</span>
-        </DropdownMenuItem>
+        {user && (
+          <DropdownMenuItem>
+            <Link className="flex items-center" href={"/api/sign-out"}>
+              <Icons.logout className="w-4 h-4 mr-2" />
+              Sign Out
+            </Link>
+          </DropdownMenuItem>
+        )}
       </DropdownMenuContent>
     </DropdownMenu>
   );

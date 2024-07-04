@@ -6,8 +6,26 @@ import { Icons } from "./icons";
 import { cn } from "@/lib/utils";
 import { OptionsMenu } from "./menu";
 import { siteConfig } from "@/app-config";
+import { getCurrentUser } from "@/lib/session";
+import { getUser } from "@/data-access/users";
 
-function SiteHeader() {
+export type UserInfo =
+  | { id: number; email: string | null; emailVerified: Date | null }
+  | null
+  | undefined;
+
+async function SiteHeader() {
+  let userSession = await getCurrentUser();
+  let user = null;
+
+  if (!userSession) {
+    user = null;
+  }
+
+  if (userSession) {
+    user = await getUser(userSession.id);
+  }
+
   return (
     <header className={`flex h-[64px] w-full px-4 md:px-8`}>
       <div className={`flex h-full w-1/2 items-center`}>
@@ -28,7 +46,8 @@ function SiteHeader() {
           <span>Bookmarks</span>
           <Icons.bookmark className="w-4 h-4 ml-2" />
         </Link>
-        <OptionsMenu />
+
+        <OptionsMenu user={user} />
       </div>
     </header>
   );
