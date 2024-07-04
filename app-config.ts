@@ -1,6 +1,6 @@
 export const applicationName = "ReadiumX";
 
-export const afterLoginUrl = "/dashboard";
+export const afterLoginUrl = "/";
 
 export const siteConfig = {
   name: `${applicationName} - Read and Manage Premium Medium Articles for Free`,
