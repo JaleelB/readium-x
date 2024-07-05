@@ -25,6 +25,7 @@ import { Terminal } from "lucide-react";
 import { Icons } from "@/components/icons";
 import { Separator } from "@/components/ui/separator";
 import { useSparkle } from "@/hooks/use-sparkle";
+import Balancer from "react-wrap-balancer";
 
 const registrationSchema = z.object({
   email: z.string().email(),
@@ -85,12 +86,15 @@ export default function SignInPage() {
             </div>
           </Link>
           <div className="flex flex-col space-y-1.5">
-            <h3 className="font-semibold tracking-tight text-2xl text-center">
+            <Balancer
+              as="h3"
+              className="font-semibold tracking-tight text-2xl text-center"
+            >
               Welcome back to ReadiumX
-            </h3>
-            <p className="text-sm text-muted-foreground text-center">
+            </Balancer>
+            <Balancer className="text-sm text-muted-foreground text-center">
               Sign in to your account
-            </p>
+            </Balancer>
           </div>
           <div className="flex flex-col gap-4 w-full">
             <FormField

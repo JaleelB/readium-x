@@ -10,6 +10,7 @@ import { Button } from "./ui/button";
 import { Icons } from "./icons";
 import { ArticleViewer } from "./article-viewer";
 import DOMPurify from "dompurify";
+import Balancer from "react-wrap-balancer";
 
 export function Article({ content }: { content: ArticleDetails }) {
   const safeHTMLContent = DOMPurify.sanitize(content?.content || "", {
@@ -100,9 +101,12 @@ export function Article({ content }: { content: ArticleDetails }) {
               <Icons.bookmark className="ml-2 w-5 h-5" />
             </Button>
           </div>
-          <h1 className="font-heading text-2xl md:text-3xl lg:text-4xl">
+          <Balancer
+            as="h1"
+            className="font-heading text-2xl md:text-3xl lg:text-4xl"
+          >
             {content?.title}
-          </h1>
+          </Balancer>
           {safeHTMLContent && <ArticleViewer content={safeHTMLContent} />}
         </article>
       </section>

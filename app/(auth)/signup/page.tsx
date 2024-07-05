@@ -25,6 +25,7 @@ import { Separator } from "@radix-ui/react-dropdown-menu";
 import Link from "next/link";
 import { buttonVariants } from "@/components/ui/button";
 import { useSparkle } from "@/hooks/use-sparkle";
+import Balancer from "react-wrap-balancer";
 
 const registrationSchema = z
   .object({
@@ -86,12 +87,15 @@ export default function RegisterPage() {
             </div>
           </Link>
           <div className="flex flex-col space-y-1.5">
-            <h3 className="font-semibold tracking-tight text-2xl text-center">
+            <Balancer
+              as="h3"
+              className="font-semibold tracking-tight text-2xl text-center"
+            >
               Welcome to ReadiumX
-            </h3>
-            <p className="text-sm text-muted-foreground text-center">
+            </Balancer>
+            <Balancer className="text-sm text-muted-foreground text-center">
               Create your account
-            </p>
+            </Balancer>
           </div>
           <div className="flex flex-col gap-4">
             <FormField

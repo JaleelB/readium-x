@@ -5,6 +5,7 @@ import { useSparkle } from "@/hooks/use-sparkle";
 import Link from "next/link";
 import { Icons } from "@/components/icons";
 import { cn } from "@/lib/utils";
+import Balancer from "react-wrap-balancer";
 
 export default function VerifySuccess() {
   const sparkleContainerRef = useSparkle<HTMLDivElement>({
@@ -26,13 +27,16 @@ export default function VerifySuccess() {
           </div>
         </Link>
         <div className="flex flex-col space-y-1.5 pb-6">
-          <h3 className="font-semibold tracking-tight text-2xl text-center">
+          <Balancer
+            as="h3"
+            className="font-semibold tracking-tight text-2xl text-center"
+          >
             Email Successfully Verified
-          </h3>
-          <p className="text-sm text-muted-foreground text-center">
+          </Balancer>
+          <Balancer className="text-sm text-muted-foreground text-center">
             Your email has been successfully verified. You can now sign in to
             your account.
-          </p>
+          </Balancer>
         </div>
         <Link
           href="/signin"
