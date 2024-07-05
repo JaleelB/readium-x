@@ -9,7 +9,7 @@ import { useSparkle } from "@/hooks/use-sparkle";
 export function SubmitButton({ isSubmitting }: { isSubmitting: boolean }) {
   const sparkleContainerRef = useSparkle<HTMLDivElement>({
     color: "#fff",
-    sparkleCount: 40,
+    sparkleCount: 20,
   });
 
   return (

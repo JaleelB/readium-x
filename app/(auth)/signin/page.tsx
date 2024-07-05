@@ -74,9 +74,9 @@ export default function SignInPage() {
       <Form {...form}>
         <form
           onSubmit={form.handleSubmit(onSubmit)}
-          className="rounded-lg border shadow-sm max-w-sm min-w-96 text-foreground px-6 py-6 space-y-6 z-20 bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60"
+          className="rounded-lg border shadow-sm w-full max-w-sm text-foreground px-6 py-6 space-y-6 z-20 bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60"
         >
-          <Link href="/">
+          <Link href="/" className="w-full flex justify-center items-center">
             <div
               role="img"
               className="w-12 h-12 bg-primary dark:bg-white rounded-full flex items-center justify-center"
@@ -85,10 +85,10 @@ export default function SignInPage() {
             </div>
           </Link>
           <div className="flex flex-col space-y-1.5">
-            <h3 className="font-semibold tracking-tight text-2xl">
+            <h3 className="font-semibold tracking-tight text-2xl text-center">
               Welcome back to ReadiumX
             </h3>
-            <p className="text-sm text-muted-foreground">
+            <p className="text-sm text-muted-foreground text-center">
               Sign in to your account
             </p>
           </div>
