@@ -24,6 +24,7 @@ import { Icons } from "@/components/icons";
 import { Separator } from "@radix-ui/react-dropdown-menu";
 import Link from "next/link";
 import { buttonVariants } from "@/components/ui/button";
+import { useSparkle } from "@/hooks/use-sparkle";
 
 const registrationSchema = z
   .object({
@@ -38,6 +39,12 @@ const registrationSchema = z
 
 export default function RegisterPage() {
   const { toast } = useToast();
+
+  const sparkleContainerRef = useSparkle<HTMLDivElement>({
+    color: "#fff",
+    sparkleCount: 100,
+    sparkleSize: 3,
+  });
 
   const { execute, isPending, error } = useServerAction(signUpAction, {
     onError({ err }) {
@@ -63,20 +70,21 @@ export default function RegisterPage() {
   }
 
   return (
-    <div className="w-full h-full min-h-screen flex flex-col items-center justify-center space-y-3 bg-background">
+    <div className="relative w-full h-full min-h-screen flex flex-col items-center justify-center space-y-3 bg-background dark">
+      <div ref={sparkleContainerRef} className="absolute w-full h-full" />
       <Form {...form}>
         <form
           onSubmit={form.handleSubmit(onSubmit)}
-          className="rounded-lg border shadow-sm max-w-sm min-w-96 bg-background text-foreground px-6 py-6 space-y-6"
+          className="rounded-lg border shadow-sm max-w-sm min-w-96 text-foreground px-6 py-6 space-y-6 z-20 bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60"
         >
-          <div>
+          <Link href="/">
             <div
               role="img"
               className="w-12 h-12 bg-primary dark:bg-white rounded-full flex items-center justify-center"
             >
               <Icons.logo className="text-white dark:text-background" />
             </div>
-          </div>
+          </Link>
           <div className="flex flex-col space-y-1.5">
             <h3 className="font-semibold tracking-tight text-2xl">
               Welcome to ReadiumX
