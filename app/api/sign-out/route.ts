@@ -7,7 +7,7 @@ export async function GET(): Promise<Response> {
 
   const { session } = await validateRequest();
   if (!session) {
-    redirect("/sign-in");
+    redirect("/signin");
   }
 
   await lucia.invalidateSession(session.id);
@@ -17,5 +17,5 @@ export async function GET(): Promise<Response> {
     sessionCookie.value,
     sessionCookie.attributes
   );
-  redirect("/sign-in");
+  redirect("/signin");
 }
