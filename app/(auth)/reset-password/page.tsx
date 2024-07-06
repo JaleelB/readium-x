@@ -17,7 +17,7 @@ import { cn } from "@/lib/utils";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import { Terminal } from "lucide-react";
 import Link from "next/link";
-import { Button } from "@/components/ui/button";
+import { Button, buttonVariants } from "@/components/ui/button";
 import { changePasswordAction } from "./actions";
 import { LoaderButton } from "@/components/loader-button";
 import { useServerAction } from "zsa-react";
@@ -82,9 +82,41 @@ export default function ResetPasswordPage({
             </AlertDescription>
           </Alert>
 
-          <Button variant="default" asChild className="w-full">
-            <Link href="/sign-in/email">Login with New Password</Link>
-          </Button>
+          <div className="rounded-lg border shadow-sm w-full max-w-sm text-foreground px-6 py-6 space-y-6 z-20 bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
+            <Link href="/" className="w-full flex justify-center items-center">
+              <div
+                role="img"
+                className="w-12 h-12 bg-primary dark:bg-white rounded-full flex items-center justify-center"
+              >
+                <Icons.logo className="text-white dark:text-background" />
+              </div>
+            </Link>
+            <div className="flex flex-col gap-2 items-center">
+              <Balancer
+                as="h3"
+                className="font-semibold tracking-tight text-2xl text-center"
+              >
+                All done!
+              </Balancer>
+              <Balancer
+                as="p"
+                className="text-sm text-muted-foreground text-center"
+              >
+                Your password has been successfully updated
+              </Balancer>
+              <Link
+                href="/signin"
+                className={cn(
+                  buttonVariants({
+                    variant: "default",
+                  }),
+                  "w-full max-w-[230px] mx-auto mt-4"
+                )}
+              >
+                Login with new password
+              </Link>
+            </div>
+          </div>
         </>
       )}
 
