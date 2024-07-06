@@ -125,7 +125,7 @@ export default function SignInPage() {
                     <FormLabel>Password</FormLabel>
                     <Link
                       className="text-xs text-right underline"
-                      href="/reset-password"
+                      href="/forgot-password"
                     >
                       Forgot password?
                     </Link>
