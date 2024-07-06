@@ -3,6 +3,7 @@ import UrlForm from "@/components/url-form";
 import { notFound, redirect } from "next/navigation";
 import { cookies } from "next/headers";
 import { ArticleWrapper } from "@/components/article-wrapper";
+import { getCurrentUser } from "@/lib/session";
 
 export default async function Page({
   params,
@@ -29,9 +30,16 @@ export default async function Page({
     notFound();
   }
 
+  let userSession = await getCurrentUser();
+  let user = true;
+
+  if (!userSession) {
+    user = false;
+  }
+
   return (
     <main className="container py-[22vh] pt-6 flex flex-col gap-12 items-center justify-center">
-      <UrlForm inputValue={url as string} />
+      <UrlForm inputValue={url as string} isUser={user} />
       <ArticleWrapper url={urlWithoutPaywall} />
     </main>
   );
