@@ -155,7 +155,10 @@ export default function RegisterPage() {
           </div>
 
           {error && (
-            <Alert variant="destructive">
+            <Alert
+              variant="destructive"
+              className="fixed top-0 right-0 sm:top-4 sm:right-8 w-full sm:w-fit"
+            >
               <Terminal className="h-4 w-4" />
               <AlertTitle>Uhoh, we couldn&apos;t log you in</AlertTitle>
               <AlertDescription>{error.message}</AlertDescription>
