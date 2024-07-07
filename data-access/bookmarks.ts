@@ -1,5 +1,5 @@
 import { ArticleDetails } from "@/app/article/actions/article";
-import { articleSchema } from "@/schemas/boomark";
+import { articleSchema } from "@/schemas/article";
 import { db } from "@/server/db/db";
 import { bookmarks } from "@/server/db/schema";
 import { eq } from "drizzle-orm";
@@ -42,9 +42,13 @@ export async function createBookark(
 }
 
 export async function getBookmarks(userId: number) {
-  const [userBookmarks] = await db.query.bookmarks.findMany({
-    where: eq(bookmarks.id, userId),
-  });
+  // const [userBookmarks] = await db.query.bookmarks.findMany({
+  //   where: eq(bookmarks.id, userId),
+  // });
+  const userBookmarks = await db
+    .select()
+    .from(bookmarks)
+    .where(eq(bookmarks.userId, userId));
 
   return userBookmarks;
 }

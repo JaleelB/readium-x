@@ -6,7 +6,7 @@ import {
   deleteBookmark,
   updateBookmark,
 } from "@/data-access/bookmarks";
-import { articleSchema } from "@/schemas/boomark";
+import { articleSchema } from "@/schemas/article";
 import { z } from "zod";
 
 export async function createBookmarkUseCase(
