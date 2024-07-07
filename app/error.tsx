@@ -46,7 +46,7 @@ export default function ErrorPage({
         {error.message}
       </Balancer>
       <Link
-        href="/signin"
+        href="/"
         className={cn(
           buttonVariants({
             variant: "default",

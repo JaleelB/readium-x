@@ -42,7 +42,7 @@ export default function NotFound() {
         The page you&apos;re searching for is not available.
       </Balancer>
       <Link
-        href="/signin"
+        href="/"
         className={cn(
           buttonVariants({
             variant: "default",
