@@ -36,17 +36,29 @@ async function SiteHeader() {
       </div>
 
       <div className={`flex h-full w-1/2 items-center justify-end gap-2`}>
-        <Link
-          href="/bookmarks"
-          className={cn(
-            buttonVariants({ variant: "outline", size: "sm" }),
-            "rounded-full h-9 dark:border-white/20"
-          )}
-        >
-          <span>Bookmarks</span>
-          <Icons.bookmark className="w-4 h-4 ml-2" />
-        </Link>
-
+        {user ? (
+          <Link
+            href="/bookmarks"
+            className={cn(
+              buttonVariants({ variant: "outline", size: "sm" }),
+              "rounded-full h-9 dark:border-white/20"
+            )}
+          >
+            <Icons.bookmark className="w-4 h-4 mr-2" />
+            <span>Bookmarks</span>
+          </Link>
+        ) : (
+          <Link
+            href="/signin"
+            className={cn(
+              buttonVariants({ variant: "outline", size: "sm" }),
+              "rounded-full h-9 dark:border-white/20"
+            )}
+          >
+            <Icons.user className="w-4 h-4 mr-2" />
+            <span>Sign in</span>
+          </Link>
+        )}
         <OptionsMenu user={user} />
       </div>
     </header>

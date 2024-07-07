@@ -11,8 +11,24 @@ import { Icons } from "./icons";
 import { ArticleViewer } from "./article-viewer";
 import DOMPurify from "dompurify";
 import Balancer from "react-wrap-balancer";
+import { createBookmarkAction } from "@/app/bookmarks/bookmark";
+import { generateRandomName } from "@/lib/names";
+import { useToast } from "./ui/use-toast";
+import { getCurrentUser } from "@/lib/session";
+import { getUser } from "@/data-access/users";
+import { redirect } from "next/navigation";
 
-export function Article({ content }: { content: ArticleDetails }) {
+export function Article({
+  content,
+  user,
+}: {
+  content: ArticleDetails;
+  user: {
+    email: string | null;
+    id: number;
+    emailVerified: Date | null;
+  };
+}) {
   const safeHTMLContent = DOMPurify.sanitize(content?.content || "", {
     USE_PROFILES: { html: true },
     ALLOWED_ATTR: [
@@ -45,6 +61,9 @@ export function Article({ content }: { content: ArticleDetails }) {
     ],
   });
 
+  const { toast } = useToast();
+  console.log("user in article", user);
+
   return (
     <article className="w-full">
       <section className="container px-0 md:px-8 flex flex-col items-center gap-12">
@@ -70,7 +89,7 @@ export function Article({ content }: { content: ArticleDetails }) {
                 <AvatarImage
                   src={
                     content?.authorInformation.authorImageURL ||
-                    "https://github.com/shadcn.png"
+                    "https://illustrations.popsy.co/white/genius.svg"
                   }
                 />
                 <AvatarFallback>CN</AvatarFallback>
@@ -96,9 +115,46 @@ export function Article({ content }: { content: ArticleDetails }) {
                 </div>
               </div>
             </div>
-            <Button variant="outline" className="rounded-full">
-              Bookmark
-              <Icons.bookmark className="ml-2 w-5 h-5" />
+            <Button
+              variant="outline"
+              size="icon"
+              className="rounded-full"
+              onClick={async () => {
+                const [data, err] = await createBookmarkAction({
+                  userId: user.id,
+                  title: content?.title || generateRandomName(),
+                  content: safeHTMLContent,
+                  articleImageSrc: content?.articleImageSrc || "",
+                  authorName: content?.authorInformation.authorName || "",
+                  authorImageURL:
+                    content?.authorInformation.authorImageURL || "",
+                  authorProfileURL:
+                    content?.authorInformation.authorProfileURL || "",
+                  publicationName:
+                    content?.publicationInformation.publicationName || "",
+                  readTime:
+                    content?.publicationInformation.readTime ||
+                    calculateReadTime(content?.content),
+                  publishDate:
+                    content?.publicationInformation.publishDate || "",
+                });
+
+                if (err) {
+                  toast({
+                    title: "Failed to bookmark article",
+                    description: "Please try again later",
+                    variant: "destructive",
+                  });
+                  return;
+                }
+
+                toast({
+                  title: "Article bookmarked",
+                  description: "You can view it in your bookmarks",
+                });
+              }}
+            >
+              <Icons.bookmark className={`w-5 h-5 `} />
             </Button>
           </div>
           <Balancer

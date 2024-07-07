@@ -11,7 +11,7 @@ import {
   HelpCircle,
   Image,
   Laptop,
-  Loader2,
+  Loader2Icon,
   LucideProps,
   Moon,
   MoreVertical,
@@ -41,7 +41,7 @@ export type Icon = typeof LucideIcon;
 export const Icons = {
   logo: SquareLibrary,
   close: X,
-  spinner: Loader2,
+  spinner: Loader2Icon,
   bookmark: Bookmark,
   chevronLeft: ChevronLeft,
   chevronRight: ChevronRight,

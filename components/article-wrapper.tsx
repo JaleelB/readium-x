@@ -8,6 +8,9 @@ import { Article } from "./article";
 import { unstable_cache } from "next/cache";
 import { ArticleSkeleton } from "./article-skeleton";
 import { ErrorCard } from "./error-card";
+import { getCurrentUser } from "@/lib/session";
+import { getUser } from "@/data-access/users";
+import { redirect } from "next/navigation";
 
 export const getCachedArticle = unstable_cache(
   async (url) => scrapeArticleContent(url),
@@ -21,7 +24,17 @@ async function ArticleLoader({ url }: { url: string }) {
     return <ErrorCard />;
   }
 
-  return <Article content={content} />;
+  const userSession = await getCurrentUser();
+  if (!userSession) {
+    redirect("/signin");
+  }
+
+  const user = await getUser(userSession.id);
+  if (!user) {
+    redirect("/signin");
+  }
+
+  return <Article content={content} user={user} />;
 }
 
 export async function ArticleWrapper({ url }: { url: string }) {
