@@ -72,5 +72,24 @@ export const sessions = sqliteTable("session", {
   expiresAt: integer("expires_at").notNull(),
 });
 
+// Article schemas
+export const bookmarks = sqliteTable("bookmark", {
+  id: integer("id", { mode: "number" }).primaryKey({ autoIncrement: true }),
+  userId: integer("user_id", { mode: "number" })
+    .references(() => users.id, { onDelete: "cascade" })
+    .notNull(),
+  title: text("title").notNull(),
+  content: text("content").notNull(),
+  articleImageSrc: text("article_image_src"),
+  authorName: text("author_name"),
+  authorImageURL: text("author_image_url"),
+  authorProfileURL: text("author_profile_url"),
+  publicationName: text("publication_name"),
+  readTime: text("read_time"),
+  publishDate: text("publish_date"),
+  createdAt: integer("created_at", { mode: "timestamp" }).notNull(),
+  updatedAt: integer("updated_at", { mode: "timestamp" }),
+});
+
 export type User = typeof users.$inferSelect;
 export type Profile = typeof profiles.$inferSelect;
