@@ -63,7 +63,7 @@ export async function deleteBookmark(bookmarkId: number) {
 
 export async function updateBookmark(
   bookmarkId: number,
-  articleDetails: ArticleDetails
+  articleDetails: z.infer<typeof articleSchema>
 ) {
   const [bookmark] = await db
     .update(bookmarks)

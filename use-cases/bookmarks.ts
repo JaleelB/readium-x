@@ -36,7 +36,7 @@ export async function deleteBookmarkUseCase(bookmarkId: number) {
 
 export async function updateBookmarkUseCase(
   bookmarkId: number,
-  articleDetails: ArticleDetails
+  articleDetails: z.infer<typeof articleSchema>
 ) {
   const bookmark = await updateBookmark(bookmarkId, articleDetails);
 
