@@ -1,14 +1,20 @@
 "use server";
 
-import { createBookark } from "@/data-access/bookmarks";
+import {
+  createBookark,
+  deleteBookmark,
+  getBookmarkById,
+} from "@/data-access/bookmarks";
 import { getUser } from "@/data-access/users";
 import { authenticatedAction } from "@/lib/safe-action";
+import { revalidatePath } from "next/cache";
 import { z } from "zod";
 
 export const createBookmarkAction = authenticatedAction
   .createServerAction()
   .input(
     z.object({
+      path: z.string(),
       userId: z.number(),
       title: z.string(),
       content: z.string(),
@@ -35,5 +41,18 @@ export const createBookmarkAction = authenticatedAction
         readTime: input.readTime,
         publishDate: input.publishDate,
       });
+
+      revalidatePath(input.path);
     }
+  });
+
+export const deleteBookmarkAction = authenticatedAction
+  .createServerAction()
+  .input(z.object({ id: z.number() }))
+  .handler(async ({ input }) => {
+    const bookmark = await getBookmarkById(input.id);
+    if (bookmark !== undefined) {
+      await deleteBookmark(bookmark.id);
+    }
+    revalidatePath("/bookmarks");
   });
