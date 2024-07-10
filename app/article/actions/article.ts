@@ -6,7 +6,6 @@ import { urlSchema } from "@/schemas/url";
 type ArticleURL = typeof urlSchema;
 export type ArticleDetails = {
   title: string;
-  // content: string[];
   content: string;
   articleImageSrc: string | null;
   authorInformation: {

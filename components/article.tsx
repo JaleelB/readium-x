@@ -14,9 +14,7 @@ import Balancer from "react-wrap-balancer";
 import { createBookmarkAction } from "@/app/bookmarks/bookmark";
 import { generateRandomName } from "@/lib/names";
 import { useToast } from "./ui/use-toast";
-import { getCurrentUser } from "@/lib/session";
-import { getUser } from "@/data-access/users";
-import { redirect } from "next/navigation";
+import { usePathname } from "next/navigation";
 
 export function Article({
   content,
@@ -62,7 +60,7 @@ export function Article({
   });
 
   const { toast } = useToast();
-  console.log("user in article", user);
+  const pathname = usePathname();
 
   return (
     <article className="w-full">
@@ -121,6 +119,7 @@ export function Article({
               className="rounded-full"
               onClick={async () => {
                 const [data, err] = await createBookmarkAction({
+                  path: pathname,
                   userId: user.id,
                   title: content?.title || generateRandomName(),
                   content: safeHTMLContent,
@@ -154,7 +153,7 @@ export function Article({
                 });
               }}
             >
-              <Icons.bookmark className={`w-5 h-5 `} />
+              <Icons.bookmark className={`w-5 h-5 `} onLoad={async () => {}} />
             </Button>
           </div>
           <Balancer

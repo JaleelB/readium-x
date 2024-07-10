@@ -70,6 +70,7 @@ export const Icons = {
   theme: SwatchBook,
   system: LaptopMinimal,
   menu: AlignJustify,
+  plus: Plus,
   zoomIn: Plus,
   zoomOut: Minus,
   github: ({ ...props }: LucideProps) => (

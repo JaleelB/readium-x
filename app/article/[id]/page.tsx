@@ -30,11 +30,12 @@ export default async function Page({
     notFound();
   }
 
-  let userSession = await getCurrentUser();
+  const userSession = await getCurrentUser();
   let user = true;
 
   if (!userSession) {
     user = false;
+    redirect("/signin");
   }
 
   return (

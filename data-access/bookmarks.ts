@@ -13,7 +13,7 @@ export async function createBookark(
     where:
       eq(bookmarks.userId, userId) &&
       eq(bookmarks.title, articleDetails.title) &&
-      eq(bookmarks.publishDate, articleDetails.publishDate),
+      eq(bookmarks.publishDate, articleDetails.publishDate ?? ""),
   });
 
   if (existingBookmark) {
