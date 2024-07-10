@@ -11,3 +11,15 @@ export const articleSchema = z.object({
   readTime: z.string().nullable(),
   publishDate: z.string().nullable(),
 });
+
+export const readingHistorySchema = z.object({
+  title: z.string(),
+  authorName: z.string(),
+  articleUrl: z.string().url(),
+  authorImageURL: z.string().url(),
+  authorProfileURL: z.string().url(),
+  readTime: z.string(),
+  accessTime: z.date(),
+  progress: z.string().optional(),
+  sessionDuration: z.number().optional(),
+});

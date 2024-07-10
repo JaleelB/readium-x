@@ -1,4 +1,3 @@
-import { ArticleDetails } from "@/app/article/actions/article";
 import {
   createBookark,
   getBookmarks,
