@@ -1,6 +1,6 @@
 "use client";
 
-import { set, z } from "zod";
+import { z } from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
 
@@ -96,12 +96,7 @@ export default function UrlForm({
                         {...field}
                       />
                     </FormControl>
-                    <SubmitButton
-                      isSubmitting={isSubmitting}
-                      // onClick={() => {
-                      //   setOpenActionModal(!openActionModal);
-                      // }}
-                    />
+                    <SubmitButton isSubmitting={isSubmitting} />
                   </div>
                 </FormItem>
                 <FormMessage className="mt-4 text-center" />

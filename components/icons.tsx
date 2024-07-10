@@ -33,6 +33,7 @@ import {
   AlignJustify,
   ChevronDown,
   Minus,
+  History,
   type Icon as LucideIcon,
 } from "lucide-react";
 
@@ -73,6 +74,7 @@ export const Icons = {
   plus: Plus,
   zoomIn: Plus,
   zoomOut: Minus,
+  history: History,
   github: ({ ...props }: LucideProps) => (
     <svg
       aria-hidden="true"
