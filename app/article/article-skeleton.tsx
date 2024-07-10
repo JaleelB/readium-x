@@ -1,5 +1,5 @@
-import { AspectRatio } from "./ui/aspect-ratio";
-import { Avatar } from "./ui/avatar";
+import { AspectRatio } from "@/components/ui/aspect-ratio";
+import { Avatar } from "@/components/ui/avatar";
 
 export function ArticleSkeleton() {
   return (

@@ -2,8 +2,8 @@ import { getUrlWithoutPaywall } from "@/app/article/actions/url";
 import UrlForm from "@/components/url-form";
 import { notFound, redirect } from "next/navigation";
 import { cookies } from "next/headers";
-import { ArticleWrapper } from "@/components/article-wrapper";
 import { getCurrentUser } from "@/lib/session";
+import { ArticleWrapper } from "../article-wrapper";
 
 export default async function Page({
   params,
