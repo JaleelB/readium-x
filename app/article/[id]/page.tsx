@@ -25,10 +25,10 @@ export default async function Page({
     redirect("/");
   }
 
-  const urlWithoutPaywall = await getUrlWithoutPaywall(url);
-  if (urlWithoutPaywall instanceof Error) {
-    notFound();
-  }
+  // const urlWithoutPaywall = await getUrlWithoutPaywall(url);
+  // if (urlWithoutPaywall instanceof Error) {
+  //   notFound();
+  // }
 
   const userSession = await getCurrentUser();
   let user = true;
@@ -41,7 +41,10 @@ export default async function Page({
   return (
     <main className="container py-[22vh] pt-6 flex flex-col gap-12 items-center justify-center">
       <UrlForm inputValue={url as string} isUser={user} />
-      <ArticleWrapper url={urlWithoutPaywall} />
+      <ArticleWrapper
+        // url={urlWithoutPaywall}
+        url={url}
+      />
     </main>
   );
 }

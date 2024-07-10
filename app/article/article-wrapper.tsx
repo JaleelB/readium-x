@@ -10,17 +10,24 @@ import { ArticleSkeleton } from "./article-skeleton";
 import { ErrorCard } from "../../components/error-card";
 import { getCurrentUser } from "@/lib/session";
 import { getUser } from "@/data-access/users";
-import { redirect } from "next/navigation";
+import { notFound, redirect } from "next/navigation";
 import { createReadingHistoryLogAction } from "../history/history";
 import { calculateReadTime } from "@/lib/utils";
+import { getUrlWithoutPaywall } from "./actions/url";
 
 export const getCachedArticle = unstable_cache(
   async (url) => scrapeArticleContent(url),
   ["url"]
 );
 
-async function ArticleLoader({ url }: { url: string }) {
-  const content = await getCachedArticle(url);
+async function ArticleLoader({
+  url,
+  urlWithoutPaywall,
+}: {
+  url: string;
+  urlWithoutPaywall: string;
+}) {
+  const content = await getCachedArticle(urlWithoutPaywall);
   // const content = await scrapeArticleContent(url);
   if (!content) {
     return <ErrorCard />;
@@ -65,6 +72,11 @@ async function ArticleLoader({ url }: { url: string }) {
 export async function ArticleWrapper({ url }: { url: string }) {
   let article: ArticleDetails | null = null;
 
+  const urlWithoutPaywall = await getUrlWithoutPaywall(url);
+  if (urlWithoutPaywall instanceof Error) {
+    notFound();
+  }
+
   // if browser is requesting html it means it's the first page load
   if (headers().get("accept")?.includes("text/html")) {
     article = await getCachedArticle(url);
@@ -73,7 +85,7 @@ export async function ArticleWrapper({ url }: { url: string }) {
 
   return (
     <SuspenseIf condition={!article} fallback={<ArticleSkeleton />}>
-      <ArticleLoader url={url} />
+      <ArticleLoader url={url} urlWithoutPaywall={urlWithoutPaywall} />
     </SuspenseIf>
   );
 }
