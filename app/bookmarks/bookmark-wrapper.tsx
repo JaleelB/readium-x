@@ -37,19 +37,13 @@ async function BookmarkLoader({ user }: { user: ExisitingUser }) {
             width={300}
             height={200}
           />
-          <form
-            className="flex flex-col items-center space-y-2"
-            onSubmit={(e) => {
-              e.preventDefault();
-              window.location.reload();
-            }}
-          >
+          <div className="flex flex-col justify-center items-center space-y-2">
             <h3 className="font-heading text-xl">No bookmarked articles</h3>
             <p className="text-muted-foreground text-base max-w-md text-center pb-2">
               You haven&apos;t bookmarked any articles yet. Click the button
               below to start bookmarking.
             </p>
-          </form>
+          </div>
         </Card>
       </div>
     );
