@@ -91,7 +91,7 @@ export function ArticleViewer({ content }: { content: string }) {
     },
   });
 
-  const { zoom, zoomIn, zoomOut } = useZoom();
+  const { zoom, zoomIn, zoomOut, resetZoom } = useZoom();
 
   return (
     <div className="prose dark:prose-dark">
@@ -99,7 +99,12 @@ export function ArticleViewer({ content }: { content: string }) {
         editor={editor}
         style={{ zoom: zoom, transition: "zoom 0.2s" }}
       />
-      <MagnificationController zoom={zoom} zoomIn={zoomIn} zoomOut={zoomOut} />
+      <MagnificationController
+        zoom={zoom}
+        zoomIn={zoomIn}
+        zoomOut={zoomOut}
+        resetZoom={resetZoom}
+      />
     </div>
   );
 }

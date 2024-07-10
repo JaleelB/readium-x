@@ -5,10 +5,12 @@ export function MagnificationController({
   zoom,
   zoomIn,
   zoomOut,
+  resetZoom,
 }: {
   zoom: number;
   zoomIn: () => void;
   zoomOut: () => void;
+  resetZoom: () => void;
 }) {
   return (
     <div className="fixed left-6 bottom-6 bg-background shadow-sm flex gap-2 items-center justify-between h-12 border rounded-md">
@@ -32,6 +34,15 @@ export function MagnificationController({
       >
         <Icons.zoomIn className="w-5 h-5" />
         <span className="sr-only">Zoom in</span>
+      </Button>
+      <Button
+        onClick={resetZoom}
+        variant="ghost"
+        size="icon"
+        className="text-xl hover:bg-transparent h-full"
+      >
+        <Icons.retry className="w-5 h-5" />
+        <span className="sr-only">Reset zoom</span>
       </Button>
     </div>
   );
