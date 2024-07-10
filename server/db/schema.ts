@@ -91,5 +91,22 @@ export const bookmarks = sqliteTable("bookmark", {
   updatedAt: integer("updated_at", { mode: "timestamp" }),
 });
 
+export const readingHistory = sqliteTable("reading_history", {
+  id: integer("id", { mode: "number" }).primaryKey({ autoIncrement: true }),
+  userId: integer("user_id", { mode: "number" })
+    .references(() => users.id, { onDelete: "cascade" })
+    .notNull(),
+  authorName: text("author_name").notNull(),
+  articleUrl: text("article_url").notNull(),
+  articleTitle: text("article_title").notNull(),
+  authorImageURL: text("author_image_url"),
+  authorProfileURL: text("author_profile_url"),
+  readTime: text("read_time").notNull(),
+  accessTime: integer("access_time", { mode: "timestamp" }).notNull(), // When the article was accessed
+  progress: text("progress"),
+  createdAt: integer("created_at", { mode: "timestamp" }).notNull(),
+  updatedAt: integer("updated_at", { mode: "timestamp" }),
+});
+
 export type User = typeof users.$inferSelect;
 export type Profile = typeof profiles.$inferSelect;
