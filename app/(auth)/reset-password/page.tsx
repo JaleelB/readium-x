@@ -17,13 +17,13 @@ import { cn } from "@/lib/utils";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import { Terminal } from "lucide-react";
 import Link from "next/link";
-import { Button, buttonVariants } from "@/components/ui/button";
+import { buttonVariants } from "@/components/ui/button";
 import { changePasswordAction } from "./actions";
 import { LoaderButton } from "@/components/loader-button";
 import { useServerAction } from "zsa-react";
-import { useSparkle } from "@/hooks/use-sparkle";
 import { Icons } from "@/components/icons";
 import Balancer from "react-wrap-balancer";
+import { SparkleBg } from "@/components/sparkle-bg";
 
 const registrationSchema = z
   .object({
@@ -41,12 +41,6 @@ export default function ResetPasswordPage({
 }: {
   searchParams: { token: string };
 }) {
-  const sparkleContainerRef = useSparkle<HTMLDivElement>({
-    color: "#fff",
-    sparkleCount: 100,
-    sparkleSize: 3,
-  });
-
   const form = useForm<z.infer<typeof registrationSchema>>({
     resolver: zodResolver(registrationSchema),
     defaultValues: {
@@ -68,7 +62,7 @@ export default function ResetPasswordPage({
 
   return (
     <div className="relative w-full h-full flex flex-col flex-1 items-center justify-center bg-background dark space-y-6">
-      <div ref={sparkleContainerRef} className="absolute w-full h-full" />
+      <SparkleBg sparkleCount={100} />
       {isSuccess && (
         <>
           <Alert

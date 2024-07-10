@@ -26,6 +26,7 @@ import { Icons } from "@/components/icons";
 import { Separator } from "@/components/ui/separator";
 import { useSparkle } from "@/hooks/use-sparkle";
 import Balancer from "react-wrap-balancer";
+import { SparkleBg } from "@/components/sparkle-bg";
 
 const registrationSchema = z.object({
   email: z.string().email(),
@@ -34,12 +35,6 @@ const registrationSchema = z.object({
 
 export default function SignInPage() {
   const { toast } = useToast();
-
-  const sparkleContainerRef = useSparkle<HTMLDivElement>({
-    color: "#fff",
-    sparkleCount: 100,
-    sparkleSize: 3,
-  });
 
   const { execute, isPending, error, reset } = useServerAction(signInAction, {
     onError({ err }) {
@@ -71,7 +66,7 @@ export default function SignInPage() {
 
   return (
     <div className="relative w-full h-full flex flex-col flex-1 items-center justify-center space-y-3 bg-background dark">
-      <div ref={sparkleContainerRef} className="absolute w-full h-full" />
+      <SparkleBg sparkleCount={100} />
       <Form {...form}>
         <form
           onSubmit={form.handleSubmit(onSubmit)}

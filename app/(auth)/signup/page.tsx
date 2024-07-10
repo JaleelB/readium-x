@@ -24,8 +24,8 @@ import { Icons } from "@/components/icons";
 import { Separator } from "@radix-ui/react-dropdown-menu";
 import Link from "next/link";
 import { buttonVariants } from "@/components/ui/button";
-import { useSparkle } from "@/hooks/use-sparkle";
 import Balancer from "react-wrap-balancer";
+import { SparkleBg } from "@/components/sparkle-bg";
 
 const registrationSchema = z
   .object({
@@ -40,12 +40,6 @@ const registrationSchema = z
 
 export default function RegisterPage() {
   const { toast } = useToast();
-
-  const sparkleContainerRef = useSparkle<HTMLDivElement>({
-    color: "#fff",
-    sparkleCount: 100,
-    sparkleSize: 3,
-  });
 
   const { execute, isPending, error } = useServerAction(signUpAction, {
     onError({ err }) {
@@ -72,7 +66,7 @@ export default function RegisterPage() {
 
   return (
     <div className="relative w-full h-full min-h-screen flex flex-col items-center justify-center space-y-3 bg-background dark">
-      <div ref={sparkleContainerRef} className="absolute w-full h-full" />
+      <SparkleBg sparkleCount={100} />
       <Form {...form}>
         <form
           onSubmit={form.handleSubmit(onSubmit)}

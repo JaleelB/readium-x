@@ -19,10 +19,10 @@ import { useServerAction } from "zsa-react";
 import { LoaderButton } from "@/components/loader-button";
 import { useToast } from "@/components/ui/use-toast";
 import { resetPasswordAction } from "./actions";
-import { useSparkle } from "@/hooks/use-sparkle";
 import Balancer from "react-wrap-balancer";
 import Link from "next/link";
 import { Icons } from "@/components/icons";
+import { SparkleBg } from "@/components/sparkle-bg";
 
 const registrationSchema = z.object({
   email: z.string().email(),
@@ -44,12 +44,6 @@ export default function ForgotPasswordPage() {
     }
   );
 
-  const sparkleContainerRef = useSparkle<HTMLDivElement>({
-    color: "#fff",
-    sparkleCount: 100,
-    sparkleSize: 3,
-  });
-
   const form = useForm<z.infer<typeof registrationSchema>>({
     resolver: zodResolver(registrationSchema),
     defaultValues: {
@@ -63,7 +57,7 @@ export default function ForgotPasswordPage() {
 
   return (
     <div className="relative w-full h-full flex flex-col flex-1 items-center justify-center bg-background dark space-y-6">
-      <div ref={sparkleContainerRef} className="absolute w-full h-full" />
+      <SparkleBg sparkleCount={100} />
       {isSuccess && (
         <Alert
           variant="default"

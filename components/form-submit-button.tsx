@@ -1,17 +1,11 @@
 "use client";
 
-import React, { useEffect, useRef } from "react";
 import { Button } from "./ui/button";
 import { Icons } from "./icons";
 import { cn } from "@/lib/utils";
-import { useSparkle } from "@/hooks/use-sparkle";
+import { SparkleBg } from "./sparkle-bg";
 
 export function SubmitButton({ isSubmitting }: { isSubmitting: boolean }) {
-  const sparkleContainerRef = useSparkle<HTMLDivElement>({
-    color: "#fff",
-    sparkleCount: 20,
-  });
-
   return (
     <Button
       type="submit"
@@ -28,7 +22,7 @@ export function SubmitButton({ isSubmitting }: { isSubmitting: boolean }) {
         )}
         <span className="mx-4 sm:mr-4 sm:ml-0">Generate</span>
       </div>
-      <div ref={sparkleContainerRef} className="absolute w-full h-full" />
+      <SparkleBg />
     </Button>
   );
 }

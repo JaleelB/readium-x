@@ -1,22 +1,16 @@
 "use client";
 
-import { Button, buttonVariants } from "@/components/ui/button";
-import { useSparkle } from "@/hooks/use-sparkle";
+import { buttonVariants } from "@/components/ui/button";
 import Link from "next/link";
 import { Icons } from "@/components/icons";
 import { cn } from "@/lib/utils";
 import Balancer from "react-wrap-balancer";
+import { SparkleBg } from "@/components/sparkle-bg";
 
 export default function VerifySuccess() {
-  const sparkleContainerRef = useSparkle<HTMLDivElement>({
-    color: "#fff",
-    sparkleCount: 100,
-    sparkleSize: 3,
-  });
-
   return (
     <main className="dark relative w-full h-full flex flex-col flex-1 items-center justify-center space-y-3 bg-background">
-      <div ref={sparkleContainerRef} className="absolute w-full h-full" />
+      <SparkleBg sparkleCount={100} />
       <div className="rounded-lg border shadow-sm w-full max-w-sm text-foreground p-6 space-y-6 z-20 bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
         <Link href="/" className="w-full flex justify-center items-center">
           <div

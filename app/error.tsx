@@ -1,23 +1,18 @@
 "use client";
 
-import { useSparkle } from "@/hooks/use-sparkle";
 import Balancer from "react-wrap-balancer";
 import { cn } from "@/lib/utils";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 import { buttonVariants } from "@/components/ui/button";
+import { SparkleBg } from "@/components/sparkle-bg";
 
 export default function ErrorPage({
   error,
 }: {
   error: Error & { digest?: string };
 }) {
-  const sparkleContainerRef = useSparkle<HTMLDivElement>({
-    color: "#fff",
-    sparkleCount: 100,
-    sparkleSize: 3,
-  });
   const [countdown, setCountdown] = useState(15);
   const router = useRouter();
 
@@ -35,7 +30,7 @@ export default function ErrorPage({
 
   return (
     <div className="relative w-full h-full flex flex-col flex-1 items-center justify-center bg-background dark space-y-6">
-      <div ref={sparkleContainerRef} className="absolute w-full h-full" />
+      <SparkleBg sparkleCount={100} />
       <Balancer
         as="h1"
         className="px-6 text-white text-center font-sans text-4xl font-bold tracking-tight drop-shadow-sm sm:text-5xl lg:font-heading lg:text-6xl xl:text-7xl lg:tracking-normal"
