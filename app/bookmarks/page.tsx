@@ -1,29 +1,9 @@
-import { Icons } from "@/components/icons";
 import { getUser } from "@/data-access/users";
 import { getCurrentUser } from "@/lib/session";
 import { redirect } from "next/navigation";
 import { BookmarkWrapper } from "./bookmark-wrapper";
 import Balancer from "react-wrap-balancer";
 import { BookmarkButton } from "./bookmark-button";
-import { SparkleBg } from "@/components/sparkle-bg";
-
-export async function BookmarkSkeleton() {
-  return (
-    <>
-      <div className="w-full grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
-        <div className="w-full h-[200px] bg-muted animate-pulse rounded-lg"></div>
-        <div className="w-full h-[200px] bg-muted animate-pulse rounded-lg"></div>
-        <div className="w-full h-[200px] bg-muted animate-pulse rounded-lg"></div>
-      </div>
-      <div className="fixed bottom-8 left-1/2 -translate-x-1/2">
-        <div className="bg-muted animate-pulse rounded-full inline-flex items-center h-12">
-          <span className="mr-1 text-muted">New</span>
-          <Icons.plus className="text-muted w-5 h-5" />
-        </div>
-      </div>
-    </>
-  );
-}
 
 export default async function BookmarkPage() {
   const userSession = await getCurrentUser();
@@ -40,7 +20,7 @@ export default async function BookmarkPage() {
     <div className="relative container px-4 sm:px-8 flex h-[calc(100vh-60px)] bg-background py-10">
       <svg
         aria-hidden="true"
-        className="pointer-events-none absolute inset-0 w-full fill-gray-400/30 stroke-gray-400/30 [mask-image:radial-gradient(500px_circle_at_center,white,transparent)] inset-x-0 inset-y-[0%] h-[90%] skew-y-12"
+        className="pointer-events-none absolute inset-0 w-full fill-gray-400/30 stroke-gray-400/30 [mask-image:radial-gradient(700px_circle_at_center,white,transparent)] inset-x-0 inset-y-[0%] h-[90%] skew-y-12"
       >
         <defs>
           <pattern

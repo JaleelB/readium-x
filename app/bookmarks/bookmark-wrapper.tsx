@@ -3,11 +3,11 @@ import { z } from "zod";
 import { headers } from "next/headers";
 import { getBookmarksUseCase } from "@/use-cases/bookmarks";
 import { SuspenseIf } from "@/components/suspense-if";
-import { BookmarkSkeleton } from "./page";
 import { Card } from "@/components/ui/card";
 import BookmarksList from "./bookmark-list";
 import Image from "next/image";
 import { cn } from "@/lib/utils";
+import { Icons } from "@/components/icons";
 
 export type Bookmark = {
   id: number;
@@ -18,6 +18,24 @@ export type ExisitingUser = {
   id: number;
   emailVerified: Date | null;
 };
+
+function BookmarkSkeleton() {
+  return (
+    <>
+      <div className="w-full grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
+        <div className="w-full h-[200px] bg-muted animate-pulse rounded-lg"></div>
+        <div className="w-full h-[200px] bg-muted animate-pulse rounded-lg"></div>
+        <div className="w-full h-[200px] bg-muted animate-pulse rounded-lg"></div>
+      </div>
+      <div className="fixed bottom-8 left-1/2 -translate-x-1/2">
+        <div className="bg-muted animate-pulse rounded-full inline-flex items-center h-12">
+          <span className="mr-1 text-muted">New</span>
+          <Icons.plus className="text-muted w-5 h-5" />
+        </div>
+      </div>
+    </>
+  );
+}
 
 async function BookmarkLoader({ user }: { user: ExisitingUser }) {
   const bookmarks = await getBookmarksUseCase(user.id);
