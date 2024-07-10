@@ -26,7 +26,7 @@ export default function NotFound() {
 
   return (
     <div className="relative w-full h-full flex flex-col flex-1 items-center justify-center bg-background dark space-y-6">
-      <SparkleBg sparkleCount={100} />
+      <SparkleBg sparkleCount={300} sparkleSize={2} />
       <Balancer
         as="h1"
         className="px-6 text-white text-center font-sans text-4xl font-bold tracking-tight drop-shadow-sm sm:text-5xl lg:font-heading lg:text-6xl xl:text-7xl lg:tracking-normal"

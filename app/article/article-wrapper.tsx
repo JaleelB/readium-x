@@ -3,11 +3,11 @@ import {
   scrapeArticleContent,
 } from "@/app/article/actions/article";
 import { headers } from "next/headers";
-import { SuspenseIf } from "./suspense-if";
-import { Article } from "./article";
+import { SuspenseIf } from "../../components/suspense-if";
+import { Article } from "../../components/article";
 import { unstable_cache } from "next/cache";
 import { ArticleSkeleton } from "./article-skeleton";
-import { ErrorCard } from "./error-card";
+import { ErrorCard } from "../../components/error-card";
 import { getCurrentUser } from "@/lib/session";
 import { getUser } from "@/data-access/users";
 import { redirect } from "next/navigation";

@@ -57,7 +57,7 @@ export default function ForgotPasswordPage() {
 
   return (
     <div className="relative w-full h-full flex flex-col flex-1 items-center justify-center bg-background dark space-y-6">
-      <SparkleBg sparkleCount={100} />
+      <SparkleBg sparkleCount={300} sparkleSize={2} />
       {isSuccess && (
         <Alert
           variant="default"

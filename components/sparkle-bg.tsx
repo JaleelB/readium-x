@@ -2,10 +2,19 @@
 
 import { useSparkle } from "@/hooks/use-sparkle";
 
-export function SparkleBg({ sparkleCount = 20 }: { sparkleCount?: number }) {
+export function SparkleBg({
+  sparkleCount,
+  color,
+  sparkleSize,
+}: {
+  sparkleCount?: number;
+  color?: string;
+  sparkleSize?: number;
+}) {
   const sparkleContainerRef = useSparkle<HTMLDivElement>({
-    color: "#fff",
-    sparkleCount: sparkleCount,
+    color: color || "#ffffffb3",
+    sparkleCount: sparkleCount || 40,
+    sparkleSize: sparkleSize || 1.5,
   });
 
   return <div ref={sparkleContainerRef} className="absolute w-full h-full" />;

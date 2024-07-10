@@ -66,7 +66,7 @@ export default function RegisterPage() {
 
   return (
     <div className="relative w-full h-full min-h-screen flex flex-col items-center justify-center space-y-3 bg-background dark">
-      <SparkleBg sparkleCount={100} />
+      <SparkleBg sparkleCount={300} sparkleSize={3} />
       <Form {...form}>
         <form
           onSubmit={form.handleSubmit(onSubmit)}

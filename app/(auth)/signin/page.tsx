@@ -66,7 +66,7 @@ export default function SignInPage() {
 
   return (
     <div className="relative w-full h-full flex flex-col flex-1 items-center justify-center space-y-3 bg-background dark">
-      <SparkleBg sparkleCount={100} />
+      <SparkleBg sparkleCount={300} sparkleSize={2} />
       <Form {...form}>
         <form
           onSubmit={form.handleSubmit(onSubmit)}

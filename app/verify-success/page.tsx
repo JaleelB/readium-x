@@ -10,7 +10,7 @@ import { SparkleBg } from "@/components/sparkle-bg";
 export default function VerifySuccess() {
   return (
     <main className="dark relative w-full h-full flex flex-col flex-1 items-center justify-center space-y-3 bg-background">
-      <SparkleBg sparkleCount={100} />
+      <SparkleBg sparkleCount={300} sparkleSize={2} />
       <div className="rounded-lg border shadow-sm w-full max-w-sm text-foreground p-6 space-y-6 z-20 bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
         <Link href="/" className="w-full flex justify-center items-center">
           <div

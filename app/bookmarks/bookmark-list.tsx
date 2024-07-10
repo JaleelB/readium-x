@@ -45,6 +45,27 @@ function extractFirstSentence(htmlContent: string): string {
   return matches ? matches[0].trim() : "No complete sentence found.";
 }
 
+{
+  /* <figure class="relative mx-auto min-h-fit w-full max-w-[400px] cursor-pointer overflow-hidden rounded-2xl p-4 transition-all duration-200 ease-in-out hover:scale-[103%] bg-white [box-shadow:0_0_0_1px_rgba(0,0,0,.03),0_2px_4px_rgba(0,0,0,.05),0_12px_24px_rgba(0,0,0,.05)] transform-gpu dark:bg-transparent dark:backdrop-blur-md dark:[border:1px_solid_rgba(255,255,255,.1)] dark:[box-shadow:0_-20px_80px_-20px_#ffffff1f_inset]">
+  <div class="flex flex-row items-center gap-3">
+    <div
+      class="flex size-10 items-center justify-center rounded-2xl"
+      style="background-color: rgb(255, 61, 113);"
+    >
+      <span class="text-lg">💬</span>
+    </div>
+    <div class="flex flex-col overflow-hidden">
+      <figcaption class="flex flex-row items-center whitespace-pre text-lg font-medium dark:text-white ">
+        <span class="text-sm sm:text-lg">New message</span>
+        <span class="mx-1">·</span>
+        <span class="text-xs text-gray-500">5m ago</span>
+      </figcaption>
+      <p class="text-sm font-normal dark:text-white/60">Magic UI</p>
+    </div>
+  </div>
+</figure>; */
+}
+
 export default function BookmarksList({
   bookmarks,
 }: {
@@ -52,11 +73,16 @@ export default function BookmarksList({
 }) {
   const { toast } = useToast();
   return (
-    <div className="w-full grid grid-cols-1 gap-4 sm:grid-cols-2 xl:grid-cols-3 overflow-y-auto">
+    <div className="w-full grid grid-cols-1 gap-4 sm:grid-cols-2 xl:grid-cols-3 ">
       {bookmarks.map((bookmark) => (
+        // border-gray-950/[.1] bg-gray-950/[.01] hover:bg-gray-950/[.05] dark:border-gray-50/[.1] dark:bg-gray-50/[.10] dark:hover:bg-gray-50/[.15]
         <Card
           key={bookmark.id}
-          className="flex flex-col gap-2 w-full border rounded-md p-2 shadow-sm transition-shadow"
+          className={cn(
+            `flex flex-col gap-2 w-full shadow-sm relative cursor-pointer rounded-xl border p-2 
+            transition-all duration-200 ease-in-out hover:scale-[103%] bg-white [box-shadow:0_0_0_1px_rgba(0,0,0,.03),0_2px_4px_rgba(0,0,0,.05),0_12px_24px_rgba(0,0,0,.05)] transform-gpu dark:bg-transparent dark:backdrop-blur-md dark:[border:1px_solid_rgba(255,255,255,.1)] dark:[box-shadow:0_-20px_80px_-20px_#ffffff1f_inset]
+            `
+          )}
         >
           <CardContent className="p-2">
             <div className="w-full flex justify-between">
