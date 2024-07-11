@@ -315,7 +315,7 @@ export default async function HistoryPage() {
           ></rect>
         </svg>
       </svg>
-      <div className="text-card-foreground flex flex-col border-0 lg:border relative w-full max-w-none min-h-[90%] lg:min-h-[34rem] lg:max-w-3xl rounded-none lg:rounded-xl mx-auto bg-background md:shadow-xl backdrop-blur-lg shadow-2xl">
+      <div className="text-card-foreground flex flex-col border-0 lg:border relative w-full max-w-none min-h-[450px] lg:min-h-[34rem] lg:max-w-3xl rounded-none lg:rounded-xl mx-auto bg-background md:shadow-xl backdrop-blur-lg shadow-2xl">
         <div className="flex-1 flex flex-col p-0">
           <div
             data-expanded="true"
@@ -365,62 +365,6 @@ export default async function HistoryPage() {
             </div>
           </div>
           <HistoryWrapper user={user} />
-          <div className="flex items-center p-3 gap-2 border-t border-light">
-            <p className="text-xs text-light font-normal px-2 uppercase">
-              Page 1
-            </p>
-            <div className="flex-1"></div>
-            <Button
-              variant="outline"
-              className={cn(
-                "relative inline-flex items-center justify-center whitespace-nowrap font-medium transition-all duration-200 ring-0 ring-transparent focus-visible:outline-none focus-visible:ring-1 focus-visible:ringRing disabled:pointer-events-none disabled:opacity-50 border border-light text-dark shadow-xs disabled:text-light h-8 px-3.5 rounded-full text-xs hover:ring gap-1 pl-2.5"
-              )}
-            >
-              <svg
-                stroke="currentColor"
-                fill="currentColor"
-                strokeWidth="0"
-                viewBox="0 0 512 512"
-                height="1em"
-                width="1em"
-                xmlns="http://www.w3.org/2000/svg"
-              >
-                <path
-                  fill="none"
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  strokeWidth="48"
-                  d="M244 400L100 256l144-144M120 256h292"
-                ></path>
-              </svg>
-              <span>Previous</span>
-            </Button>
-            <Button
-              variant="outline"
-              className={cn(
-                "relative inline-flex items-center justify-center whitespace-nowrap font-medium transition-all duration-200 ring-0 ring-transparent focus-visible:outline-none focus-visible:ring-1 focus-visible:ringRing disabled:pointer-events-none disabled:opacity-50 bg-background/20 border border-light text-dark shadow-xs disabled:text-light h-8 px-3.5 rounded-full text-xs hover:ring gap-1 pr-2.5"
-              )}
-            >
-              <span>Next</span>
-              <svg
-                stroke="currentColor"
-                fill="currentColor"
-                strokeWidth="0"
-                viewBox="0 0 512 512"
-                height="1em"
-                width="1em"
-                xmlns="http://www.w3.org/2000/svg"
-              >
-                <path
-                  fill="none"
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  strokeWidth="48"
-                  d="M268 112l144 144-144 144m124-144H100"
-                ></path>
-              </svg>
-            </Button>
-          </div>
         </div>
       </div>
     </div>
