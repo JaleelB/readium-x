@@ -1,15 +1,15 @@
 import { getUser } from "@/data-access/users";
 import { getCurrentUser } from "@/lib/session";
 import { redirect } from "next/navigation";
-import Balancer from "react-wrap-balancer";
-import { Button } from "@/components/ui/button";
-import {
-  Tooltip,
-  TooltipContent,
-  TooltipProvider,
-  TooltipTrigger,
-} from "@/components/ui/tooltip";
-import { cn } from "@/lib/utils";
+// import Balancer from "react-wrap-balancer";
+// import { Button } from "@/components/ui/button";
+// import {
+//   Tooltip,
+//   TooltipContent,
+//   TooltipProvider,
+//   TooltipTrigger,
+// } from "@/components/ui/tooltip";
+// import { cn } from "@/lib/utils";
 import HistoryWrapper from "./history-wrapper";
 
 export default async function HistoryPage() {
@@ -315,7 +315,7 @@ export default async function HistoryPage() {
           ></rect>
         </svg>
       </svg>
-      <div className="text-card-foreground flex flex-col border-0 lg:border relative w-full max-w-none min-h-[450px] lg:min-h-[34rem] lg:max-w-3xl rounded-none lg:rounded-xl mx-auto bg-background md:shadow-xl backdrop-blur-lg shadow-2xl">
+      {/* <div className="text-card-foreground flex flex-col border-0 lg:border relative w-full max-w-none min-h-[450px] lg:min-h-[34rem] lg:max-w-3xl rounded-none lg:rounded-xl mx-auto bg-background md:shadow-xl backdrop-blur-lg shadow-2xl">
         <div className="flex-1 flex flex-col p-0">
           <div
             data-expanded="true"
@@ -363,10 +363,10 @@ export default async function HistoryPage() {
                 </div>
               </div>
             </div>
-          </div>
-          <HistoryWrapper user={user} />
-        </div>
-      </div>
+          </div> */}
+      <HistoryWrapper user={user} />
+      {/* </div> */}
+      {/* </div> */}
     </div>
   );
 }
