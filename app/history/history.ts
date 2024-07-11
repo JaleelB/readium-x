@@ -87,7 +87,7 @@ export const updateReadingHistoryProgressAction = authenticatedAction
     );
   });
 
-export const deleteReadingHistoryAction = authenticatedAction
+export const deleteReadingHistoryByIdAction = authenticatedAction
   .createServerAction()
   .input(
     z.object({
