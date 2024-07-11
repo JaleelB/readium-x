@@ -25,7 +25,10 @@ export async function scrapeArticleContent(url: string | ArticleURL) {
   const page = await browser.newPage();
 
   try {
-    await page.goto(url as unknown as string, { waitUntil: "networkidle" });
+    await page.goto(url as unknown as string, {
+      waitUntil: "networkidle",
+      timeout: 60000,
+    });
     await page.waitForTimeout(5000); // Wait for the page to load.
 
     const articleTitle = await page.$eval(
