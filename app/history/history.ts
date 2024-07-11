@@ -64,10 +64,12 @@ export const getReadingHistoryByIdAction = authenticatedAction
     })
   )
   .handler(async ({ input }) => {
-    return await getReadingHistoryByIdUseCase(
+    const readingHistory = await getReadingHistoryByIdUseCase(
       input.readingHistoryId,
       input.userId
     );
+    revalidatePath("/history");
+    return readingHistory;
   });
 
 export const updateReadingHistoryProgressAction = authenticatedAction
@@ -85,6 +87,7 @@ export const updateReadingHistoryProgressAction = authenticatedAction
       input.userId,
       input.progress
     );
+    revalidatePath("/history");
   });
 
 export const deleteReadingHistoryByIdAction = authenticatedAction
@@ -97,6 +100,7 @@ export const deleteReadingHistoryByIdAction = authenticatedAction
   )
   .handler(async ({ input }) => {
     await deleteReadingHistoryByIdUseCase(input.readingHistoryId, input.userId);
+    revalidatePath("/history");
   });
 
 export const deleteAllReadingHistoryAction = authenticatedAction
@@ -108,4 +112,5 @@ export const deleteAllReadingHistoryAction = authenticatedAction
   )
   .handler(async ({ input }) => {
     await deleteAllReadingHistoryUseCase(input.userId);
+    revalidatePath("/history");
   });
