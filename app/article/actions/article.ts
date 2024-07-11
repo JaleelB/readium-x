@@ -3,8 +3,6 @@
 import playwright from "playwright";
 import { urlSchema } from "@/schemas/url";
 
-export const runtime = "edge";
-
 type ArticleURL = typeof urlSchema;
 export type ArticleDetails = {
   title: string;

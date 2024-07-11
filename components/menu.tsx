@@ -59,21 +59,25 @@ export function OptionsMenu({ user }: { user: UserInfo }) {
           )}
         </DropdownMenuLabel>
         <DropdownMenuSeparator />
-        <DropdownMenuGroup>
-          <Link href="/bookmarks">
-            <DropdownMenuItem>
-              <Icons.bookmark className="mr-2 h-4 w-4" />
-              <span>Bookmarks</span>
-            </DropdownMenuItem>
-          </Link>
-          <Link href="/history">
-            <DropdownMenuItem>
-              <Icons.history className="mr-2 h-4 w-4" />
-              <span>Reading History</span>
-            </DropdownMenuItem>
-          </Link>
-        </DropdownMenuGroup>
-        <DropdownMenuSeparator />
+        {user && (
+          <>
+            <DropdownMenuGroup>
+              <Link href="/bookmarks">
+                <DropdownMenuItem>
+                  <Icons.bookmark className="mr-2 h-4 w-4" />
+                  <span>Bookmarks</span>
+                </DropdownMenuItem>
+              </Link>
+              <Link href="/history">
+                <DropdownMenuItem>
+                  <Icons.history className="mr-2 h-4 w-4" />
+                  <span>Reading History</span>
+                </DropdownMenuItem>
+              </Link>
+            </DropdownMenuGroup>
+            <DropdownMenuSeparator />
+          </>
+        )}
         <DropdownMenuGroup>
           <DropdownMenuSub>
             <DropdownMenuSubTrigger>
