@@ -15,6 +15,7 @@ import { createBookmarkAction } from "@/app/bookmarks/bookmark";
 import { generateRandomName } from "@/lib/names";
 import { useToast } from "./ui/use-toast";
 import { usePathname } from "next/navigation";
+import useReadingProgress from "@/hooks/use-reading-progress";
 
 export function Article({
   content,
@@ -61,9 +62,14 @@ export function Article({
 
   const { toast } = useToast();
   const pathname = usePathname();
+  const { progress, articleRef } = useReadingProgress();
 
   return (
     <article className="w-full">
+      <div
+        style={{ width: `${progress}%` }}
+        className="fixed top-0 left-0 h-1 bg-primary z-[1000]"
+      />
       <section className="container px-0 md:px-8 flex flex-col items-center gap-12">
         <div className="w-full max-w-4xl">
           <AspectRatio ratio={16 / 9} className="w-full bg-muted">
@@ -80,7 +86,10 @@ export function Article({
           </AspectRatio>
         </div>
 
-        <article className="container px-0 md:px-8 max-w-3xl flex flex-col gap-6">
+        <article
+          ref={articleRef}
+          className="container px-0 md:px-8 max-w-3xl flex flex-col gap-6"
+        >
           <div className="w-full flex justify-between">
             <div className="w-full flex gap-3">
               <Avatar className="w-11 h-11">
