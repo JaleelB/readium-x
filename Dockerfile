@@ -79,6 +79,7 @@ ENV DATABASE_URL=$DATABASE_URL \
 
 # Install Playwright dependencies
 RUN npx playwright install-deps
+RUN npx playwright install
 
 RUN \
   if [ -f yarn.lock ]; then yarn run build; \
