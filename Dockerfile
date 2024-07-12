@@ -1,10 +1,34 @@
-FROM node:18-buster AS base
+FROM node:20-bookworm AS base
 
 # Install dependencies only when needed
 FROM base AS deps
 # Check https://github.com/nodejs/docker-node/tree/b4117f9333da4138b03a546ec926ef50a31506c3#nodealpine to understand why libc6-compat might be needed.
 # RUN apk add --no-cache libc6-compat
-RUN apt-get update && apt-get install -y libc6 && rm -rf /var/lib/apt/lists/*
+# RUN apt-get update && apt-get install -y libc6 && rm -rf /var/lib/apt/lists/*
+
+# Install system dependencies for Playwright
+RUN apt-get update && apt-get install -y \
+    libnss3 \
+    libnspr4 \
+    libdbus-1-3 \
+    libatk1.0-0 \
+    libatk-bridge2.0-0 \
+    libcups2 \
+    libdrm2 \
+    libxkbcommon0 \
+    libatspi2.0-0 \
+    libxcomposite1 \
+    libxdamage1 \
+    libxfixes3 \
+    libxrandr2 \
+    libgbm1 \
+    libasound2 \
+    libxss1 \
+    libxtst6 \
+    fonts-noto-color-emoji \
+    xdg-utils \
+    wget \
+    && rm -rf /var/lib/apt/lists/*
 WORKDIR /app
 
 # Install dependencies based on the preferred package manager
@@ -14,8 +38,7 @@ RUN \
   elif [ -f package-lock.json ]; then npm ci; \
   elif [ -f pnpm-lock.yaml ]; then corepack enable pnpm && pnpm i --frozen-lockfile; \
   else echo "Lockfile not found." && exit 1; \
-  fi
-
+  fi  
 
 # Rebuild the source code only when needed
 FROM base AS builder
@@ -53,6 +76,9 @@ ENV DATABASE_URL=$DATABASE_URL \
 # Learn more here: https://nextjs.org/telemetry
 # Uncomment the following line in case you want to disable telemetry during the build.
 # ENV NEXT_TELEMETRY_DISABLED 1
+
+# Install Playwright dependencies
+RUN npx playwright install-deps
 
 RUN \
   if [ -f yarn.lock ]; then yarn run build; \
