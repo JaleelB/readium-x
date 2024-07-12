@@ -4,7 +4,7 @@
   "private": true,
   "scripts": {
     "dev": "next dev",
-    "build": "npx playwright install chromium && next build",
+    "build": "npx playwright install --with-deps chromium && next build",
     "start": "next start",
     "lint": "next lint",
     "db:push": "drizzle-kit push --config=drizzle.config.ts",
@@ -45,6 +45,7 @@
     "drizzle-orm": "^0.31.2",
     "jiti": "^1.21.6",
     "js-cookie": "^3.0.5",
+    "lodash": "^4.17.21",
     "lucia": "^3.2.0",
     "lucide-react": "^0.399.0",
     "next": "14.2.4",
@@ -67,6 +68,7 @@
   },
   "devDependencies": {
     "@types/dompurify": "^3.0.5",
+    "@types/lodash": "^4.17.6",
     "@types/node": "^20.14.9",
     "@types/react": "^18.3.3",
     "@types/react-dom": "^18.3.0",
