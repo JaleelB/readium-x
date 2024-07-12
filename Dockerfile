@@ -23,6 +23,32 @@ WORKDIR /app
 COPY --from=deps /app/node_modules ./node_modules
 COPY . .
 
+# Declare build-time environment variables
+ARG DATABASE_URL
+ARG GOOGLE_CLIENT_ID
+ARG GOOGLE_CLIENT_SECRET
+ARG GITHUB_CLIENT_SECRET
+ARG GITHUB_CLIENT_ID
+ARG HOST_NAME
+ARG EMAIL_FROM
+ARG EMAIL_SERVER_HOST
+ARG EMAIL_SERVER_PORT
+ARG EMAIL_SERVER_USER
+ARG EMAIL_SERVER_PASSWORD
+
+# Set build-time environment variables
+ENV DATABASE_URL=$DATABASE_URL \
+    GOOGLE_CLIENT_ID=$GOOGLE_CLIENT_ID \
+    GOOGLE_CLIENT_SECRET=$GOOGLE_CLIENT_SECRET \
+    GITHUB_CLIENT_SECRET=$GITHUB_CLIENT_SECRET \
+    GITHUB_CLIENT_ID=$GITHUB_CLIENT_ID \
+    HOST_NAME=$HOST_NAME \
+    EMAIL_FROM=$EMAIL_FROM \
+    EMAIL_SERVER_HOST=$EMAIL_SERVER_HOST \
+    EMAIL_SERVER_PORT=$EMAIL_SERVER_PORT \
+    EMAIL_SERVER_USER=$EMAIL_SERVER_USER \
+    EMAIL_SERVER_PASSWORD=$EMAIL_SERVER_PASSWORD
+
 # Next.js collects completely anonymous telemetry data about general usage.
 # Learn more here: https://nextjs.org/telemetry
 # Uncomment the following line in case you want to disable telemetry during the build.
