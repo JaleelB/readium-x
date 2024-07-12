@@ -48,7 +48,13 @@ export const getUrlWithoutPaywall = async (
 
 export async function validateMediumArticle(url: string) {
   try {
-    const response = await fetch(url);
+    const response = await fetch(url, {
+      method: "GET",
+      headers: {
+        "User-Agent":
+          "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/58.0.3029.110 Safari/537.36",
+      },
+    });
     if (!response.body) throw new Error("Response body is null");
 
     // streaming response body to check for meta tags
@@ -69,6 +75,9 @@ export async function validateMediumArticle(url: string) {
     const metaTagRegex =
       /<meta[^>]+(property="og:site_name"[^>]+content="Medium"|name="twitter:site"[^>]+content="@Medium")[^>]*>/;
     const isMedium = metaTagRegex.test(body);
+
+    console.log("Is Medium article:", isMedium);
+    console.log("body:", body);
 
     return isMedium;
   } catch (error) {
