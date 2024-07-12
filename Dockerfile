@@ -77,9 +77,15 @@ ENV DATABASE_URL=$DATABASE_URL \
 # Uncomment the following line in case you want to disable telemetry during the build.
 # ENV NEXT_TELEMETRY_DISABLED 1
 
-# Install Playwright dependencies
-RUN npx playwright install-deps
-RUN npx playwright install
+# Create a directory for Playwright browsers
+RUN mkdir -p /app/ms-playwright 
+# Set the path to Playwright browsers
+ENV PLAYWRIGHT_BROWSERS_PATH=/app/ms-playwright
+
+RUN npx playwright install --with-deps chromium
+# Verify that the browsers are installed
+
+RUN ls -R /app/ms-playwright
 
 RUN \
   if [ -f yarn.lock ]; then yarn run build; \
@@ -112,8 +118,14 @@ RUN chown nextjs:nodejs .next
 COPY --from=builder /app/next.config.mjs ./
 COPY --from=builder /app/package.json ./package.json
 
+# Copy Playwright browsers to the production image
+COPY --from=builder /app/ms-playwright /app/ms-playwright
+
 COPY --from=builder --chown=nextjs:nodejs /app/.next/standalone ./
 COPY --from=builder --chown=nextjs:nodejs /app/.next/static ./.next/static
+
+# Set the correct permission for Playwright browsers so that they can be used by the Node.js process
+RUN chown -R nextjs:nodejs /app/ms-playwright
 
 USER nextjs
 
