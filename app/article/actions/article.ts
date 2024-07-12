@@ -21,7 +21,16 @@ export type ArticleDetails = {
 } | null;
 
 export async function scrapeArticleContent(url: string | ArticleURL) {
-  const browser = await playwright.chromium.launch();
+  const browser = await playwright.chromium.launch({
+    executablePath: process.env.PLAYWRIGHT_BROWSERS_PATH
+      ? `${process.env.PLAYWRIGHT_BROWSERS_PATH}/chromium-1124/chrome-linux/chrome`
+      : undefined,
+    logger: {
+      isEnabled: () => true,
+      log: (name, severity, message) =>
+        console.log(`${name} ${severity}: ${message}`),
+    },
+  });
   const page = await browser.newPage();
 
   try {
