@@ -48,6 +48,7 @@ COPY . .
 
 # Declare build-time environment variables
 ARG DATABASE_URL
+ARG DB_AUTH_TOKEN
 ARG GOOGLE_CLIENT_ID
 ARG GOOGLE_CLIENT_SECRET
 ARG GITHUB_CLIENT_SECRET
@@ -61,6 +62,7 @@ ARG EMAIL_SERVER_PASSWORD
 
 # Set build-time environment variables
 ENV DATABASE_URL=$DATABASE_URL \
+    DB_AUTH_TOKEN=$DB_AUTH_TOKEN \
     GOOGLE_CLIENT_ID=$GOOGLE_CLIENT_ID \
     GOOGLE_CLIENT_SECRET=$GOOGLE_CLIENT_SECRET \
     GITHUB_CLIENT_SECRET=$GITHUB_CLIENT_SECRET \
@@ -77,15 +79,17 @@ ENV DATABASE_URL=$DATABASE_URL \
 # Uncomment the following line in case you want to disable telemetry during the build.
 # ENV NEXT_TELEMETRY_DISABLED 1
 
-# Create a directory for Playwright browsers
-RUN mkdir -p /app/ms-playwright 
 # Set the path to Playwright browsers
+ARG PLAYWRIGHT_BROWSERS_PATH
 ENV PLAYWRIGHT_BROWSERS_PATH=/app/ms-playwright
+
+# Create a directory for Playwright browsers
+RUN mkdir -p $PLAYWRIGHT_BROWSERS_PATH
 
 RUN npx playwright install --with-deps chromium
 # Verify that the browsers are installed
 
-RUN ls -R /app/ms-playwright
+RUN ls -R $PLAYWRIGHT_BROWSERS_PATH
 
 RUN \
   if [ -f yarn.lock ]; then yarn run build; \
@@ -119,13 +123,12 @@ COPY --from=builder /app/next.config.mjs ./
 COPY --from=builder /app/package.json ./package.json
 
 # Copy Playwright browsers to the production image
-COPY --from=builder /app/ms-playwright /app/ms-playwright
+COPY --from=builder $PLAYWRIGHT_BROWSERS_PATH $PLAYWRIGHT_BROWSERS_PATH
+# Set the correct permission for Playwright browsers so that they can be used by the Node.js process
+RUN chown -R nextjs:nodejs $PLAYWRIGHT_BROWSERS_PATH
 
 COPY --from=builder --chown=nextjs:nodejs /app/.next/standalone ./
 COPY --from=builder --chown=nextjs:nodejs /app/.next/static ./.next/static
-
-# Set the correct permission for Playwright browsers so that they can be used by the Node.js process
-RUN chown -R nextjs:nodejs /app/ms-playwright
 
 USER nextjs
 
