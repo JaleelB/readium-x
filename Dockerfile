@@ -1,4 +1,4 @@
-FROM node:20-bookworm AS base
+FROM node:18-alpine AS base
 
 # Install dependencies only when needed
 FROM base AS deps
