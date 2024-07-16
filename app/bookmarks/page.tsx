@@ -31,7 +31,7 @@ export default async function BookmarkPage() {
             x="-1"
             y="-1"
           >
-            <path d="M.5 40V.5H40" fill="none" stroke-dasharray="0"></path>
+            <path d="M.5 40V.5H40" fill="none" strokeDasharray="0"></path>
           </pattern>
         </defs>
         <rect width="100%" height="100%" fill="url(#:rt2:)"></rect>
@@ -42,7 +42,7 @@ export default async function BookmarkPage() {
             x="241"
             y="1"
             fill="currentColor"
-            stroke-width="0"
+            strokeWidth="0"
             opacity="0.04989013679733034"
           ></rect>
           <rect
@@ -51,7 +51,7 @@ export default async function BookmarkPage() {
             x="41"
             y="41"
             fill="currentColor"
-            stroke-width="0"
+            strokeWidth="0"
             opacity="0.06194469735200983"
           ></rect>
           <rect
@@ -60,7 +60,7 @@ export default async function BookmarkPage() {
             x="241"
             y="241"
             fill="currentColor"
-            stroke-width="0"
+            strokeWidth="0"
             opacity="0.07250919713696931"
           ></rect>
           <rect
@@ -69,7 +69,7 @@ export default async function BookmarkPage() {
             x="1"
             y="481"
             fill="currentColor"
-            stroke-width="0"
+            strokeWidth="0"
             opacity="0.08180376562231687"
           ></rect>
           <rect
@@ -78,7 +78,7 @@ export default async function BookmarkPage() {
             x="81"
             y="201"
             fill="currentColor"
-            stroke-width="0"
+            strokeWidth="0"
             opacity="0.08969824802770746"
           ></rect>
           <rect
@@ -87,7 +87,7 @@ export default async function BookmarkPage() {
             x="241"
             y="321"
             fill="currentColor"
-            stroke-width="0"
+            strokeWidth="0"
             opacity="0.09539389073324855"
           ></rect>
           <rect
@@ -96,7 +96,7 @@ export default async function BookmarkPage() {
             x="121"
             y="121"
             fill="currentColor"
-            stroke-width="0"
+            strokeWidth="0"
             opacity="0.0990972326049814"
           ></rect>
           <rect
@@ -105,7 +105,7 @@ export default async function BookmarkPage() {
             x="241"
             y="41"
             fill="currentColor"
-            stroke-width="0"
+            strokeWidth="0"
             opacity="0.09984111571393442"
           ></rect>
           <rect
@@ -114,7 +114,7 @@ export default async function BookmarkPage() {
             x="161"
             y="1"
             fill="currentColor"
-            stroke-width="0"
+            strokeWidth="0"
             opacity="0.09680011153395754"
           ></rect>
           <rect
@@ -123,7 +123,7 @@ export default async function BookmarkPage() {
             x="281"
             y="881"
             fill="currentColor"
-            stroke-width="0"
+            strokeWidth="0"
             opacity="0.09140917787735817"
           ></rect>
           <rect
@@ -132,7 +132,7 @@ export default async function BookmarkPage() {
             x="241"
             y="161"
             fill="currentColor"
-            stroke-width="0"
+            strokeWidth="0"
             opacity="0.08423744774481748"
           ></rect>
           <rect
@@ -141,7 +141,7 @@ export default async function BookmarkPage() {
             x="121"
             y="521"
             fill="currentColor"
-            stroke-width="0"
+            strokeWidth="0"
             opacity="0.07524879169941415"
           ></rect>
           <rect
@@ -150,7 +150,7 @@ export default async function BookmarkPage() {
             x="281"
             y="801"
             fill="currentColor"
-            stroke-width="0"
+            strokeWidth="0"
             opacity="0.06520031216496136"
           ></rect>
           <rect
@@ -159,7 +159,7 @@ export default async function BookmarkPage() {
             x="281"
             y="561"
             fill="currentColor"
-            stroke-width="0"
+            strokeWidth="0"
             opacity="0.05362266433949117"
           ></rect>
           <rect
@@ -168,7 +168,7 @@ export default async function BookmarkPage() {
             x="281"
             y="881"
             fill="currentColor"
-            stroke-width="0"
+            strokeWidth="0"
             opacity="0.03955854726664257"
           ></rect>
           <rect
@@ -177,7 +177,7 @@ export default async function BookmarkPage() {
             x="1"
             y="561"
             fill="currentColor"
-            stroke-width="0"
+            strokeWidth="0"
             opacity="0.025525362344342287"
           ></rect>
           <rect
@@ -186,7 +186,7 @@ export default async function BookmarkPage() {
             x="81"
             y="41"
             fill="currentColor"
-            stroke-width="0"
+            strokeWidth="0"
             opacity="0.01030175197229255"
           ></rect>
           <rect
@@ -195,7 +195,7 @@ export default async function BookmarkPage() {
             x="41"
             y="201"
             fill="currentColor"
-            stroke-width="0"
+            strokeWidth="0"
             opacity="0"
           ></rect>
           <rect
@@ -204,7 +204,7 @@ export default async function BookmarkPage() {
             x="121"
             y="201"
             fill="currentColor"
-            stroke-width="0"
+            strokeWidth="0"
             opacity="0"
           ></rect>
           <rect
@@ -213,7 +213,7 @@ export default async function BookmarkPage() {
             x="281"
             y="561"
             fill="currentColor"
-            stroke-width="0"
+            strokeWidth="0"
             opacity="0"
           ></rect>
           <rect
@@ -222,7 +222,7 @@ export default async function BookmarkPage() {
             x="201"
             y="481"
             fill="currentColor"
-            stroke-width="0"
+            strokeWidth="0"
             opacity="0"
           ></rect>
           <rect
@@ -231,7 +231,7 @@ export default async function BookmarkPage() {
             x="161"
             y="841"
             fill="currentColor"
-            stroke-width="0"
+            strokeWidth="0"
             opacity="0"
           ></rect>
           <rect
@@ -240,7 +240,7 @@ export default async function BookmarkPage() {
             x="161"
             y="161"
             fill="currentColor"
-            stroke-width="0"
+            strokeWidth="0"
             opacity="0"
           ></rect>
           <rect
@@ -249,7 +249,7 @@ export default async function BookmarkPage() {
             x="241"
             y="641"
             fill="currentColor"
-            stroke-width="0"
+            strokeWidth="0"
             opacity="0"
           ></rect>
           <rect
@@ -258,7 +258,7 @@ export default async function BookmarkPage() {
             x="161"
             y="121"
             fill="currentColor"
-            stroke-width="0"
+            strokeWidth="0"
             opacity="0"
           ></rect>
           <rect
@@ -267,7 +267,7 @@ export default async function BookmarkPage() {
             x="161"
             y="241"
             fill="currentColor"
-            stroke-width="0"
+            strokeWidth="0"
             opacity="0"
           ></rect>
           <rect
@@ -276,7 +276,7 @@ export default async function BookmarkPage() {
             x="81"
             y="321"
             fill="currentColor"
-            stroke-width="0"
+            strokeWidth="0"
             opacity="0.009072852387907915"
           ></rect>
           <rect
@@ -285,7 +285,7 @@ export default async function BookmarkPage() {
             x="161"
             y="601"
             fill="currentColor"
-            stroke-width="0"
+            strokeWidth="0"
             opacity="0.02093282386485953"
           ></rect>
           <rect
@@ -294,7 +294,7 @@ export default async function BookmarkPage() {
             x="321"
             y="121"
             fill="currentColor"
-            stroke-width="0"
+            strokeWidth="0"
             opacity="0.0303765981370816"
           ></rect>
           <rect
@@ -303,7 +303,7 @@ export default async function BookmarkPage() {
             x="1"
             y="721"
             fill="currentColor"
-            stroke-width="0"
+            strokeWidth="0"
             opacity="0.03941497987543699"
           ></rect>
         </svg>

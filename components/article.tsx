@@ -15,11 +15,15 @@ import { createBookmarkAction } from "@/app/bookmarks/bookmark";
 import { generateRandomName } from "@/lib/names";
 import { useToast } from "./ui/use-toast";
 import { usePathname } from "next/navigation";
-import useReadingProgress from "@/hooks/use-reading-progress";
+import { useReadingProgress } from "@/hooks/use-reading-progress";
+import { use, useCallback, useEffect, useRef } from "react";
+import { updateReadingHistoryProgressAction } from "@/app/history/history";
+import { debounce } from "lodash";
 
 export function Article({
   content,
   user,
+  readingHistoryId,
 }: {
   content: ArticleDetails;
   user: {
@@ -27,6 +31,7 @@ export function Article({
     id: number;
     emailVerified: Date | null;
   };
+  readingHistoryId: number;
 }) {
   const safeHTMLContent = DOMPurify.sanitize(content?.content || "", {
     USE_PROFILES: { html: true },
@@ -62,7 +67,54 @@ export function Article({
 
   const { toast } = useToast();
   const pathname = usePathname();
-  const { progress, articleRef } = useReadingProgress();
+  const { progress, articleRef, isScrolling } = useReadingProgress();
+  const lastSavedProgress = useRef(0);
+
+  useEffect(() => {
+    console.log("Progress", progress);
+    if (!isScrolling) {
+      lastSavedProgress.current = progress;
+    }
+  }, [isScrolling, progress]);
+
+  const saveProgress = useCallback(
+    async (progress: number) => {
+      if (
+        progress < 100 &&
+        Math.abs(lastSavedProgress.current - progress) > 5
+      ) {
+        const [_, error] = await updateReadingHistoryProgressAction({
+          readingHistoryId: readingHistoryId,
+          userId: user.id,
+          progress: `${progress.toFixed(2)}%`,
+        });
+
+        if (error) {
+          toast({
+            description: "There was an error saving your progress",
+            variant: "destructive",
+          });
+        } else {
+          console.log("Progress saved", progress.toFixed(2) + "%");
+          lastSavedProgress.current = progress;
+        }
+      }
+    },
+    [readingHistoryId, user.id, toast]
+  );
+
+  // Debounce the saveProgress function
+  // const debouncedSaveProgress = debounce((progress) => {
+  //   console.log("Debounced progress", progress);
+  //   saveProgress(progress);
+  // }, 500);
+
+  useEffect(() => {
+    if (!isScrolling && progress < 100) {
+      // debouncedSaveProgress(progress);
+      saveProgress(progress);
+    }
+  }, [isScrolling, progress, saveProgress]);
 
   return (
     <article className="w-full">
@@ -113,7 +165,7 @@ export function Article({
                 </Link>
                 <div className="text-muted-foreground text-sm">
                   {content?.publicationInformation?.readTime?.slice(1) ||
-                    calculateReadTime(content?.content)}
+                    calculateReadTime(content?.content as string)}
                   {content?.publicationInformation?.publishDate && (
                     <span className="px-2">·</span>
                   )}
@@ -142,7 +194,7 @@ export function Article({
                     content?.publicationInformation.publicationName || "",
                   readTime:
                     content?.publicationInformation.readTime ||
-                    calculateReadTime(content?.content),
+                    calculateReadTime(content?.content as string),
                   publishDate:
                     content?.publicationInformation.publishDate || "",
                 });

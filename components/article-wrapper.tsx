@@ -34,7 +34,7 @@ async function ArticleLoader({ url }: { url: string }) {
     redirect("/signin");
   }
 
-  return <Article content={content} user={user} />;
+  // return <Article content={content} user={user} />;
 }
 
 export async function ArticleWrapper({ url }: { url: string }) {
