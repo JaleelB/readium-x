@@ -1,7 +1,7 @@
 "use server";
 
-import playwright from "playwright";
 import { urlSchema } from "@/schemas/url";
+import { load } from "cheerio";
 
 type ArticleURL = typeof urlSchema;
 export type ArticleDetails = {
@@ -20,94 +20,55 @@ export type ArticleDetails = {
   };
 } | null;
 
-export async function scrapeArticleContent(url: string | ArticleURL) {
-  const browser = await playwright.chromium.launch({
-    executablePath: process.env.PLAYWRIGHT_BROWSERS_PATH
-      ? `${process.env.PLAYWRIGHT_BROWSERS_PATH}/chromium-1124/chrome-linux/chrome`
-      : undefined,
-    logger: {
-      isEnabled: () => true,
-      log: (name, severity, message) =>
-        console.log(`${name} ${severity}: ${message}`),
-    },
-  });
-  const page = await browser.newPage();
-
+export async function scrapeArticleContent(url: string) {
+  console.log("Scraping article content from:", url);
   try {
-    await page.goto(url as unknown as string, {
-      waitUntil: "networkidle",
-      timeout: 60000,
+    const response = await fetch(url, {
+      method: "GET",
+      headers: {
+        "User-Agent":
+          "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/58.0.3029.110 Safari/537.36",
+      },
     });
-    await page.waitForTimeout(5000); // Wait for the page to load.
-
-    const articleTitle = await page.$eval(
-      "h1",
-      (el) => el?.innerHTML ?? "No title available"
-    );
-    const articleContent = await page.$eval(
-      ".main-content",
-      (div) => div.outerHTML
-    );
-    // Extract the main image from the article
-    const articleImageSrc = await page.$eval(
-      "img[alt='Preview image']",
-      (img) => (img as HTMLImageElement)?.src ?? null
-    );
-
-    const authorInfo = await page.evaluate(() => {
-      const authorElement = document.querySelector(
-        "a[title][href*='/@']"
-      ) as HTMLAnchorElement;
-      if (!authorElement) {
-        return {
-          authorName: null,
-          authorImageURL: null,
-          authorProfileURL: null,
-        };
-      }
-
-      const authorName = authorElement.querySelector("img")?.alt.trim() ?? null;
-      const authorImageURL = authorElement.querySelector("img")?.src ?? null;
-      const authorProfileURL = authorElement.getAttribute("href") ?? null;
-
-      return { authorName, authorImageURL, authorProfileURL };
-    });
-
-    const publicationInfo = await page.evaluate(() => {
-      const infoSection = document.querySelector(
-        "div.px-4.pb-2"
-      ) as HTMLElement;
-
-      if (!infoSection) {
-        return {
-          publicationName: null,
-          readTime: null,
-          publishDate: null,
-        };
-      }
-
-      // Extract publication if available
-      const publicationLink = infoSection.querySelector(
-        'a[target="_blank"][previewListener="true"]'
+    if (!response.ok) {
+      throw new Error(
+        `Failed to retrieve the web page. Status code: ${response.status}`
       );
-      const publicationName = publicationLink?.textContent?.trim() ?? null;
+    }
 
-      // Extract read time by checking the text content directly
-      const readTimeElement = Array.from(
-        infoSection.querySelectorAll("span")
-      ).find((span) => span.textContent?.includes("min read"));
-      const readTime = readTimeElement?.textContent?.trim() ?? null;
+    const html = await response.text();
+    const $ = load(html);
 
-      // Extract publish date
-      const publishDateElement = Array.from(
-        infoSection.querySelectorAll("span")
-      ).find((span) => span.textContent?.includes("Updated:"));
-      const publishDate = publishDateElement?.textContent?.trim() ?? null;
+    // Remove script tag and content before <html>
+    $('script:contains("window.main();")').remove();
 
-      return { publicationName, readTime, publishDate };
-    });
+    // Article information
+    const articleContent = $(".main-content").html();
+    const articleTitle = $("h1").first().text().trim();
+    const articleImageSrc = $("img[alt='Preview image']").attr("src") ?? null;
 
-    if (!articleContent.length) {
+    // Author information
+    const authorName =
+      $("a[title][href*='/@']").find("img").attr("alt") ?? null;
+    const authorImageURL =
+      $("a[title][href*='/@']").find("img").attr("src") ?? null;
+    const authorProfileURL = $("a[title][href*='/@']").attr("href") ?? null;
+    console.log("authorProfileURL: ", authorProfileURL);
+
+    // Publication information
+    const publicationName = $("a[target='_blank'][previewListener='true']")
+      .text()
+      .trim();
+    const readTime = $("span")
+      .filter((_, el) => $(el).text().includes("min read"))
+      .text()
+      .trim();
+    const publishDate = $("span")
+      .filter((_, el) => $(el).text().includes("Updated:"))
+      .text()
+      .trim();
+
+    if (!articleContent) {
       throw new Error("Failed to scrape article content");
     }
 
@@ -116,16 +77,18 @@ export async function scrapeArticleContent(url: string | ArticleURL) {
       content: articleContent,
       articleImageSrc,
       authorInformation: {
-        ...authorInfo,
+        authorName,
+        authorImageURL,
+        authorProfileURL: `https://medium.com${authorProfileURL}`,
       },
       publicationInformation: {
-        ...publicationInfo,
+        publicationName,
+        readTime,
+        publishDate,
       },
     };
   } catch (error) {
     console.error("Scraping failed:", error);
     return null;
-  } finally {
-    await browser.close();
   }
 }

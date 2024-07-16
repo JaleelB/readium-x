@@ -76,9 +76,6 @@ export async function validateMediumArticle(url: string) {
       /<meta[^>]+(property="og:site_name"[^>]+content="Medium"|name="twitter:site"[^>]+content="@Medium")[^>]*>/;
     const isMedium = metaTagRegex.test(body);
 
-    console.log("Is Medium article:", isMedium);
-    console.log("body:", body);
-
     return isMedium;
   } catch (error) {
     console.error("Failed to fetch or parse the URL:", error);

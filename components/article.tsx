@@ -15,11 +15,12 @@ import { createBookmarkAction } from "@/app/bookmarks/bookmark";
 import { generateRandomName } from "@/lib/names";
 import { useToast } from "./ui/use-toast";
 import { usePathname } from "next/navigation";
-import useReadingProgress from "@/hooks/use-reading-progress";
+import { useReadingProgress } from "@/hooks/use-reading-progress";
 
 export function Article({
   content,
   user,
+  readingHistoryId,
 }: {
   content: ArticleDetails;
   user: {
@@ -27,6 +28,7 @@ export function Article({
     id: number;
     emailVerified: Date | null;
   };
+  readingHistoryId: number;
 }) {
   const safeHTMLContent = DOMPurify.sanitize(content?.content || "", {
     USE_PROFILES: { html: true },
@@ -62,7 +64,7 @@ export function Article({
 
   const { toast } = useToast();
   const pathname = usePathname();
-  const { progress, articleRef } = useReadingProgress();
+  const { progress, isScrolling, articleRef } = useReadingProgress();
 
   return (
     <article className="w-full">
@@ -127,7 +129,7 @@ export function Article({
               size="icon"
               className="rounded-full"
               onClick={async () => {
-                const [data, err] = await createBookmarkAction({
+                const [_, err] = await createBookmarkAction({
                   path: pathname,
                   userId: user.id,
                   title: content?.title || generateRandomName(),

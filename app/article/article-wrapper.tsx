@@ -28,7 +28,7 @@ async function ArticleLoader({
   urlWithoutPaywall: string;
 }) {
   const content = await getCachedArticle(urlWithoutPaywall);
-  // const content = await scrapeArticleContent(url);
+  // const content = await scrapeArticleContent(urlWithoutPaywall);
   if (!content) {
     return <ErrorCard />;
   }
@@ -66,7 +66,7 @@ async function ArticleLoader({
     );
   }
 
-  return <Article content={content} user={user} />;
+  return <Article content={content} user={user} readingHistoryId={data.id} />;
 }
 
 export async function ArticleWrapper({ url }: { url: string }) {
@@ -79,8 +79,8 @@ export async function ArticleWrapper({ url }: { url: string }) {
 
   // if browser is requesting html it means it's the first page load
   if (headers().get("accept")?.includes("text/html")) {
-    article = await getCachedArticle(url);
-    // article = await scrapeArticleContent(url);
+    article = await getCachedArticle(urlWithoutPaywall);
+    // article = await scrapeArticleContent(urlWithoutPaywall);
   }
 
   return (
