@@ -179,21 +179,28 @@ export class MediumArticleProcessor {
   ): void {
     element.children().each((_, child) => {
       if (child.type !== "tag") return;
+
       const $child = $(child);
       const tagName = child.tagName.toLowerCase();
+
       if (tagName === "picture") {
+        // Process picture tag specifically
         const img = $child.find("img");
         if (!img.attr("src") && img.length) {
           const firstSource = $child.find("source").first();
           const srcset = firstSource.attr("srcset");
-          const firstSrc = srcset?.split(",")[0].split(" ")[0];
+          const firstSrc = srcset?.split(",")[0].split(" ")[0]; // Take the first URL from srcset
           img.attr("src", firstSrc as string);
         }
-        const pictureHtml = $.html($child);
-        elements.push({ type: "IMG", content: pictureHtml });
+        const imgHtml = $.html(img);
+        elements.push({
+          type: "IMG",
+          content: imgHtml,
+        });
         captured.add(child);
-        return;
+        return; // Do not process children of picture, as they are already captured
       }
+
       if (
         supportedTypes.includes(tagName.toUpperCase() as ParagraphType) &&
         !captured.has(child)
