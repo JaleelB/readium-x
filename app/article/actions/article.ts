@@ -1,13 +1,17 @@
 "use server";
 
-import { MediumArticleProcessor } from "@/lib/parser";
+import { ArticleElement, MediumArticleProcessor } from "@/lib/parser";
 import { urlSchema } from "@/schemas/url";
 import { load } from "cheerio";
 
 type ArticleURL = typeof urlSchema;
 export type ArticleDetails = {
   title: string;
-  content: string | null;
+  // content: string | null;
+  // content: {
+  //   title: string;
+  //   elements: ArticleElement[];
+  // };
   articleImageSrc: string | null;
   authorInformation: {
     authorName: string | null;
@@ -21,10 +25,12 @@ export type ArticleDetails = {
   };
 } | null;
 
-export async function scrapeArticleContent(url: string | ArticleURL) {
+export async function scrapeArticleContent(url: string) {
   try {
     const baseUrl = "https://webcache.googleusercontent.com/search?q=cache:";
     const fullUrl = `${baseUrl}${url}&strip=0&vwsrc=0`;
+
+    console.log("fullUrl: ", fullUrl);
 
     const response = await fetch(fullUrl);
     if (!response.ok) {
@@ -34,17 +40,17 @@ export async function scrapeArticleContent(url: string | ArticleURL) {
     }
 
     const html = await response.text();
-    // const $ = load(html);
+    const $ = load(html);
 
     const processor = new MediumArticleProcessor();
 
-    const { strippedArticleContent } = processor.stripHTML(html);
+    // const { strippedArticleContent } = processor.stripHTML(html);
 
     // const section= $("section").first()
     // const sectionElement = $("section").first().html();
-    const $ = load(strippedArticleContent as string);
+    // const $ = load(strippedArticleContent as string);
     const sectionElement = $("article").first();
-    console.log("sectionElement: ", sectionElement.html());
+    // console.log("sectionElement: ", sectionElement.html());
     const articleTitle = sectionElement
       ? sectionElement.find("h1").first().text().trim()
       : "No title available";
@@ -53,7 +59,7 @@ export async function scrapeArticleContent(url: string | ArticleURL) {
     //   ? strippedArticleContent.find("h1").first().text().trim()
     //   : "No title available";
 
-    const content = processor.processArticle(strippedArticleContent);
+    const content = await processor.processArticle(html);
     console.log("content: ", content);
 
     // author information
@@ -92,7 +98,7 @@ export async function scrapeArticleContent(url: string | ArticleURL) {
 
     return {
       title: articleTitle,
-      content,
+      content: content.html,
       articleImageSrc: null,
       authorInformation: {
         authorName: authorName,
