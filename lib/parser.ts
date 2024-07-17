@@ -2,7 +2,6 @@ import * as cheerio from "cheerio";
 import ejs from "ejs";
 
 type ParagraphType =
-  | "H2"
   | "H3"
   | "H4"
   | "IMG"
@@ -24,7 +23,6 @@ type MarkupType =
   | "SUB";
 
 type ElementsType =
-  | "H2"
   | "H3"
   | "H4"
   | "IMG"
@@ -128,7 +126,6 @@ export class MediumArticleProcessor {
 
       // Supported tags
       const supportedTypes: ElementsType[] = [
-        "H2",
         "H3",
         "H4",
         "IMG",
@@ -157,7 +154,25 @@ export class MediumArticleProcessor {
 
           const $child = $(child);
           const tagName = child.tagName.toLowerCase();
-          if (tagName === "figcaption") console.log("Processing figcaption");
+
+          if (tagName === "picture") {
+            // Capture the HTML of the picture element
+            const img = $child.find("img");
+            // Check if img has a src, if not, take the first srcset from source
+            if (!img.attr("src") && img.length) {
+              const firstSource = $child.find("source").first();
+              const srcset = firstSource.attr("srcset");
+              const firstSrc = srcset?.split(",")[0].split(" ")[0]; // Take the first URL from srcset
+              img.attr("src", firstSrc as string);
+            }
+            const pictureHtml = $.html($child);
+            elements.push({
+              type: "IMG",
+              content: pictureHtml,
+            });
+            captured.add(child);
+            return; // Do not process children of picture, as they are already captured
+          }
 
           // Check if the child is an important type and not already captured
           if (
