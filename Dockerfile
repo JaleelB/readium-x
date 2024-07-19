@@ -1,34 +1,9 @@
-FROM node:20-bookworm AS base
+FROM node:18-alpine AS base
 
 # Install dependencies only when needed
 FROM base AS deps
 # Check https://github.com/nodejs/docker-node/tree/b4117f9333da4138b03a546ec926ef50a31506c3#nodealpine to understand why libc6-compat might be needed.
-# RUN apk add --no-cache libc6-compat
-# RUN apt-get update && apt-get install -y libc6 && rm -rf /var/lib/apt/lists/*
-
-# Install system dependencies for Playwright
-RUN apt-get update && apt-get install -y \
-    libnss3 \
-    libnspr4 \
-    libdbus-1-3 \
-    libatk1.0-0 \
-    libatk-bridge2.0-0 \
-    libcups2 \
-    libdrm2 \
-    libxkbcommon0 \
-    libatspi2.0-0 \
-    libxcomposite1 \
-    libxdamage1 \
-    libxfixes3 \
-    libxrandr2 \
-    libgbm1 \
-    libasound2 \
-    libxss1 \
-    libxtst6 \
-    fonts-noto-color-emoji \
-    xdg-utils \
-    wget \
-    && rm -rf /var/lib/apt/lists/*
+RUN apk add --no-cache libc6-compat
 WORKDIR /app
 
 # Install dependencies based on the preferred package manager
@@ -79,18 +54,6 @@ ENV DATABASE_URL=$DATABASE_URL \
 # Uncomment the following line in case you want to disable telemetry during the build.
 # ENV NEXT_TELEMETRY_DISABLED 1
 
-# Set the path to Playwright browsers
-ARG PLAYWRIGHT_BROWSERS_PATH
-ENV PLAYWRIGHT_BROWSERS_PATH=/app/ms-playwright
-
-# Create a directory for Playwright browsers
-RUN mkdir -p $PLAYWRIGHT_BROWSERS_PATH
-
-RUN npx playwright install --with-deps chromium
-# Verify that the browsers are installed
-
-RUN ls -R $PLAYWRIGHT_BROWSERS_PATH
-
 RUN \
   if [ -f yarn.lock ]; then yarn run build; \
   elif [ -f package-lock.json ]; then npm run build; \
@@ -121,11 +84,6 @@ RUN chown nextjs:nodejs .next
 # COPY --from=builder --chown=nextjs:nodejs /app/.next/static ./.next/static
 COPY --from=builder /app/next.config.mjs ./
 COPY --from=builder /app/package.json ./package.json
-
-# Copy Playwright browsers to the production image
-COPY --from=builder $PLAYWRIGHT_BROWSERS_PATH $PLAYWRIGHT_BROWSERS_PATH
-# Set the correct permission for Playwright browsers so that they can be used by the Node.js process
-RUN chown -R nextjs:nodejs $PLAYWRIGHT_BROWSERS_PATH
 
 COPY --from=builder --chown=nextjs:nodejs /app/.next/standalone ./
 COPY --from=builder --chown=nextjs:nodejs /app/.next/static ./.next/static

@@ -163,7 +163,7 @@ export function Article({
               size="icon"
               className="rounded-full"
               onClick={async () => {
-                const [data, err] = await createBookmarkAction({
+                const [_, err] = await createBookmarkAction({
                   path: pathname,
                   userId: user.id,
                   title: content?.title || generateRandomName(),

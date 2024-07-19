@@ -1,7 +1,6 @@
 "use server";
 
 import { MediumArticleProcessor } from "@/lib/parser";
-import { urlSchema } from "@/schemas/url";
 
 export type ArticleDetails = {
   title: string;
@@ -30,6 +29,7 @@ export async function scrapeArticleContent(url: string) {
     const fullUrl = `${baseUrl}${url}&strip=0&vwsrc=0`;
 
     const response = await fetch(fullUrl);
+
     if (!response.ok) {
       throw new Error(
         `Failed to retrieve the web page. Status code: ${response.status}`
