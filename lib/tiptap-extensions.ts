@@ -1,4 +1,5 @@
 import { Mark, Node, mergeAttributes } from "@tiptap/react";
+import { cn } from "./utils";
 
 const CustomHeading = (level: number) =>
   Node.create({
@@ -34,7 +35,16 @@ const CustomHeading = (level: number) =>
       return [
         `h${level}`,
         mergeAttributes(HTMLAttributes, {
-          class: `${node.attrs.class} my-4`,
+          class: cn(`font-sans ${
+            level === 2
+              ? "font-bold font-sans break-normal text-gray-900 dark:text-gray-100 text-1xl md:text-2xl"
+              : level === 3
+              ? "font-bold font-sans break-normal text-gray-900 dark:text-gray-100 text-1xl md:text-2xl pt-12"
+              : level === 4
+              ? "font-bold font-sans break-normal text-gray-900 dark:text-gray-100 text-l md:text-xl pt-8"
+              : `${node.attrs.class}`
+          } 
+          `),
           style: node.attrs.style,
         }),
         0,
@@ -50,8 +60,7 @@ const CustomBlockquote = Node.create({
   addAttributes() {
     return {
       class: {
-        default:
-          "border-l-4 border-primary p-4 bg-muted text-muted-foreground dark:bg-accent dark:text-muted",
+        default: null,
         parseHTML: (element) => element.getAttribute("class"),
         renderHTML: (attributes) => {
           return { class: attributes.class };
@@ -74,9 +83,7 @@ const CustomBlockquote = Node.create({
           class:
             node instanceof HTMLElement && node.getAttribute("class")
               ? {
-                  class: `${node.getAttribute(
-                    "class"
-                  )} border-t-4 border-primary p-4 bg-muted text-muted-foreground dark:bg-muted-foreground dark:text-muted`,
+                  class: node.getAttribute("class"),
                 }
               : null,
           style:
@@ -92,7 +99,9 @@ const CustomBlockquote = Node.create({
       "blockquote",
       mergeAttributes({
         ...HTMLAttributes,
-        class: `${node.attrs.class} border-l-4 border-primary p-4 bg-muted text-muted-foreground dark:bg-muted-foreground dark:text-muted`,
+        class: `${node.attrs.class} border-l-4 border-primary p-4 bg-muted text-muted-foreground dark:bg-muted-foreground dark:text-muted mt-5`,
+        style:
+          "box-shadow: inset 3px 0 0 0 rgb(209 207 239 / var(--tw-bg-opacity));",
       }),
       0,
     ];
@@ -110,7 +119,7 @@ const CustomCodeBlock = Node.create({
     return {
       class: {
         default:
-          "language-none relative h-full w-full max-h-[500px] whitespace-pre-wrap rounded-lg py-4 px-6 text-sm border text-white/75 bg-zinc-950 dark:bg-zinc-900",
+          "language-none relative h-full w-full max-h-[500px] whitespace-pre-wrap rounded-lg py-4 px-6 text-sm border text-white/75",
         parseHTML: (element) => element.getAttribute("class"),
         renderHTML: (attributes) => {
           return { class: attributes.class };
@@ -148,13 +157,12 @@ const CustomCodeBlock = Node.create({
       "pre",
       mergeAttributes({
         ...HTMLAttributes,
-        class: `${node.attrs.class} relative h-full w-full max-h-[500px] whitespace-pre-wrap rounded-lg py-4 px-6 text-sm border border-border text-white/75 bg-muted`,
+        class: `relative h-full w-full max-h-[650px] whitespace-pre-wrap mt-10 md:mt-12 rounded-lg p-8 text-sm border border-border text-white/75 mb-4 overflow-x-auto rounded-lg bg-zinc-950 dark:bg-zinc-900`,
       }),
       [
         "code",
         {
-          class:
-            "relative rounded bg-zinc-950 bg-muted px-[0.3rem] py-[0.2rem] font-mono text-sm",
+          class: "relative rounded font-mono text-sm",
         },
         0,
       ],
@@ -164,8 +172,7 @@ const CustomCodeBlock = Node.create({
 
 const CustomImage = Node.create({
   name: "image",
-  inline: true,
-  group: "inline",
+  group: "block",
   draggable: true,
   atom: true,
   addAttributes() {
@@ -222,67 +229,16 @@ const CustomImage = Node.create({
       },
     ];
   },
-  renderHTML({ node, HTMLAttributes }) {
+  renderHTML({ HTMLAttributes }) {
     return ["img", mergeAttributes(HTMLAttributes), 0];
   },
 });
 
-// const CustomFigcaption = Node.create({
-//   name: "figcaption",
-//   content: "inline*",
-//   addAttributes() {
-//     return {
-//       class: {
-//         default: "text-center text-sm text-muted-foreground",
-//         parseHTML: (element) => element.getAttribute("class"),
-//         renderHTML: (attributes) => {
-//           return {
-//             class: attributes.class,
-//           };
-//         },
-//       },
-//       style: {
-//         default: null,
-//         parseHTML: (element) => element.getAttribute("style"),
-//         renderHTML: (attributes) => {
-//           return { style: attributes.style };
-//         },
-//       },
-//     };
-//   },
-//   parseHTML() {
-//     return [
-//       {
-//         tag: "figcaption",
-//         getAttrs: (node) => ({
-//           class:
-//             node instanceof HTMLElement && node.getAttribute("class")
-//               ? { class: node.getAttribute("class") }
-//               : null,
-//           style:
-//             node instanceof HTMLElement && node.getAttribute("style")
-//               ? { style: node.getAttribute("style") }
-//               : null,
-//         }),
-//       },
-//     ];
-//   },
-//   renderHTML({ HTMLAttributes, node }) {
-//     return [
-//       "figcaption",
-//       mergeAttributes({
-//         ...HTMLAttributes,
-//         class: `${node.attrs.class} w-full text-center text-sm text-muted-foreground`,
-//       }),
-//       0,
-//     ];
-//   },
-// });
 const CustomFigcaption = Node.create({
   name: "figcaption",
-  content: "text*", // allow inline content only
-  inline: true, // make it an inline node
-  group: "inline", // belongs to inline content group
+  content: "text*", // allows inline nodes like text or other inline nodes
+  group: "block",
+  defining: true,
   addAttributes() {
     return {
       class: {
@@ -304,18 +260,16 @@ const CustomFigcaption = Node.create({
     };
   },
   parseHTML() {
-    return [
-      {
-        tag: "figcaption",
-      },
-    ];
+    return [{ tag: "figcaption" }];
   },
-  renderHTML({ HTMLAttributes, node }) {
+  renderHTML({ node, HTMLAttributes }) {
     return [
-      "span",
+      "figcaption",
       mergeAttributes({
         ...HTMLAttributes,
-        class: `${node.attrs.class} w-full text-center text-sm text-muted-foreground`,
+        class:
+          "mt-3 text-sm text-center text-muted-foreground dark:text-muted-foreground",
+        style: node.attrs.style,
       }),
       0,
     ];
@@ -412,7 +366,7 @@ const CustomParagraph = Node.create({
       "p",
       mergeAttributes({
         ...HTMLAttributes,
-        class: `${node.attrs.class} text-muted-foreground dark:text-muted-foreground`,
+        class: node.attrs.class,
         style: node.attrs.style,
       }),
       0,
@@ -484,7 +438,7 @@ const CustomLink = Mark.create({
       "a",
       mergeAttributes({
         ...HTMLAttributes,
-        class: HTMLAttributes.class,
+        class: "text-primary font-medium cursor-pointer underline",
         target: "_blank",
         rel: "noopener noreferrer",
       }),
@@ -631,8 +585,15 @@ const CustomUL = Node.create({
       },
     ];
   },
-  renderHTML({ HTMLAttributes }) {
-    return ["ul", mergeAttributes(HTMLAttributes), 0];
+  renderHTML({ node, HTMLAttributes }) {
+    return [
+      "ul",
+      mergeAttributes({
+        ...HTMLAttributes,
+        class: `${node.attrs.class} list-disc pl-8 mt-2`,
+      }),
+      0,
+    ];
   },
 });
 
@@ -669,7 +630,7 @@ const CustomOL = Node.create({
       "ol",
       mergeAttributes({
         ...HTMLAttributes,
-        class: `${node.attrs.class} list-decimal list-inside text-muted-foreground dark:text-muted-foreground`,
+        class: `${node.attrs.class} list-decimal pl-8 mt-2`,
       }),
       0,
     ];
@@ -704,35 +665,12 @@ const CustomLI = Node.create({
       },
     ];
   },
-  renderHTML({ HTMLAttributes }) {
-    return ["li", mergeAttributes(HTMLAttributes), 0];
-  },
-});
-
-const RawHTML = Node.create({
-  name: "rawHtml",
-  group: "block",
-  content: "inline*",
-  atom: true,
-  addAttributes() {
-    return {
-      html: {
-        default: null,
-      },
-    };
-  },
-  parseHTML() {
+  renderHTML({ node, HTMLAttributes }) {
     return [
-      {
-        tag: "*",
-        getAttrs: (node) => ({ html: node.outerHTML }),
-      },
+      "li",
+      mergeAttributes({ ...HTMLAttributes, class: `${node.attrs.class} mt-3` }),
+      0,
     ];
-  },
-  renderHTML({ node }) {
-    return {
-      dom: document.createRange().createContextualFragment(node.attrs.html),
-    };
   },
 });
 
@@ -754,5 +692,4 @@ export {
   CustomUL,
   CustomOL,
   CustomLI,
-  RawHTML,
 };
