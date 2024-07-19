@@ -1,4 +1,5 @@
 import * as cheerio from "cheerio";
+import { type ArticleDetails as ArticleMetadata } from "@/app/article/actions/article";
 
 type ElementsType =
   | "H1"
@@ -250,5 +251,48 @@ export class MediumArticleProcessor {
       console.error("Error scraping article:", error);
       throw error;
     }
+  }
+
+  public async extractArticleMetadata(html: string): Promise<ArticleMetadata> {
+    const $ = cheerio.load(html);
+    const sectionElement = $("article").first();
+
+    const metadata: ArticleMetadata = {
+      title:
+        sectionElement.find("h1").first().text().trim() || "No title available",
+      content: (
+        await this.processArticleContent(sectionElement.html() as string)
+      ).html,
+      authorInformation: {
+        authorName:
+          sectionElement.find('a[data-testid="authorName"]').text().trim() ||
+          null,
+        authorProfileURL:
+          sectionElement.find('a[data-testid="authorName"]').attr("href") ||
+          null,
+        authorImageURL:
+          sectionElement.find('img[data-testid="authorPhoto"]').attr("src") ||
+          null,
+      },
+      publicationInformation: {
+        readTime:
+          sectionElement
+            .find('span[data-testid="storyReadTime"]')
+            .text()
+            .trim() || null,
+        publishDate:
+          sectionElement
+            .find('span[data-testid="storyPublishDate"]')
+            .text()
+            .trim() || null,
+        publicationName:
+          sectionElement
+            .find('a[data-testid="publicationName"]')
+            .text()
+            .trim() || null,
+      },
+    };
+
+    return metadata;
   }
 }

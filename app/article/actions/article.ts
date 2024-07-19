@@ -1,13 +1,12 @@
 "use server";
 
-import { ArticleElement, MediumArticleProcessor } from "@/lib/parser";
+import { MediumArticleProcessor } from "@/lib/parser";
 import { urlSchema } from "@/schemas/url";
-import { load } from "cheerio";
 
 export type ArticleDetails = {
   title: string;
   content: string;
-  articleImageSrc: string | null;
+  // articleImageSrc: string | null;
   authorInformation: {
     authorName: string | null;
     authorImageURL: string | null;
@@ -22,10 +21,13 @@ export type ArticleDetails = {
 
 export async function scrapeArticleContent(url: string) {
   try {
-    const baseUrl = "https://webcache.googleusercontent.com/search?q=cache:";
-    const fullUrl = `${baseUrl}${url}&strip=0&vwsrc=0`;
+    const urlResult = urlSchema.safeParse(url);
+    if (!urlResult.success) {
+      throw new Error("Invalid URL");
+    }
 
-    console.log("fullUrl: ", fullUrl);
+    const baseUrl = "https://webcache.googleusercontent.com/search?q=cache:"; // refactor the getURLWithoutPaywall function to use this base URL
+    const fullUrl = `${baseUrl}${url}&strip=0&vwsrc=0`;
 
     const response = await fetch(fullUrl);
     if (!response.ok) {
@@ -35,70 +37,26 @@ export async function scrapeArticleContent(url: string) {
     }
 
     const html = await response.text();
-    const $ = load(html);
 
     const processor = new MediumArticleProcessor();
+    const articleMetadata = (await processor.extractArticleMetadata(
+      html
+    )) as ArticleDetails;
 
-    // const { strippedArticleContent } = processor.stripHTML(html);
-
-    // const section= $("section").first()
-    // const sectionElement = $("section").first().html();
-    // const $ = load(strippedArticleContent as string);
-    const sectionElement = $("article").first();
-    // console.log("sectionElement: ", sectionElement.html());
-    const articleTitle = sectionElement
-      ? sectionElement.find("h1").first().text().trim()
-      : "No title available";
-
-    const content = await processor.processArticle(html);
-
-    // author information
-    const authorName = sectionElement
-      ? $(sectionElement).find('a[data-testid="authorName"]').text().trim()
-      : null;
-
-    const authorProfileURL = sectionElement
-      ? $(sectionElement).find('a[data-testid="authorName"]').attr("href") ??
-        null
-      : null;
-
-    const authorImageURL = sectionElement
-      ? $(sectionElement).find('img[data-testid="authorPhoto"]').attr("src") ??
-        null
-      : null;
-
-    // publication information
-    const readTime = sectionElement
-      ? $(sectionElement)
-          .find('span[data-testid="storyReadTime"]')
-          .text()
-          .trim()
-      : null;
-
-    const publishDate = sectionElement
-      ? $(sectionElement)
-          .find('span[data-testid="storyPublishDate"]')
-          .text()
-          .trim()
-      : null;
-
-    const publicationName = sectionElement
-      ? $(sectionElement).find('a[data-testid="publicationName"]').text().trim()
-      : null;
+    if (!articleMetadata) {
+      return null;
+    }
 
     return {
-      title: articleTitle,
-      content: content.html,
-      articleImageSrc: null,
+      title: articleMetadata.title,
+      content: articleMetadata.content,
+      // articleImageSrc: articleMetadata.articleImageSrc,
       authorInformation: {
-        authorName: authorName,
-        authorImageURL: authorImageURL,
-        authorProfileURL: `https://medium.com${authorProfileURL}`,
+        ...articleMetadata.authorInformation,
+        authorProfileURL: `https://medium.com${articleMetadata.authorInformation.authorProfileURL}`,
       },
       publicationInformation: {
-        publicationName: publicationName,
-        readTime: readTime,
-        publishDate: publishDate,
+        ...articleMetadata.publicationInformation,
       },
     };
   } catch (error) {
