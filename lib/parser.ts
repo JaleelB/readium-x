@@ -55,7 +55,13 @@ export class MediumArticleProcessor {
     ".pw-subtitle-paragraph",
   ];
 
-  private textsToRemove = ["Sign in", "Get started", "Follow", "--"];
+  private textsToRemove = [
+    "Sign in",
+    "Get started",
+    "Follow",
+    "--",
+    "Member-only story",
+  ];
 
   private stripHTML(html: string): string {
     const $ = cheerio.load(html);
@@ -95,25 +101,24 @@ export class MediumArticleProcessor {
         .remove();
     });
 
-    $(`*`).each((index, element) => {
-      const $element = $(element);
-      // Check if the element is effectively empty
-      if (
-        $element.children().length === 0 &&
-        !$element.text().trim() &&
-        !$element.is("img, figure, picture, source")
-      ) {
-        $element.remove();
-      }
-    });
+    // Recursively remove empty elements
+    const removeEmptyElements = (element: cheerio.Cheerio) => {
+      element.each((index, elem) => {
+        const $elem = $(elem);
+        if ($elem.children().length > 0) {
+          removeEmptyElements($elem.children());
+        }
+        if (
+          !$elem.text().trim() &&
+          $elem.children().length === 0 &&
+          !$elem.is("img, figure, picture, source")
+        ) {
+          $elem.remove();
+        }
+      });
+    };
 
-    $('a[rel="noopener follow"]').each((index, element) => {
-      const $element = $(element);
-      // Check if the link does not contain meaningful content
-      if ($element.text().trim() === "" && $element.find("img").length === 0) {
-        $element.remove();
-      }
-    });
+    removeEmptyElements($("*"));
 
     // Remove empty paragraphs and divs that are often left empty
     $("p, div").each((index, element) => {
@@ -138,6 +143,7 @@ export class MediumArticleProcessor {
 
       const $child = $(child);
       const tagName = child.tagName.toLowerCase();
+      const isFirstElement = elements.length === 0;
 
       if (tagName === "picture") {
         // Process picture tag specifically
@@ -150,9 +156,11 @@ export class MediumArticleProcessor {
           img.attr("class", "pt-5 lazy m-auto w-full max-w-full rounded-lg");
         }
         const imgHtml = $.html(img);
+
+        const marginClass = isFirstElement ? "" : "mt-10 md:mt-12";
         elements.push({
           type: "IMG",
-          content: $.html(`<div class="mt-10 md:mt-12">${imgHtml}</div>`),
+          content: $.html(`<div class="${marginClass}">${imgHtml}</div>`),
         });
         captured.add(child);
         return; // Do not process children of picture, as they are already captured
@@ -160,12 +168,17 @@ export class MediumArticleProcessor {
 
       if (tagName === "h1" || tagName === "h2") {
         const newTagName = tagName === "h1" ? "H3" : "H4"; // Convert h1 to h3 and h2 to h4
+
         elements.push({
           type: newTagName as ElementsType,
           content: `<${newTagName.toLowerCase()} class=${
             tagName === "h1"
-              ? "font-bold font-sans break-normal text-gray-900 dark:text-gray-100 text-1xl md:text-2xl pt-12"
-              : "font-bold font-sans break-normal text-gray-900 dark:text-gray-100 text-l md:text-xl pt-8"
+              ? `font-bold font-sans break-normal text-gray-900 dark:text-gray-100 text-1xl md:text-2xl ${
+                  isFirstElement ? "" : "pt-12"
+                }`
+              : `font-bold font-sans break-normal text-gray-900 dark:text-gray-100 text-l md:text-xl ${
+                  isFirstElement ? "" : "pt-8"
+                }`
           }>${$child.html()}</${newTagName.toLowerCase()}>`,
         });
         captured.add(child);
@@ -173,15 +186,15 @@ export class MediumArticleProcessor {
       }
 
       if (tagName === "p") {
-        const cssClass = ["mt-7"]; // Default css class
+        const cssClass = ["leading-8"]; // Default css class
 
         // Check if the previous element was an h3 or h4
         if (elements.length > 0) {
           const lastElement = elements[elements.length - 1];
           if (lastElement.type === "H3" || lastElement.type === "H4") {
-            // cssClass = "mt-3";
-            cssClass.pop();
             cssClass.push("mt-3");
+          } else {
+            cssClass.push("mt-7");
           }
         }
 
@@ -194,16 +207,13 @@ export class MediumArticleProcessor {
 
         // Check if the paragraph is a direct child of an important element
         if (["blockquote", "a", "figure"].includes(parentTagName)) {
-          // cssClass = ""; // Remove css class if it is a child of an important element
-          cssClass.pop();
+          cssClass.pop(); // Remove margin css class if it is a child of an important element
           cssClass.push("font-italic");
         }
 
         elements.push({
           type: "P",
-          content: `<p class="leading-8 ${cssClass.join(
-            " "
-          )}">${$child.html()}</p>`,
+          content: `<p class="${cssClass.join(" ")}">${$child.html()}</p>`,
         });
         captured.add(child);
         return;
@@ -272,7 +282,7 @@ export class MediumArticleProcessor {
       });
 
       const finalHtml = elements.map((el) => el.content).join("");
-      const wrappedHtml = `<div class="main-content mt-8">${finalHtml}</div>`;
+      const wrappedHtml = `<div class="main-content mt-6">${finalHtml}</div>`;
 
       return { html: wrappedHtml };
     } catch (error) {
@@ -287,7 +297,8 @@ export class MediumArticleProcessor {
 
     const metadata: ArticleMetadata = {
       title:
-        sectionElement.find("h1").first().text().trim() || "No title available",
+        sectionElement.find('[data-testid="storyTitle"]').text().trim() ||
+        "No title available",
       content: (
         await this.processArticleContent(sectionElement.html() as string)
       ).html,
@@ -320,8 +331,6 @@ export class MediumArticleProcessor {
             .trim() || null,
       },
     };
-
-    console.log("article content:", metadata.content);
 
     return metadata;
   }

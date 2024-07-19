@@ -12,7 +12,6 @@ import { getCurrentUser } from "@/lib/session";
 import { getUser } from "@/data-access/users";
 import { notFound, redirect } from "next/navigation";
 import { createReadingHistoryLogAction } from "../history/history";
-import { calculateReadTime } from "@/lib/utils";
 import { getUrlWithoutPaywall } from "./actions/url";
 
 export const getCachedArticle = unstable_cache(
@@ -46,7 +45,7 @@ async function ArticleLoader({ url }: { url: string }) {
       articleURL: url,
       authorImageURL: content.authorInformation.authorImageURL as string,
       authorProfileURL: content.authorInformation.authorProfileURL as string,
-      readTime: calculateReadTime(content.content),
+      readTime: content.publicationInformation.readTime as string,
       accessTime: new Date(),
       progress: "0%",
     },
