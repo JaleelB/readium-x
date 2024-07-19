@@ -80,6 +80,19 @@ export async function updateReadingHistoryProgress(
   return updatedReadingHistory;
 }
 
+export async function getReadingHistoryProgress(
+  readingHistoryId: number,
+  userId: number
+) {
+  const readingHistoryLog = await db.query.readingHistory.findFirst({
+    where:
+      eq(readingHistory.userId, userId) &&
+      eq(readingHistory.id, readingHistoryId),
+  });
+
+  return readingHistoryLog?.progress;
+}
+
 export async function deleteReadingHistoryById(
   readingHistoryId: number,
   userId: number

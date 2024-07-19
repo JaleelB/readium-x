@@ -15,7 +15,11 @@ import { useToast } from "./ui/use-toast";
 import { usePathname } from "next/navigation";
 import { useReadingProgress } from "@/hooks/use-reading-progress";
 import { useCallback, useEffect } from "react";
-import { updateReadingHistoryProgressAction } from "@/app/history/history";
+import {
+  getReadingHistoryProgressAction,
+  updateReadingHistoryProgressAction,
+} from "@/app/history/history";
+import { debounce } from "lodash";
 
 export function Article({
   content,
@@ -66,6 +70,42 @@ export function Article({
   const pathname = usePathname();
   const { progress, articleRef } = useReadingProgress();
 
+  // On component mounts, check local storage first to set the initial scroll position. If not available, fetch from the database.
+  useEffect(() => {
+    const savedProgress = localStorage.getItem(
+      `article-progress-${readingHistoryId}`
+    );
+    if (savedProgress) {
+      const scrollTo = parseInt(savedProgress, 10);
+      window.scrollTo(0, (document.body.clientHeight * scrollTo) / 100);
+    } else {
+      getReadingHistoryProgressAction({
+        userId: user.id,
+        readingHistoryId,
+      }).then(([progress, error]) => {
+        if (error) {
+          toast({
+            description: "Failed to get reading progress",
+            variant: "destructive",
+          });
+          return;
+        }
+
+        if (progress) {
+          const scrollTo = parseInt(progress, 10);
+          window.scrollTo(0, (document.body.clientHeight * scrollTo) / 100);
+        }
+      });
+    }
+  }, [readingHistoryId, toast, user.id]);
+
+  const updateLocalStorage = debounce((progress: number) => {
+    localStorage.setItem(
+      `article-progress-${readingHistoryId}`,
+      progress.toString()
+    );
+  }, 1000);
+
   const saveProgress = useCallback(async () => {
     const progressString = `${progress.toFixed(2)}%`;
     const [_, error] = await updateReadingHistoryProgressAction({
@@ -83,6 +123,8 @@ export function Article({
   }, [progress, readingHistoryId, toast, user.id]);
 
   useEffect(() => {
+    updateLocalStorage(progress);
+
     const handleUnload = () => {
       saveProgress();
     };
@@ -100,7 +142,7 @@ export function Article({
       window.removeEventListener("beforeunload", handleUnload);
       document.removeEventListener("visibilitychange", handleVisibilityChange);
     };
-  }, [progress, readingHistoryId, saveProgress, user.id]);
+  }, [progress, readingHistoryId, saveProgress, updateLocalStorage, user.id]);
 
   return (
     <article className="w-full">

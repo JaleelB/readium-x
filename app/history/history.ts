@@ -7,6 +7,7 @@ import {
   updateReadingHistoryProgressUseCase,
   deleteReadingHistoryByIdUseCase,
   deleteAllReadingHistoryUseCase,
+  getReadingHistoryProgressUseCase,
 } from "@/use-cases/article";
 import { authenticatedAction } from "@/lib/safe-action";
 import { revalidatePath } from "next/cache";
@@ -53,6 +54,22 @@ export const getReadingHistoryAction = authenticatedAction
   )
   .handler(async ({ input }) => {
     return await getReadingHistoryUseCase(input.userId);
+  });
+
+export const getReadingHistoryProgressAction = authenticatedAction
+  .createServerAction()
+  .input(
+    z.object({
+      userId: z.number(),
+      readingHistoryId: z.number(),
+    })
+  )
+  .handler(async ({ input }) => {
+    const readingHistoryProgress = await getReadingHistoryProgressUseCase(
+      input.readingHistoryId,
+      input.userId
+    );
+    return readingHistoryProgress;
   });
 
 export const getReadingHistoryByIdAction = authenticatedAction

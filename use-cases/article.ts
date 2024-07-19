@@ -27,6 +27,15 @@ export async function getReadingHistoryUseCase(userId: number) {
   return readingHistory;
 }
 
+export async function getReadingHistoryProgressUseCase(
+  readingHistoryId: number,
+  userId: number
+) {
+  const readingHistory = await getReadingHistoryById(readingHistoryId, userId);
+
+  return readingHistory?.progress;
+}
+
 export async function getReadingHistoryByIdUseCase(
   readingHistoryId: number,
   userId: number
