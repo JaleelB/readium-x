@@ -1,11 +1,11 @@
 "use server";
 
 import { MediumArticleProcessor } from "@/lib/parser";
+import { urlSchema } from "@/schemas/url";
 
 export type ArticleDetails = {
   title: string;
   content: string;
-  // articleImageSrc: string | null;
   authorInformation: {
     authorName: string | null;
     authorImageURL: string | null;
@@ -25,7 +25,7 @@ export async function scrapeArticleContent(url: string) {
       throw new Error("Invalid URL");
     }
 
-    const baseUrl = "https://webcache.googleusercontent.com/search?q=cache:"; // refactor the getURLWithoutPaywall function to use this base URL
+    const baseUrl = "https://webcache.googleusercontent.com/search?q=cache:"; // TODO: refactor the getURLWithoutPaywall function to use this base URL
     const fullUrl = `${baseUrl}${url}&strip=0&vwsrc=0`;
 
     const response = await fetch(fullUrl);
@@ -50,7 +50,6 @@ export async function scrapeArticleContent(url: string) {
     return {
       title: articleMetadata.title,
       content: articleMetadata.content,
-      // articleImageSrc: articleMetadata.articleImageSrc,
       authorInformation: {
         ...articleMetadata.authorInformation,
         authorProfileURL: `https://medium.com${articleMetadata.authorInformation.authorProfileURL}`,
