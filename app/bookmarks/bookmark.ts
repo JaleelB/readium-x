@@ -18,7 +18,7 @@ export const createBookmarkAction = authenticatedAction
       userId: z.number(),
       title: z.string(),
       content: z.string(),
-      articleImageSrc: z.string().url(),
+      // articleImageSrc: z.string().url(),
       authorName: z.string(),
       authorImageURL: z.string().url(),
       authorProfileURL: z.string().url(),
@@ -33,7 +33,7 @@ export const createBookmarkAction = authenticatedAction
       await createBookark(user.id, {
         title: input.title,
         content: input.content,
-        articleImageSrc: input.articleImageSrc,
+        // articleImageSrc: input.articleImageSrc,
         authorName: input.authorName,
         authorImageURL: input.authorImageURL,
         authorProfileURL: input.authorProfileURL,

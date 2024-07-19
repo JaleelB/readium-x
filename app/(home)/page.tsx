@@ -25,7 +25,7 @@ export default async function Home() {
             x="-1"
             y="-1"
           >
-            <path d="M.5 40V.5H40" fill="none" stroke-dasharray="0"></path>
+            <path d="M.5 40V.5H40" fill="none" strokeDasharray="0"></path>
           </pattern>
         </defs>
         <rect width="100%" height="100%" fill="url(#:rt2:)"></rect>

@@ -12,7 +12,6 @@ import { getCurrentUser } from "@/lib/session";
 import { getUser } from "@/data-access/users";
 import { notFound, redirect } from "next/navigation";
 import { createReadingHistoryLogAction } from "../history/history";
-import { calculateReadTime } from "@/lib/utils";
 import { getUrlWithoutPaywall } from "./actions/url";
 
 export const getCachedArticle = unstable_cache(
@@ -20,15 +19,10 @@ export const getCachedArticle = unstable_cache(
   ["url"]
 );
 
-async function ArticleLoader({
-  url,
-  urlWithoutPaywall,
-}: {
-  url: string;
-  urlWithoutPaywall: string;
-}) {
-  const content = await getCachedArticle(urlWithoutPaywall);
-  // const content = await scrapeArticleContent(urlWithoutPaywall);
+async function ArticleLoader({ url }: { url: string }) {
+  // const content = await getCachedArticle(url);
+  const content = await scrapeArticleContent(url);
+
   if (!content) {
     return <ErrorCard />;
   }
@@ -51,7 +45,7 @@ async function ArticleLoader({
       articleURL: url,
       authorImageURL: content.authorInformation.authorImageURL as string,
       authorProfileURL: content.authorInformation.authorProfileURL as string,
-      readTime: calculateReadTime(content.content),
+      readTime: content.publicationInformation.readTime as string,
       accessTime: new Date(),
       progress: "0%",
     },
@@ -79,13 +73,13 @@ export async function ArticleWrapper({ url }: { url: string }) {
 
   // if browser is requesting html it means it's the first page load
   if (headers().get("accept")?.includes("text/html")) {
-    article = await getCachedArticle(urlWithoutPaywall);
-    // article = await scrapeArticleContent(urlWithoutPaywall);
+    // article = await getCachedArticle(url);
+    article = await scrapeArticleContent(url);
   }
 
   return (
     <SuspenseIf condition={!article} fallback={<ArticleSkeleton />}>
-      <ArticleLoader url={url} urlWithoutPaywall={urlWithoutPaywall} />
+      <ArticleLoader url={url} />
     </SuspenseIf>
   );
 }

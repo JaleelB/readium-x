@@ -7,6 +7,7 @@
     "build": "next build",
     "start": "next start",
     "lint": "next lint",
+    "test": "vitest",
     "db:push": "drizzle-kit push --config=drizzle.config.ts",
     "db:migrate": "node -r esbuild-register ./src/db/migrate.ts",
     "db:generate": "drizzle-kit generate --config=drizzle.config.ts",
@@ -35,8 +36,6 @@
     "@tiptap/pm": "^2.4.0",
     "@tiptap/react": "^2.4.0",
     "@tiptap/starter-kit": "^2.4.0",
-    "@types/js-cookie": "^3.0.6",
-    "@types/uuid": "^10.0.0",
     "arctic": "^1.9.1",
     "cheerio": "1.0.0-rc.12",
     "class-variance-authority": "^0.7.0",
@@ -70,15 +69,18 @@
   "devDependencies": {
     "@types/cheerio": "^0.22.35",
     "@types/dompurify": "^3.0.5",
+    "@types/js-cookie": "^3.0.6",
     "@types/lodash": "^4.17.6",
     "@types/node": "^20.14.9",
     "@types/react": "^18.3.3",
     "@types/react-dom": "^18.3.0",
+    "@types/uuid": "^10.0.0",
     "drizzle-kit": "^0.22.8",
     "eslint": "^8.57.0",
     "eslint-config-next": "14.2.4",
     "postcss": "^8.4.39",
     "tailwindcss": "^3.4.4",
-    "typescript": "^5.5.2"
+    "typescript": "^5.5.2",
+    "vitest": "^2.0.3"
   }
 }

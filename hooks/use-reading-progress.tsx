@@ -28,7 +28,6 @@ export const useReadingProgress = (): ReadingProgressHook => {
 
     if (Math.abs(progressRef.current - newProgress) > 0.1) {
       progressRef.current = newProgress;
-      console.log("Setting progress", progressRef.current);
     }
     // if (Math.abs(progress - newProgress) > 0.1) {
     //   console.log("Setting progress", newProgress);

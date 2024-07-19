@@ -30,7 +30,7 @@ export const createReadingHistoryLogAction = authenticatedAction
     })
   )
   .handler(async ({ input }) => {
-    await createReadingHistoryLogUseCase(input.userId, {
+    const log = await createReadingHistoryLogUseCase(input.userId, {
       title: input.articleDetails.title,
       authorName: input.articleDetails.authorName,
       articleUrl: input.articleDetails.articleURL,
@@ -41,7 +41,7 @@ export const createReadingHistoryLogAction = authenticatedAction
       progress: input.articleDetails.progress,
     });
 
-    revalidatePath("/history");
+    return log;
   });
 
 export const getReadingHistoryAction = authenticatedAction
@@ -87,7 +87,6 @@ export const updateReadingHistoryProgressAction = authenticatedAction
       input.userId,
       input.progress
     );
-    revalidatePath("/history");
   });
 
 export const deleteReadingHistoryByIdAction = authenticatedAction

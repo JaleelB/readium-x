@@ -1,4 +1,3 @@
-import { ArticleDetails } from "@/app/article/actions/article";
 import { articleSchema } from "@/schemas/article";
 import { db } from "@/server/db/db";
 import { bookmarks } from "@/server/db/schema";
@@ -26,7 +25,7 @@ export async function createBookark(
       userId,
       title: articleDetails.title,
       content: articleDetails.content,
-      articleImageSrc: articleDetails.articleImageSrc,
+      // articleImageSrc: articleDetails.articleImageSrc,
       authorName: articleDetails.authorName,
       authorImageURL: articleDetails.authorImageURL,
       authorProfileURL: articleDetails.authorProfileURL,
