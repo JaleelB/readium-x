@@ -1,5 +1,6 @@
+"use client";
+
 import { useEffect, useState, useRef, useCallback } from "react";
-import { throttle } from "lodash";
 
 interface ReadingProgressHook {
   progress: number;
@@ -8,49 +9,43 @@ interface ReadingProgressHook {
 }
 
 export const useReadingProgress = (): ReadingProgressHook => {
-  // const [progress, setProgress] = useState(0);
-  const progressRef = useRef(0);
+  const [progress, setProgress] = useState(0);
   const [isScrolling, setIsScrolling] = useState(false);
   const articleRef = useRef<HTMLElement>(null);
   const scrollTimeoutRef = useRef<NodeJS.Timeout>();
+  const frameRef = useRef<number>();
 
-  const handleScroll = useCallback(() => {
+  const calculateProgress = () => {
     if (!articleRef.current) return;
-
     const element = articleRef.current;
     const totalHeight = element.clientHeight - element.offsetTop;
     const windowScrollTop = window.scrollY || window.pageYOffset;
     const scrolledAmount = windowScrollTop - element.offsetTop;
-    const newProgress = Math.min(
-      Math.max((scrolledAmount / totalHeight) * 100, 0),
-      100
-    );
+    return Math.min(Math.max((scrolledAmount / totalHeight) * 100, 0), 100);
+  };
 
-    if (Math.abs(progressRef.current - newProgress) > 0.1) {
-      progressRef.current = newProgress;
-    }
-    // if (Math.abs(progress - newProgress) > 0.1) {
-    //   console.log("Setting progress", newProgress);
-    //   setProgress(newProgress);
-    // }
-
-    setIsScrolling(true); // Always set to true on scroll
-    clearTimeout(scrollTimeoutRef.current); // Clear the existing timeout
-
+  const handleScroll = useCallback(() => {
+    setIsScrolling(true);
+    clearTimeout(scrollTimeoutRef.current);
     scrollTimeoutRef.current = setTimeout(() => {
-      setIsScrolling(false); // Set to false only when scrolling stops
+      setIsScrolling(false);
     }, 150);
+
+    if (frameRef.current) cancelAnimationFrame(frameRef.current);
+    frameRef.current = requestAnimationFrame(() => {
+      const newProgress = calculateProgress();
+      setProgress(newProgress as number);
+    });
   }, []);
 
   useEffect(() => {
-    const throttleScroll = throttle(handleScroll, 100);
-
-    window.addEventListener("scroll", throttleScroll);
+    window.addEventListener("scroll", handleScroll);
     return () => {
-      window.removeEventListener("scroll", throttleScroll);
+      window.removeEventListener("scroll", handleScroll);
       clearTimeout(scrollTimeoutRef.current);
+      if (frameRef.current) cancelAnimationFrame(frameRef.current);
     };
   }, [handleScroll]);
 
-  return { progress: progressRef.current, isScrolling, articleRef };
+  return { progress, isScrolling, articleRef };
 };

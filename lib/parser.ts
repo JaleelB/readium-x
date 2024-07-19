@@ -53,6 +53,7 @@ export class MediumArticleProcessor {
     '[data-testid="publicationPhoto"]',
     '[data-testid="storyTitle"]',
     ".pw-subtitle-paragraph",
+    '[aria-label="kicker paragraph"]',
   ];
 
   private textsToRemove = [
@@ -332,6 +333,7 @@ export class MediumArticleProcessor {
       },
     };
 
+    console.log("Metadata content: ", metadata.content);
     return metadata;
   }
 }
