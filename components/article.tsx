@@ -1,8 +1,6 @@
 "use client";
 
 import { ArticleDetails } from "@/app/article/actions/article";
-import { AspectRatio } from "./ui/aspect-ratio";
-import Image from "next/image";
 import { Avatar, AvatarFallback, AvatarImage } from "./ui/avatar";
 import Link from "next/link";
 import { calculateReadTime, formatDate } from "@/lib/utils";
@@ -16,9 +14,8 @@ import { generateRandomName } from "@/lib/names";
 import { useToast } from "./ui/use-toast";
 import { usePathname } from "next/navigation";
 import { useReadingProgress } from "@/hooks/use-reading-progress";
-import { use, useCallback, useEffect, useRef } from "react";
+import { useCallback, useEffect } from "react";
 import { updateReadingHistoryProgressAction } from "@/app/history/history";
-import { debounce } from "lodash";
 
 export function Article({
   content,
@@ -67,54 +64,43 @@ export function Article({
 
   const { toast } = useToast();
   const pathname = usePathname();
-  const { progress, articleRef, isScrolling } = useReadingProgress();
-  const lastSavedProgress = useRef(0);
+  const { progress, articleRef } = useReadingProgress();
 
-  // useEffect(() => {
-  //   console.log("Progress", progress);
-  //   if (!isScrolling) {
-  //     lastSavedProgress.current = progress;
-  //   }
-  // }, [isScrolling, progress]);
+  const saveProgress = useCallback(async () => {
+    const progressString = `${progress.toFixed(2)}%`;
+    const [_, error] = await updateReadingHistoryProgressAction({
+      readingHistoryId,
+      userId: user.id,
+      progress: progressString,
+    });
 
-  // const saveProgress = useCallback(
-  //   async (progress: number) => {
-  //     if (
-  //       progress < 100 &&
-  //       Math.abs(lastSavedProgress.current - progress) > 5
-  //     ) {
-  //       const [_, error] = await updateReadingHistoryProgressAction({
-  //         readingHistoryId: readingHistoryId,
-  //         userId: user.id,
-  //         progress: `${progress.toFixed(2)}%`,
-  //       });
+    if (error) {
+      toast({
+        description: "Failed to save reading progress",
+        variant: "destructive",
+      });
+    }
+  }, [progress, readingHistoryId, toast, user.id]);
 
-  //       if (error) {
-  //         toast({
-  //           description: "There was an error saving your progress",
-  //           variant: "destructive",
-  //         });
-  //       } else {
-  //         console.log("Progress saved", progress.toFixed(2) + "%");
-  //         lastSavedProgress.current = progress;
-  //       }
-  //     }
-  //   },
-  //   [readingHistoryId, user.id, toast]
-  // );
+  useEffect(() => {
+    const handleUnload = () => {
+      saveProgress();
+    };
 
-  // Debounce the saveProgress function
-  // const debouncedSaveProgress = debounce((progress) => {
-  //   console.log("Debounced progress", progress);
-  //   saveProgress(progress);
-  // }, 500);
+    const handleVisibilityChange = () => {
+      if (document.visibilityState === "hidden") {
+        saveProgress();
+      }
+    };
 
-  // useEffect(() => {
-  //   if (!isScrolling && progress < 100) {
-  //     // debouncedSaveProgress(progress);
-  //     saveProgress(progress);
-  //   }
-  // }, [isScrolling, progress, saveProgress]);
+    window.addEventListener("beforeunload", handleUnload);
+    document.addEventListener("visibilitychange", handleVisibilityChange);
+
+    return () => {
+      window.removeEventListener("beforeunload", handleUnload);
+      document.removeEventListener("visibilitychange", handleVisibilityChange);
+    };
+  }, [progress, readingHistoryId, saveProgress, user.id]);
 
   return (
     <article className="w-full">
