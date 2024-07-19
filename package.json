@@ -43,7 +43,6 @@
     "dompurify": "^3.1.5",
     "dotenv": "^16.4.5",
     "drizzle-orm": "^0.31.2",
-    "ejs": "^3.1.10",
     "jiti": "^1.21.6",
     "js-cookie": "^3.0.5",
     "lodash": "^4.17.21",
@@ -70,7 +69,6 @@
   "devDependencies": {
     "@types/cheerio": "^0.22.35",
     "@types/dompurify": "^3.0.5",
-    "@types/ejs": "^3.1.5",
     "@types/js-cookie": "^3.0.6",
     "@types/lodash": "^4.17.6",
     "@types/node": "^20.14.9",

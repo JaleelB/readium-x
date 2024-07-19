@@ -1,36 +1,17 @@
 import * as cheerio from "cheerio";
-import ejs from "ejs";
-
-type ParagraphType =
-  | "H3"
-  | "H4"
-  | "IMG"
-  | "P"
-  | "ULI"
-  | "OLI"
-  | "PRE"
-  | "BQ"
-  | "PQ";
-
-type MarkupType =
-  | "STRONG"
-  | "EM"
-  | "A"
-  | "CODE"
-  | "STRIKE"
-  | "MARK"
-  | "SUP"
-  | "SUB";
 
 type ElementsType =
+  | "H1"
+  | "H2"
   | "H3"
   | "H4"
   | "IMG"
   | "P"
-  | "ULI"
-  | "OLI"
+  | "UL"
+  | "OL"
+  | "LI"
   | "PRE"
-  | "BQ"
+  | "BLOCKQUOTE"
   | "PQ"
   | "STRONG"
   | "EM"
@@ -40,19 +21,12 @@ type ElementsType =
   | "MARK"
   | "SUP"
   | "SUB"
-  | "FIGCAPTION";
+  | "FIGCAPTION"
+  | "DIV";
 
 export interface ArticleElement {
-  type: ParagraphType;
+  type: ElementsType;
   content: string;
-  markups?: Markup[];
-}
-
-interface Markup {
-  type: MarkupType;
-  start: number;
-  end: number;
-  href?: string;
 }
 
 interface Article {
@@ -62,78 +36,31 @@ interface Article {
 export class MediumArticleProcessor {
   constructor() {}
 
-  private renderTemplate(templateString: string, context: object): string {
-    return ejs.render(templateString, context);
-  }
+  private stripIdentifiers = [
+    '[aria-labelledby="postFooterSocialMenu"]',
+    '[data-testid="audioPlayButton"]',
+    '[data-testid="headerSocialShareButton"]',
+    '[data-testid="headerBookmarkButton"]',
+    '[aria-label="responses"]',
+    '[data-testid="headerClapButton"]',
+    '[data-testid="storyPublishDate"]',
+    '[data-testid="storyReadTime"]',
+    '[data-testid="authorName"]',
+    '[href="/@benulansey"]',
+    '[data-testid="publicationName"]',
+    '[data-testid="authorPhoto"]',
+    '[data-testid="publicationPhoto"]',
+    '[data-testid="storyTitle"]',
+    ".pw-subtitle-paragraph",
+  ];
 
-  private parseMarkups($: cheerio.Root, element: cheerio.Cheerio): Markup[] {
-    const markups: Markup[] = [];
-    const content = element.text();
+  private textsToRemove = ["Sign in", "Get started", "Follow", "--"];
 
-    element
-      .find("strong, em, a, code, strike, mark, sup, sub")
-      .each((_, el) => {
-        const $el = $(el);
-        const tagName = (el as cheerio.TagElement).tagName.toLowerCase();
-        const start = content.indexOf($el.text());
-        const end = start + $el.text().length;
-
-        let markupType: MarkupType;
-        switch (tagName) {
-          case "strong":
-            markupType = "STRONG";
-            break;
-          case "em":
-            markupType = "EM";
-            break;
-          case "a":
-            markupType = "A";
-            break;
-          case "code":
-            markupType = "CODE";
-            break;
-          case "strike":
-            markupType = "STRIKE";
-            break;
-          case "mark":
-            markupType = "MARK";
-            break;
-          case "sup":
-            markupType = "SUP";
-            break;
-          case "sub":
-            markupType = "SUB";
-            break;
-          default:
-            return; // Skip unsupported tags
-        }
-
-        const markup: Markup = { type: markupType, start, end };
-        if (tagName === "a") {
-          markup.href = $el.attr("href") || undefined;
-        }
-        markups.push(markup);
-      });
-
-    return markups;
-  }
-
-  // private stripHTML(html: string, identifiers: string[]): string {
-  //   const $ = cheerio.load(html);
-  //   identifiers.forEach((selector) => {
-  //     $(selector).remove();
-  //   });
-  //   return $.html();
-  // }
-  private stripHTML(
-    html: string,
-    identifiers: string[],
-    textsToRemove: string[]
-  ): string {
+  private stripHTML(html: string): string {
     const $ = cheerio.load(html);
 
     // Remove elements by CSS selectors and attributes
-    identifiers.forEach((identifier) => {
+    this.stripIdentifiers.forEach((identifier) => {
       try {
         if (identifier.includes("=")) {
           // More robust splitting that handles cases where value might include '='
@@ -154,7 +81,7 @@ export class MediumArticleProcessor {
     });
 
     // Remove elements by matching text content
-    textsToRemove.forEach((text) => {
+    this.textsToRemove.forEach((text) => {
       $("*")
         .contents()
         .filter(function (this: cheerio.Element) {
@@ -191,24 +118,75 @@ export class MediumArticleProcessor {
           const srcset = firstSource.attr("srcset");
           const firstSrc = srcset?.split(",")[0].split(" ")[0]; // Take the first URL from srcset
           img.attr("src", firstSrc as string);
+          img.attr("class", "pt-5 lazy m-auto w-full max-w-full rounded-lg");
         }
         const imgHtml = $.html(img);
         elements.push({
           type: "IMG",
-          content: imgHtml,
+          content: $.html(`<div class="mt-10 md:mt-12">${imgHtml}</div>`),
         });
         captured.add(child);
         return; // Do not process children of picture, as they are already captured
       }
 
+      if (tagName === "h1" || tagName === "h2") {
+        const newTagName = tagName === "h1" ? "H3" : "H4"; // Convert h1 to h3 and h2 to h4
+        elements.push({
+          type: newTagName as ElementsType,
+          content: `<${newTagName.toLowerCase()} class=${
+            tagName === "h1"
+              ? "font-bold font-sans break-normal text-gray-900 dark:text-gray-100 text-1xl md:text-2xl pt-12"
+              : "font-bold font-sans break-normal text-gray-900 dark:text-gray-100 text-l md:text-xl pt-8"
+          }>${$child.html()}</${newTagName.toLowerCase()}>`,
+        });
+        captured.add(child);
+        return; // Do not process children of this, as it's converted and captured
+      }
+
+      if (tagName === "p") {
+        const cssClass = ["mt-7"]; // Default css class
+
+        // Check if the previous element was an h3 or h4
+        if (elements.length > 0) {
+          const lastElement = elements[elements.length - 1];
+          if (lastElement.type === "H3" || lastElement.type === "H4") {
+            // cssClass = "mt-3";
+            cssClass.pop();
+            cssClass.push("mt-3");
+          }
+        }
+
+        // Safe check for parent's tagName
+        const parentElement = $child.parent()[0];
+        const parentTagName =
+          parentElement && parentElement.type === "tag"
+            ? parentElement.tagName.toLowerCase()
+            : "";
+
+        // Check if the paragraph is a direct child of an important element
+        if (["blockquote", "a", "figure"].includes(parentTagName)) {
+          // cssClass = ""; // Remove css class if it is a child of an important element
+          cssClass.pop();
+          cssClass.push("font-italic");
+        }
+
+        elements.push({
+          type: "P",
+          content: `<p class="leading-8 ${cssClass.join(
+            " "
+          )}">${$child.html()}</p>`,
+        });
+        captured.add(child);
+        return;
+      }
+
       if (
-        supportedTypes.includes(tagName.toUpperCase() as ParagraphType) &&
+        supportedTypes.includes(tagName.toUpperCase() as ElementsType) &&
         !captured.has(child)
       ) {
         elements.push({
-          type: tagName.toUpperCase() as ParagraphType,
+          type: tagName.toUpperCase() as ElementsType,
           content: $.html($child),
-          markups: this.parseMarkups($, $child),
         });
         captured.add(child);
       } else {
@@ -217,7 +195,7 @@ export class MediumArticleProcessor {
     });
   }
 
-  public async processArticle(html: string): Promise<Article> {
+  public async processArticleContent(html: string): Promise<Article> {
     try {
       const $ = cheerio.load(html);
 
@@ -225,14 +203,16 @@ export class MediumArticleProcessor {
 
       // Supported tags
       const supportedTypes: ElementsType[] = [
+        "H1",
+        "H2",
         "H3",
         "H4",
         "IMG",
         "P",
-        "ULI",
-        "OLI",
+        "UL",
+        "OL",
         "PRE",
-        "BQ",
+        "BLOCKQUOTE",
         "PQ",
         "STRONG",
         "EM",
@@ -244,39 +224,15 @@ export class MediumArticleProcessor {
         "FIGCAPTION",
       ];
 
-      // Identifiers for elements to strip from HTML
-      const stripIdentifiers = [
-        '[aria-labelledby="postFooterSocialMenu"]',
-        '[data-testid="audioPlayButton"]',
-        '[data-testid="headerSocialShareButton"]',
-        '[data-testid="headerBookmarkButton"]',
-        '[aria-label="responses"]',
-        '[data-testid="headerClapButton"]',
-        '[data-testid="storyPublishDate"]',
-        '[data-testid="storyReadTime"]',
-        '[data-testid="authorName"]',
-        '[href="/@benulansey"]',
-        '[data-testid="publicationName"]',
-        '[data-testid="authorPhoto"]',
-      ];
-
-      // Texts to remove from elements
-      const textsToRemove = ["Member-only story", "Follow", "--"];
-
       // Initial empty set to keep track of captured elements
       const capturedElements = new Set<cheerio.Element>();
+      const sectionElement = $("section");
+      const sectionHtmlContent = this.stripHTML($.html(sectionElement));
 
       // Start processing from the section level
-      $("section").each((_, section) => {
-        const sectionHtml = this.stripHTML(
-          $.html(section),
-          stripIdentifiers,
-          textsToRemove
-        );
-        const $section = cheerio.load(sectionHtml);
+      $(sectionHtmlContent).each((_, section) => {
+        const $section = cheerio.load(section);
 
-        // processElement($(section), capturedElements);
-        // processElement($section("section"), capturedElements);
         this.processElement(
           $,
           $section("section"),
@@ -286,7 +242,6 @@ export class MediumArticleProcessor {
         );
       });
 
-      // return { title, elements };
       const finalHtml = elements.map((el) => el.content).join("");
       const wrappedHtml = `<div class="main-content mt-8">${finalHtml}</div>`;
 
