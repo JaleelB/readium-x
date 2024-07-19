@@ -103,7 +103,6 @@ export function CreateBookmarkForm({ user }: { user: ExisitingUser }) {
       userId: user.id,
       title: scrapedArticle?.title || "No title available",
       content: scrapedArticle?.content || "",
-      articleImageSrc: scrapedArticle?.articleImageSrc || "",
       authorName: scrapedArticle?.authorInformation.authorName || "",
       authorImageURL: scrapedArticle?.authorInformation.authorImageURL || "",
       authorProfileURL:
