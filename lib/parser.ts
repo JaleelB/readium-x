@@ -95,6 +95,34 @@ export class MediumArticleProcessor {
         .remove();
     });
 
+    $(`*`).each((index, element) => {
+      const $element = $(element);
+      // Check if the element is effectively empty
+      if (
+        $element.children().length === 0 &&
+        !$element.text().trim() &&
+        !$element.is("img, figure, picture, source")
+      ) {
+        $element.remove();
+      }
+    });
+
+    $('a[rel="noopener follow"]').each((index, element) => {
+      const $element = $(element);
+      // Check if the link does not contain meaningful content
+      if ($element.text().trim() === "" && $element.find("img").length === 0) {
+        $element.remove();
+      }
+    });
+
+    // Remove empty paragraphs and divs that are often left empty
+    $("p, div").each((index, element) => {
+      const $element = $(element);
+      if ($element.text().trim() === "" && $element.children().length === 0) {
+        $element.remove();
+      }
+    });
+
     return $.html();
   }
 
@@ -292,6 +320,8 @@ export class MediumArticleProcessor {
             .trim() || null,
       },
     };
+
+    console.log("article content:", metadata.content);
 
     return metadata;
   }
