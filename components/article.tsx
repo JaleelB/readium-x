@@ -65,46 +65,43 @@ export function Article({
       "data-ll-status",
     ],
   });
-  const [initialProgress] = useState(() => {
-    return parseFloat(
-      localStorage.getItem(`article-progress-${readingHistoryId}`) || "0"
-    );
-  });
+  // const [initialProgress] = useState(() => {
+  //   return parseFloat(
+  //     localStorage.getItem(`article-progress-${readingHistoryId}`) || "0"
+  //   );
+  // });
+
   const { toast } = useToast();
   const pathname = usePathname();
+
+  const [initialProgress, setInitialProgress] = useState<number>(0);
+
+  useEffect(() => {
+    const localStorageKey = `article-progress-${readingHistoryId}`;
+    const savedProgress = localStorage.getItem(localStorageKey);
+    if (savedProgress) {
+      setInitialProgress(parseFloat(savedProgress));
+    } else {
+      getReadingHistoryProgressAction({
+        userId: user.id,
+        readingHistoryId,
+      }).then(([progress, error]) => {
+        if (error) {
+          toast({
+            description: "Failed to retrieve reading progress from database",
+            variant: "destructive",
+          });
+          return;
+        }
+        if (progress) {
+          localStorage.setItem(localStorageKey, progress);
+          setInitialProgress(parseFloat(progress));
+        }
+      });
+    }
+  }, [readingHistoryId, user.id, toast]);
+
   const { progress, articleRef } = useReadingProgress(initialProgress);
-
-  // const getReadingProgressFromDb = useCallback(async () => {
-  //   const [progress, error] = await getReadingHistoryProgressAction({
-  //     userId: user.id,
-  //     readingHistoryId,
-  //   });
-
-  //   if (error) {
-  //     toast({
-  //       description: "Failed to get reading progress",
-  //       variant: "destructive",
-  //     });
-  //     return;
-  //   }
-
-  //   if (progress) {
-  //     // const scrollTo = parseInt(progress, 10);
-  //     // window.scrollTo(0, (document.body.clientHeight * scrollTo) / 100);
-  //     return progress;
-  //   }
-  // }, [readingHistoryId, toast, user.id]);
-
-  // const getProgressFromStorage = useCallback(() => {
-  //   const savedProgress = localStorage.getItem(
-  //     `article-progress-${readingHistoryId}`
-  //   );
-  //   if (savedProgress) {
-  //     // const scrollTo = parseInt(savedProgress, 10);
-  //     // window.scrollTo(0, (document.body.clientHeight * scrollTo) / 100);
-  //     return parseFloat(savedProgress);
-  //   }
-  // }, [readingHistoryId]);
 
   const updateLocalStorage = debounce((progress: number) => {
     localStorage.setItem(
