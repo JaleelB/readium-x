@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useEffect, useRef } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import Link from "next/link";
 
 import { buttonVariants } from "./ui/button";
@@ -13,6 +13,7 @@ import { User } from "@/server/db/schema";
 export default function Nav({ user }: { user: User | undefined }) {
   const headerRef = useRef<HTMLHeadingElement>(null);
   const lastScrollY = useRef(0);
+  const [isScrolled, setIsScrolled] = useState(false);
 
   useEffect(() => {
     const handleScroll = () => {
@@ -24,6 +25,10 @@ export default function Nav({ user }: { user: User | undefined }) {
           headerRef.current.style.transition = "transform 0.3s ease-in-out";
         } else {
           // Scroll up or at the top
+          if (currentScrollY > 64) {
+            setIsScrolled(currentScrollY > 64);
+          }
+
           headerRef.current.style.transform = "translateY(0)";
           headerRef.current.style.transition = "transform 0.3s ease-in-out";
         }
@@ -41,21 +46,17 @@ export default function Nav({ user }: { user: User | undefined }) {
   return (
     <header
       ref={headerRef}
-      className={`flex h-[64px] w-full px-4 md:px-8 fixed inset-0 justify-between items-center z-[1500]`}
+      className={`flex h-[64px]  w-full px-4 md:px-8 fixed inset-0 justify-between items-center z-[1500]`}
     >
-      {/* <div className={`flex h-items-center`}> */}
       <Link
         href="/"
         className={`flex items-center ${
-          lastScrollY.current > 64
-            ? "bg-background border rounded-full px-3 py-2"
-            : ""
+          isScrolled ? "bg-background border rounded-full px-4 py-2" : ""
         }`}
       >
         <Icons.logo />
         <h4 className="ml-2 font-heading text-xl">{siteConfig.short_name}</h4>
       </Link>
-      {/* </div> */}
 
       <div className={`flex h-full w-1/2 items-center justify-end gap-2`}>
         {!user && (
