@@ -41,14 +41,21 @@ export default function Nav({ user }: { user: User | undefined }) {
   return (
     <header
       ref={headerRef}
-      className={`flex h-[64px] w-full px-4 md:px-8 fixed inset-0`}
+      className={`flex h-[64px] w-full px-4 md:px-8 fixed inset-0 justify-between items-center z-[1500]`}
     >
-      <div className={`flex h-full w-1/2 items-center`}>
-        <Link href="/" className="flex items-center">
-          <Icons.logo />
-          <h4 className="ml-2 font-heading text-xl">{siteConfig.short_name}</h4>
-        </Link>
-      </div>
+      {/* <div className={`flex h-items-center`}> */}
+      <Link
+        href="/"
+        className={`flex items-center ${
+          lastScrollY.current > 64
+            ? "bg-background border rounded-full px-3 py-2"
+            : ""
+        }`}
+      >
+        <Icons.logo />
+        <h4 className="ml-2 font-heading text-xl">{siteConfig.short_name}</h4>
+      </Link>
+      {/* </div> */}
 
       <div className={`flex h-full w-1/2 items-center justify-end gap-2`}>
         {!user && (

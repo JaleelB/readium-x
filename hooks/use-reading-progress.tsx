@@ -1,5 +1,3 @@
-"use client";
-
 import { useEffect, useState, useRef, useCallback } from "react";
 
 interface ReadingProgressHook {
@@ -8,42 +6,58 @@ interface ReadingProgressHook {
   articleRef: React.RefObject<HTMLElement>;
 }
 
-export const useReadingProgress = (): ReadingProgressHook => {
-  const [progress, setProgress] = useState(0);
+export const useReadingProgress = (
+  initialProgress: number
+): ReadingProgressHook => {
+  const [progress, setProgress] = useState(initialProgress);
   const [isScrolling, setIsScrolling] = useState(false);
   const articleRef = useRef<HTMLElement>(null);
-  const scrollTimeoutRef = useRef<NodeJS.Timeout>();
-  const frameRef = useRef<number>();
+  const isUserScroll = useRef(true); // Track if scroll was triggered by user
 
-  const calculateProgress = () => {
+  useEffect(() => {
+    const scrollToPosition = () => {
+      if (articleRef.current) {
+        const maxScrollTop =
+          document.documentElement.scrollHeight -
+          document.documentElement.clientHeight;
+        const targetScrollTop = maxScrollTop * (initialProgress / 100);
+        isUserScroll.current = false; // Mark scroll as programmatic
+        window.scrollTo({ top: targetScrollTop, behavior: "smooth" });
+        console.log("Initial scrolling to:", targetScrollTop);
+      }
+    };
+
+    const timer = setTimeout(scrollToPosition, 100);
+    return () => clearTimeout(timer);
+  }, [initialProgress]);
+
+  const calculateProgress = useCallback(() => {
     if (!articleRef.current) return;
-    const element = articleRef.current;
-    const totalHeight = element.clientHeight - element.offsetTop;
-    const windowScrollTop = window.scrollY || window.pageYOffset;
-    const scrolledAmount = windowScrollTop - element.offsetTop;
-    return Math.min(Math.max((scrolledAmount / totalHeight) * 100, 0), 100);
-  };
+    const maxScrollTop =
+      document.documentElement.scrollHeight -
+      document.documentElement.clientHeight;
+    const windowScrollTop = window.pageYOffset;
+    return Math.min(Math.max((windowScrollTop / maxScrollTop) * 100, 0), 100);
+  }, []);
 
   const handleScroll = useCallback(() => {
+    if (!isUserScroll.current) {
+      // Ignore programmatic scrolls
+      isUserScroll.current = true;
+      return;
+    }
     setIsScrolling(true);
-    clearTimeout(scrollTimeoutRef.current);
-    scrollTimeoutRef.current = setTimeout(() => {
+    setTimeout(() => {
+      const newProgress = calculateProgress() || 0;
+      setProgress(newProgress);
       setIsScrolling(false);
     }, 150);
-
-    if (frameRef.current) cancelAnimationFrame(frameRef.current);
-    frameRef.current = requestAnimationFrame(() => {
-      const newProgress = calculateProgress();
-      setProgress(newProgress as number);
-    });
-  }, []);
+  }, [calculateProgress]);
 
   useEffect(() => {
     window.addEventListener("scroll", handleScroll);
     return () => {
       window.removeEventListener("scroll", handleScroll);
-      clearTimeout(scrollTimeoutRef.current);
-      if (frameRef.current) cancelAnimationFrame(frameRef.current);
     };
   }, [handleScroll]);
 
