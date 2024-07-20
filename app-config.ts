@@ -7,8 +7,8 @@ export const siteConfig = {
   short_name: applicationName,
   description:
     "An open source tool that provides access to premium Medium articles without the paywall, allowing you to bookmark, and manage your reading experience across any device.",
-  url: "https://readium-x.vercel.app",
-  ogImage: "https://readium-x.vercel.app/og.png",
+  url: "https://readiumx.com",
+  ogImage: "https://readiumx.com/web-shot.png",
   links: {
     twitter: "https://twitter.com/jal_eelll",
     github: "https://github.com/JaleelB/readium-x",

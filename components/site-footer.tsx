@@ -18,15 +18,6 @@ function SiteFooter() {
           >
             {siteConfig.creator.name}
           </Link>
-          . Hosted on{" "}
-          <Link
-            href="https://vercel.com"
-            target="_blank"
-            rel="noreferrer"
-            className="font-medium underline underline-offset-4"
-          >
-            Vercel
-          </Link>
           . The source code is available on{" "}
           <Link
             href={siteConfig.links.github}

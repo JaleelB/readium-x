@@ -24,7 +24,7 @@ export default async function HistoryPage() {
   }
 
   return (
-    <div className="container relative flex justify-center items-center px-4 sm:px-8 h-[calc(100vh-60px)]">
+    <div className="container relative flex justify-center items-center px-4 sm:px-8 h-screen">
       <svg
         aria-hidden="true"
         className="pointer-events-none absolute inset-0 w-full fill-gray-400/30 stroke-gray-400/30 [mask-image:radial-gradient(800px_circle_at_center,white,transparent)] inset-x-0 inset-y-[0%] h-[90%] skew-y-[300]"
