@@ -17,7 +17,7 @@ export default async function BookmarkPage() {
   }
 
   return (
-    <div className="relative container px-4 sm:px-8 flex bg-background py-10">
+    <div className="relative container px-4 sm:px-8 flex bg-background py-10 pt-16 md:pt-24 h-screen">
       <svg
         aria-hidden="true"
         className="pointer-events-none absolute inset-0 w-full fill-gray-400/30 stroke-gray-400/30 [mask-image:radial-gradient(700px_circle_at_center,white,transparent)] inset-x-0 inset-y-[0%] h-[90%] skew-y-12"

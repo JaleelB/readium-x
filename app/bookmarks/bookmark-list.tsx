@@ -9,7 +9,7 @@ import { Button } from "@/components/ui/button";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { AvatarImage } from "@radix-ui/react-avatar";
 import Link from "next/link";
-import { calculateReadTime, cn, formatDate } from "@/lib/utils";
+import { cn, formatDate } from "@/lib/utils";
 import {
   AlertDialog,
   AlertDialogAction,
@@ -45,31 +45,12 @@ function extractFirstSentence(htmlContent: string): string {
   return matches ? matches[0].trim() : "No complete sentence found.";
 }
 
-{
-  /* <figure class="relative mx-auto min-h-fit w-full max-w-[400px] cursor-pointer overflow-hidden rounded-2xl p-4 transition-all duration-200 ease-in-out hover:scale-[103%] bg-white [box-shadow:0_0_0_1px_rgba(0,0,0,.03),0_2px_4px_rgba(0,0,0,.05),0_12px_24px_rgba(0,0,0,.05)] transform-gpu dark:bg-transparent dark:backdrop-blur-md dark:[border:1px_solid_rgba(255,255,255,.1)] dark:[box-shadow:0_-20px_80px_-20px_#ffffff1f_inset]">
-  <div class="flex flex-row items-center gap-3">
-    <div
-      class="flex size-10 items-center justify-center rounded-2xl"
-      style="background-color: rgb(255, 61, 113);"
-    >
-      <span class="text-lg">💬</span>
-    </div>
-    <div class="flex flex-col overflow-hidden">
-      <figcaption class="flex flex-row items-center whitespace-pre text-lg font-medium dark:text-white ">
-        <span class="text-sm sm:text-lg">New message</span>
-        <span class="mx-1">·</span>
-        <span class="text-xs text-gray-500">5m ago</span>
-      </figcaption>
-      <p class="text-sm font-normal dark:text-white/60">Magic UI</p>
-    </div>
-  </div>
-</figure>; */
-}
-
 export default function BookmarksList({
   bookmarks,
+  userId,
 }: {
   bookmarks: Bookmark[];
+  userId: number;
 }) {
   const { toast } = useToast();
   return (
@@ -104,7 +85,7 @@ export default function BookmarksList({
                     {bookmark.authorName}
                   </Link>
                   <div className="text-muted-foreground text-sm">
-                    {calculateReadTime(bookmark.content)}
+                    {bookmark.readTime}
                     {bookmark.publishDate && <span className="px-2">·</span>}
                     {bookmark.publishDate && formatDate(bookmark.publishDate)}
                   </div>
@@ -135,6 +116,7 @@ export default function BookmarksList({
                       onClick={async () => {
                         const [data, error] = await deleteBookmarkAction({
                           id: bookmark.id,
+                          userId: userId,
                         });
 
                         if (error) {

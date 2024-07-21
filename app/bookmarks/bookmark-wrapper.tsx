@@ -67,7 +67,7 @@ async function BookmarkLoader({ user }: { user: ExisitingUser }) {
     );
   }
 
-  return <BookmarksList bookmarks={bookmarks} />;
+  return <BookmarksList bookmarks={bookmarks} userId={user.id} />;
 }
 
 export async function BookmarkWrapper({

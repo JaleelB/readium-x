@@ -48,11 +48,15 @@ export const createBookmarkAction = authenticatedAction
 
 export const deleteBookmarkAction = authenticatedAction
   .createServerAction()
-  .input(z.object({ id: z.number() }))
+  .input(z.object({ userId: z.number(), id: z.number() }))
   .handler(async ({ input }) => {
-    const bookmark = await getBookmarkById(input.id);
-    if (bookmark !== undefined) {
-      await deleteBookmark(bookmark.id);
+    const user = await getUser(input.userId);
+
+    if (user !== undefined) {
+      const bookmark = await getBookmarkById(user?.id, input.id);
+      if (bookmark !== undefined) {
+        await deleteBookmark(user.id, bookmark.id);
+      }
+      revalidatePath("/bookmarks");
     }
-    revalidatePath("/bookmarks");
   });

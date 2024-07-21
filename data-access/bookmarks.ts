@@ -25,7 +25,6 @@ export async function createBookark(
       userId,
       title: articleDetails.title,
       content: articleDetails.content,
-      // articleImageSrc: articleDetails.articleImageSrc,
       authorName: articleDetails.authorName,
       authorImageURL: articleDetails.authorImageURL,
       authorProfileURL: articleDetails.authorProfileURL,
@@ -41,9 +40,6 @@ export async function createBookark(
 }
 
 export async function getBookmarks(userId: number) {
-  // const [userBookmarks] = await db.query.bookmarks.findMany({
-  //   where: eq(bookmarks.id, userId),
-  // });
   const userBookmarks = await db
     .select()
     .from(bookmarks)
@@ -52,19 +48,22 @@ export async function getBookmarks(userId: number) {
   return userBookmarks;
 }
 
-export async function getBookmarkById(bookmarkId: number) {
+export async function getBookmarkById(userId: number, bookmarkId: number) {
   const bookmark = await db.query.bookmarks.findFirst({
-    where: eq(bookmarks.id, bookmarkId),
+    where: eq(bookmarks.userId, userId) && eq(bookmarks.id, bookmarkId),
   });
 
   return bookmark;
 }
 
-export async function deleteBookmark(bookmarkId: number) {
-  await db.delete(bookmarks).where(eq(bookmarks.id, bookmarkId));
+export async function deleteBookmark(userId: number, bookmarkId: number) {
+  await db
+    .delete(bookmarks)
+    .where(eq(bookmarks.userId, userId) && eq(bookmarks.id, bookmarkId));
 }
 
 export async function updateBookmark(
+  userId: number,
   bookmarkId: number,
   articleDetails: z.infer<typeof articleSchema>
 ) {
@@ -73,7 +72,7 @@ export async function updateBookmark(
     .set({
       ...articleDetails,
     })
-    .where(eq(bookmarks.id, bookmarkId))
+    .where(eq(bookmarks.userId, userId) && eq(bookmarks.id, bookmarkId))
     .returning();
 
   return bookmark;
