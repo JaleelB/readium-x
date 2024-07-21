@@ -5,6 +5,7 @@ import "./globals.css";
 import { ThemeProvider } from "@/components/theme-provider";
 import { Toaster } from "@/components/ui/toaster";
 import { siteConfig } from "@/app-config";
+import Script from "next/script";
 
 export const metadata = {
   title: {
@@ -89,6 +90,11 @@ export default function RootLayout({
           {children}
           <Toaster />
         </ThemeProvider>
+        <Script
+          async
+          src={process.env.UMAMI_URL}
+          data-website-id={process.env.UMAMI_DATA_WEBSITE_ID}
+        />
       </body>
     </html>
   );
