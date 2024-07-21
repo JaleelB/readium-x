@@ -25,10 +25,7 @@ export async function scrapeArticleContent(url: string) {
       throw new Error("Invalid URL");
     }
 
-    const baseUrl = "https://webcache.googleusercontent.com/search?q=cache:"; // TODO: refactor the getURLWithoutPaywall function to use this base URL
-    const fullUrl = `${baseUrl}${url}&strip=0&vwsrc=0`;
-
-    const response = await fetch(fullUrl);
+    const response = await fetch(url);
 
     if (!response.ok) {
       throw new Error(

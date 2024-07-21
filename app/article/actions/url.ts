@@ -19,24 +19,26 @@ export const getUrlWithoutPaywall = async (
   url: string | URL
 ): Promise<string | Error> => {
   try {
+    // Validate and parse the input URL
     const validatedUrl = urlSchema.parse(
       typeof url === "string" ? url : url.href
     );
 
+    // Check if the URL is reachable and valid for the intended use
     const isReachable = await checkUrlReachability(validatedUrl);
     if (!isReachable) {
       return new Error(
-        "URL is not reachable or does not point to a valid Medium article."
+        "URL is not reachable or does not point to a valid article."
       );
     }
 
-    const urlObj = new URL(validatedUrl);
+    // Construct the full URL to bypass the paywall using Google's web cache
+    const baseUrl = "https://webcache.googleusercontent.com/search?q=cache:";
+    const fullUrl = `${baseUrl}${validatedUrl}&strip=0&vwsrc=0`;
 
-    // Replace the hostname with freedium domain
-    urlObj.host = "freedium.cfd";
-
-    return urlObj.href;
+    return fullUrl;
   } catch (error) {
+    // Handle validation and unexpected errors
     if (error instanceof z.ZodError) {
       return new Error(
         `Invalid URL: ${error.errors.map((e) => e.message).join(", ")}`
