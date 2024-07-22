@@ -35,7 +35,7 @@ body:
     id: terms
     attributes:
       label: Before submitting
-      description: By submitting this issue, you agree to follow our [Contributing Guidelines](https://github.com/sadmann7/skateshop/blob/main/CONTRIBUTING.md).
+      description: By submitting this issue, you agree to follow our [Contributing Guidelines](https://github.com/JaleelB/readium-x/blob/main/CONTRIBUTING.md).
       options:
         - label: I've made research efforts and searched the documentation
           required: true
