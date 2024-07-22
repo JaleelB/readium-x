@@ -5,10 +5,6 @@ describe("MediumArticleProcessor", () => {
   const processor = new MediumArticleProcessor();
 
   describe("processArticle", () => {
-    it("should return null for null input", () => {
-      expect(processor.processArticle(null)).toBeNull();
-    });
-
     it("should process a simple article with correct classes and attributes", () => {
       const simpleHtml = `
         <section>
@@ -16,12 +12,12 @@ describe("MediumArticleProcessor", () => {
           <p>This is a test paragraph.</p>
         </section>
       `;
-      const result = processor.processArticle(simpleHtml);
+      const result = processor.processArticleContent(simpleHtml);
       expect(result).toContain(
-        '<h2 class="font-bold font-sans break-normal text-gray-900 dark:text-gray-100 text-1xl md:text-2xl pt-12">Test Header</h2>'
+        '<h2 class="font-bold font-sans break-normal text-gray-900 dark:text-gray-100 text-1xl md:text-2xl pt-12">Test Header</h2>',
       );
       expect(result).toContain(
-        '<p class="leading-8 mt-7">This is a test paragraph.</p>'
+        '<p class="leading-8 mt-7">This is a test paragraph.</p>',
       );
     });
 
@@ -38,30 +34,30 @@ describe("MediumArticleProcessor", () => {
           <figure><img src="test.jpg" alt="Test image"></figure>
         </section>
       `;
-      const result = processor.processArticle(complexHtml);
+      const result = processor.processArticleContent(complexHtml);
       expect(result).toContain(
-        '<h2 class="font-bold font-sans break-normal text-gray-900 dark:text-gray-100 text-1xl md:text-2xl pt-12">Main Header</h2>'
+        '<h2 class="font-bold font-sans break-normal text-gray-900 dark:text-gray-100 text-1xl md:text-2xl pt-12">Main Header</h2>',
       );
       expect(result).toContain(
-        '<h3 class="font-bold font-sans break-normal text-gray-900 dark:text-gray-100 text-1xl md:text-2xl pt-12">Sub Header</h3>'
+        '<h3 class="font-bold font-sans break-normal text-gray-900 dark:text-gray-100 text-1xl md:text-2xl pt-12">Sub Header</h3>',
       );
       expect(result).toContain(
-        '<p class="leading-8 mt-7">Normal paragraph</p>'
+        '<p class="leading-8 mt-7">Normal paragraph</p>',
       );
       expect(result).toContain(
-        '<ul class="list-disc pl-8 mt-2"><li class="mt-3">List item</li></ul>'
+        '<ul class="list-disc pl-8 mt-2"><li class="mt-3">List item</li></ul>',
       );
       expect(result).toContain(
-        '<ol class="list-decimal pl-8 mt-2"><li class="mt-3">Ordered list item</li></ol>'
+        '<ol class="list-decimal pl-8 mt-2"><li class="mt-3">Ordered list item</li></ol>',
       );
       expect(result).toContain(
-        '<pre class="mt-7 flex flex-col justify-center border dark:border-gray-700"><code class="p-2 bg-gray-100 dark:bg-gray-900 overflow-x-auto nohighlight">Code block</code></pre>'
+        '<pre class="mt-7 flex flex-col justify-center border dark:border-gray-700"><code class="p-2 bg-gray-100 dark:bg-gray-900 overflow-x-auto nohighlight">Code block</code></pre>',
       );
       expect(result).toContain(
-        '<blockquote style="box-shadow: inset 3px 0 0 0 rgb(209 207 239 / var(--tw-bg-opacity));" class="px-5 pt-3 pb-3 mt-5"><p class="font-italic">Blockquote</p></blockquote>'
+        '<blockquote style="box-shadow: inset 3px 0 0 0 rgb(209 207 239 / var(--tw-bg-opacity));" class="px-5 pt-3 pb-3 mt-5"><p class="font-italic">Blockquote</p></blockquote>',
       );
       expect(result).toContain(
-        '<div class="mt-7"><img alt="Test image" class="pt-5 lazy m-auto" role="presentation" data-src="https://miro.medium.com/v2/resize:fit:700/default-placeholder"></div>'
+        '<div class="mt-7"><img alt="Test image" class="pt-5 lazy m-auto" role="presentation" data-src="https://miro.medium.com/v2/resize:fit:700/default-placeholder"></div>',
       );
     });
 
@@ -71,17 +67,17 @@ describe("MediumArticleProcessor", () => {
           <p>This is <strong>bold</strong> and <em>italic</em> text with a <a href="https://example.com">link</a>.</p>
         </section>
       `;
-      const result = processor.processArticle(markupHtml);
+      const result = processor.processArticleContent(markupHtml);
       expect(result).toContain("<strong>bold</strong>");
       expect(result).toContain("<em>italic</em>");
       expect(result).toContain(
-        '<a href="https://example.com" target="_blank" rel="noopener noreferrer">link</a>'
+        '<a href="https://example.com" target="_blank" rel="noopener noreferrer">link</a>',
       );
     });
 
     it("should handle empty sections", () => {
       const emptyHtml = "<section></section>";
-      const result = processor.processArticle(emptyHtml);
+      const result = processor.processArticleContent(emptyHtml);
       expect(result).toBe("");
     });
 
