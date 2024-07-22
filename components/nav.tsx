@@ -46,12 +46,12 @@ export default function Nav({ user }: { user: User | undefined }) {
   return (
     <header
       ref={headerRef}
-      className={`flex h-[64px]  w-full px-4 md:px-8 fixed inset-0 justify-between items-center z-[1500]`}
+      className={`fixed inset-0 z-[1500] flex h-[64px] w-full items-center justify-between px-4 md:px-8`}
     >
       <Link
         href="/"
         className={`flex items-center ${
-          isScrolled ? "bg-background border rounded-full px-4 py-2" : ""
+          isScrolled ? "rounded-full border bg-background px-4 py-2" : ""
         }`}
       >
         <Icons.logo />
@@ -64,10 +64,10 @@ export default function Nav({ user }: { user: User | undefined }) {
             href="/signin"
             className={cn(
               buttonVariants({ variant: "outline", size: "sm" }),
-              "rounded-full h-9 dark:border-white/20"
+              "h-9 rounded-full dark:border-white/20",
             )}
           >
-            <Icons.user className="w-4 h-4 mr-2" />
+            <Icons.user className="mr-2 h-4 w-4" />
             <span>Sign in</span>
           </Link>
         )}

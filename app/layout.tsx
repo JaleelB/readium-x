@@ -75,10 +75,10 @@ export default function RootLayout({
     <html lang="en">
       <body
         className={cn(
-          "min-h-screen flex flex-col bg-background font-sans antialiased",
+          "flex min-h-screen flex-col bg-background font-sans antialiased",
           fontSans.variable,
           fontHeading.variable,
-          fontMono.variable
+          fontMono.variable,
         )}
       >
         <ThemeProvider

@@ -8,6 +8,8 @@ import BookmarksList from "./bookmark-list";
 import Image from "next/image";
 import { cn } from "@/lib/utils";
 import { Icons } from "@/components/icons";
+import { getBookmarksAction } from "./bookmark";
+import { ErrorCard } from "@/components/error-card";
 
 export type Bookmark = {
   id: number;
@@ -22,15 +24,15 @@ export type ExisitingUser = {
 function BookmarkSkeleton() {
   return (
     <>
-      <div className="w-full grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
-        <div className="w-full h-[200px] bg-muted animate-pulse rounded-lg"></div>
-        <div className="w-full h-[200px] bg-muted animate-pulse rounded-lg"></div>
-        <div className="w-full h-[200px] bg-muted animate-pulse rounded-lg"></div>
+      <div className="grid w-full grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
+        <div className="h-[200px] w-full animate-pulse rounded-lg bg-muted"></div>
+        <div className="h-[200px] w-full animate-pulse rounded-lg bg-muted"></div>
+        <div className="h-[200px] w-full animate-pulse rounded-lg bg-muted"></div>
       </div>
       <div className="fixed bottom-8 left-1/2 -translate-x-1/2">
-        <div className="bg-muted animate-pulse rounded-full inline-flex items-center h-12">
+        <div className="inline-flex h-12 animate-pulse items-center rounded-full bg-muted">
           <span className="mr-1 text-muted">New</span>
-          <Icons.plus className="text-muted w-5 h-5" />
+          <Icons.plus className="h-5 w-5 text-muted" />
         </div>
       </div>
     </>
@@ -38,14 +40,17 @@ function BookmarkSkeleton() {
 }
 
 async function BookmarkLoader({ user }: { user: ExisitingUser }) {
-  const bookmarks = await getBookmarksUseCase(user.id);
+  // const bookmarks = await getBookmarksUseCase(user.id);
+  const [data, err] = await getBookmarksAction({
+    userId: user.id,
+  });
 
-  if (bookmarks.length === 0) {
+  if (!data || data.length === 0) {
     return (
       <div className="flex-1">
         <Card
           className={cn(
-            "mt-12 p-8 w-full max-w-2xl space-y-4 border-none mx-auto"
+            "mx-auto mt-12 w-full max-w-2xl space-y-4 border-none p-8",
           )}
         >
           <Image
@@ -55,9 +60,9 @@ async function BookmarkLoader({ user }: { user: ExisitingUser }) {
             width={300}
             height={200}
           />
-          <div className="flex flex-col justify-center items-center space-y-2">
+          <div className="flex flex-col items-center justify-center space-y-2">
             <h3 className="font-heading text-xl">No bookmarked articles</h3>
-            <p className="text-muted-foreground text-base max-w-md text-center pb-2">
+            <p className="max-w-md pb-2 text-center text-base text-muted-foreground">
               You haven&apos;t bookmarked any articles yet. Click the button
               below to start bookmarking.
             </p>
@@ -67,7 +72,16 @@ async function BookmarkLoader({ user }: { user: ExisitingUser }) {
     );
   }
 
-  return <BookmarksList bookmarks={bookmarks} userId={user.id} />;
+  if (err) {
+    return (
+      <ErrorCard
+        title="Error loading bookmarks"
+        message="An error occurred while loading your bookmarks. Please try again later."
+      />
+    );
+  }
+
+  return <BookmarksList bookmarks={data} userId={user.id} />;
 }
 
 export async function BookmarkWrapper({

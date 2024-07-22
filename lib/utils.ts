@@ -35,7 +35,7 @@ export function formatDate(dateStr: string | null): string {
       day: "numeric",
     };
     const formattedDate = new Intl.DateTimeFormat("en-US", options).format(
-      date
+      date,
     );
     return `Fetched at: ${formattedDate}`;
   } else {

@@ -40,7 +40,7 @@ import { applicationName } from "@/app-config";
 
 export async function deleteUserUseCase(
   authenticatedUser: UserSession,
-  userToDeleteId: UserId
+  userToDeleteId: UserId,
 ): Promise<void> {
   if (authenticatedUser.id !== userToDeleteId) {
     throw new AuthenticationError();
@@ -73,7 +73,7 @@ export async function registerUserUseCase(email: string, password: string) {
   await sendEmail(
     email,
     `Verify your email for ${applicationName}`,
-    <VerifyEmail token={token} />
+    <VerifyEmail token={token} />,
   );
 
   return { id: user.id };
@@ -135,7 +135,7 @@ export async function resetPasswordUseCase(email: string) {
   await sendEmail(
     email,
     `Your password reset link for ${applicationName}`,
-    <ResetPasswordEmail token={token} />
+    <ResetPasswordEmail token={token} />,
   );
 }
 

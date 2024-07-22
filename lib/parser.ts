@@ -137,7 +137,7 @@ export class MediumArticleProcessor {
     element: cheerio.Cheerio,
     captured: Set<cheerio.Element>,
     elements: ArticleElement[],
-    supportedTypes: ElementsType[]
+    supportedTypes: ElementsType[],
   ): void {
     element.children().each((_, child) => {
       if (child.type !== "tag") return;
@@ -278,7 +278,7 @@ export class MediumArticleProcessor {
           $section("section"),
           capturedElements,
           elements,
-          supportedTypes
+          supportedTypes,
         );
       });
 

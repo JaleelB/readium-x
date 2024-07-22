@@ -106,7 +106,7 @@ export function Article({
   const updateLocalStorage = debounce((progress: number) => {
     localStorage.setItem(
       `article-progress-${readingHistoryId}`,
-      progress.toString()
+      progress.toString(),
     );
   }, 1000);
 
@@ -152,16 +152,16 @@ export function Article({
     <article className="w-full">
       <div
         style={{ width: `${progress}%` }}
-        className="fixed top-0 left-0 h-1 bg-primary z-[1000]"
+        className="fixed left-0 top-0 z-[1000] h-1 bg-primary"
       />
-      <section className="container px-0 md:px-8 flex flex-col items-center gap-12">
+      <section className="container flex flex-col items-center gap-12 px-0 md:px-8">
         <article
           ref={articleRef}
-          className="container px-0 md:px-8 max-w-3xl flex flex-col gap-6"
+          className="container flex max-w-3xl flex-col gap-6 px-0 md:px-8"
         >
-          <div className="w-full flex justify-between">
-            <div className="w-full flex gap-3">
-              <Avatar className="w-11 h-11">
+          <div className="flex w-full justify-between">
+            <div className="flex w-full gap-3">
+              <Avatar className="h-11 w-11">
                 <AvatarImage
                   src={
                     content?.authorInformation.authorImageURL ||
@@ -180,7 +180,7 @@ export function Article({
                 >
                   {content?.authorInformation?.authorName}
                 </Link>
-                <div className="text-muted-foreground text-sm">
+                <div className="text-sm text-muted-foreground">
                   {content?.publicationInformation?.readTime}
                   {content?.publicationInformation?.publishDate && (
                     <span className="px-2">·</span>
@@ -229,7 +229,7 @@ export function Article({
                 });
               }}
             >
-              <Icons.bookmark className={`w-5 h-5 `} onLoad={async () => {}} />
+              <Icons.bookmark className={`h-5 w-5`} onLoad={async () => {}} />
             </Button>
           </div>
           <Balancer

@@ -137,11 +137,11 @@ export function HistoryList({ historyLog }: { historyLog: ReadingHistory[] }) {
   };
 
   return (
-    <div className="text-card-foreground flex flex-col border-0 lg:border relative w-full max-w-none min-h-[450px] lg:min-h-[34rem] lg:max-w-3xl rounded-none lg:rounded-xl mx-auto bg-background md:shadow-xl backdrop-blur-lg shadow-2xl">
+    <div className="relative mx-auto flex min-h-[450px] w-full max-w-none flex-col rounded-none border-0 bg-background text-card-foreground shadow-2xl backdrop-blur-lg md:shadow-xl lg:min-h-[34rem] lg:max-w-3xl lg:rounded-xl lg:border">
       {deleteAllLogsError && (
         <Alert
           variant="destructive"
-          className="fixed top-0 right-0 sm:top-4 sm:right-8 w-full sm:w-fit"
+          className="fixed right-0 top-0 w-full sm:right-8 sm:top-4 sm:w-fit"
         >
           <Terminal className="h-4 w-4" />
           <AlertTitle>
@@ -153,7 +153,7 @@ export function HistoryList({ historyLog }: { historyLog: ReadingHistory[] }) {
       {deleteByIdError && (
         <Alert
           variant="destructive"
-          className="fixed top-0 right-0 sm:top-4 sm:right-8 w-full sm:w-fit"
+          className="fixed right-0 top-0 w-full sm:right-8 sm:top-4 sm:w-fit"
         >
           <Terminal className="h-4 w-4" />
           <AlertTitle>
@@ -162,26 +162,26 @@ export function HistoryList({ historyLog }: { historyLog: ReadingHistory[] }) {
           <AlertDescription>{deleteByIdError.message}</AlertDescription>
         </Alert>
       )}
-      <div className="flex-1 flex flex-col p-0">
+      <div className="flex flex-1 flex-col p-0">
         <div
           data-expanded="true"
-          className="flex items-center gap-3 p-3 border-b text-start w-full overflow-hidden focus-visible:outline-none"
+          className="flex w-full items-center gap-3 overflow-hidden border-b p-3 text-start focus-visible:outline-none"
         >
           <div className="flex-1">
-            <div className="flex justify-between items-center">
-              <div className="flex gap-2 items-center">
+            <div className="flex items-center justify-between">
+              <div className="flex items-center gap-2">
                 {isManaging && <Checkbox onClick={selectAll} />}
                 <Balancer
                   as="h3"
-                  className="text-lg text-dark font-semibold p-1"
+                  className="text-dark p-1 text-lg font-semibold"
                 >
                   Article reading history
                 </Balancer>
               </div>
-              <div className="flex gap-3 items-center">
+              <div className="flex items-center gap-3">
                 {isManaging && (
                   <LoaderButton
-                    className="rounded-full relative"
+                    className="relative rounded-full"
                     size="sm"
                     isLoading={isDeleteBYIdPending || isDeleteAllLogsPending}
                     onClick={deleteSelected}
@@ -202,7 +202,7 @@ export function HistoryList({ historyLog }: { historyLog: ReadingHistory[] }) {
                           setSelectedIds(new Set());
                         }}
                         className={cn(
-                          "relative inline-flex items-center justify-center whitespace-nowrap text-sm font-medium transition-all duration-200 ring-0 ring-transparent focus-visible:outline-none focus-visible:ring-1 focus-visible:ringRing disabled:pointer-events-none disabled:opacity-50 bg-background/20 border border-light text-dark shadow-xs disabled:text-light hover:ring center p-0 h-9 w-9 rounded-full"
+                          "focus-visible:ringRing border-light text-dark shadow-xs disabled:text-light center relative inline-flex h-9 w-9 items-center justify-center whitespace-nowrap rounded-full border bg-background/20 p-0 text-sm font-medium ring-0 ring-transparent transition-all duration-200 hover:ring focus-visible:outline-none focus-visible:ring-1 disabled:pointer-events-none disabled:opacity-50",
                         )}
                       >
                         {!isManaging ? (
@@ -211,7 +211,7 @@ export function HistoryList({ historyLog }: { historyLog: ReadingHistory[] }) {
                             fill="currentColor"
                             strokeWidth="0"
                             viewBox="0 0 24 24"
-                            className="w-4 h-4"
+                            className="h-4 w-4"
                             height="1em"
                             width="1em"
                             xmlns="http://www.w3.org/2000/svg"
@@ -225,7 +225,7 @@ export function HistoryList({ historyLog }: { historyLog: ReadingHistory[] }) {
                             fill="currentColor"
                             strokeWidth="0"
                             viewBox="0 0 24 24"
-                            className="w-4 h-4"
+                            className="h-4 w-4"
                             height="1em"
                             width="1em"
                             xmlns="http://www.w3.org/2000/svg"
@@ -249,11 +249,11 @@ export function HistoryList({ historyLog }: { historyLog: ReadingHistory[] }) {
             </div>
           </div>
         </div>
-        <ul className="flex-1 w-full h-full overflow-y-auto">
+        <ul className="h-full w-full flex-1 overflow-y-auto">
           {currentRecords.map((historyLog) => (
             <li
               key={historyLog.id}
-              className="aria-selected:bg-gray-alpha-100 transition-colors duration-150 focus:outline-none cursor-pointer flex items-center py-2 px-3 gap-4"
+              className="aria-selected:bg-gray-alpha-100 flex cursor-pointer items-center gap-4 px-3 py-2 transition-colors duration-150 focus:outline-none"
               role="option"
               aria-disabled="false"
               aria-selected="false"
@@ -269,8 +269,8 @@ export function HistoryList({ historyLog }: { historyLog: ReadingHistory[] }) {
                   />
                 </div>
               )}
-              <div className="h-10 w-10 center bg-gray-alpha-100 rounded-lg">
-                <Avatar className="w-11 h-11 rounded-md">
+              <div className="center bg-gray-alpha-100 h-10 w-10 rounded-lg">
+                <Avatar className="h-11 w-11 rounded-md">
                   <AvatarImage
                     src={
                       historyLog.authorImageURL ||
@@ -280,20 +280,20 @@ export function HistoryList({ historyLog }: { historyLog: ReadingHistory[] }) {
                   <AvatarFallback>CN</AvatarFallback>
                 </Avatar>
               </div>
-              <div className="relative flex-1 min-w-0">
-                <div className="group relative w-fit h-fit mr-8">
-                  <div className="relative w-fit line-clamp-1">
-                    <Balancer className="text-sm text-dark font-medium break-all">
+              <div className="relative min-w-0 flex-1">
+                <div className="group relative mr-8 h-fit w-fit">
+                  <div className="relative line-clamp-1 w-fit">
+                    <Balancer className="text-dark break-all text-sm font-medium">
                       {historyLog.articleTitle}
                     </Balancer>
                   </div>
-                  <div className="invisible group-hover:visible opacity-0 group-hover:opacity-100 transition-opacity duration-150 items-center absolute right-0 top-1/2 -translate-y-1/2 translate-x-full p-1">
+                  <div className="invisible absolute right-0 top-1/2 -translate-y-1/2 translate-x-full items-center p-1 opacity-0 transition-opacity duration-150 group-hover:visible group-hover:opacity-100">
                     <Button
                       variant="outline"
                       aria-label="Copy text"
                       size="icon"
                       className={cn(
-                        "relative inline-flex items-center justify-center whitespace-nowrap font-medium transition-all duration-200 ring-0 ring-transparent focus-visible:outline-none focus-visible:ring-1 focus-visible:ringRing disabled:pointer-events-none disabled:opacity-50 bg-background/20 border border-light text-dark shadow-xs disabled:text-light text-2xs center p-0 h-5 w-5 rounded-md hover:ring-2"
+                        "focus-visible:ringRing border-light text-dark shadow-xs disabled:text-light text-2xs center relative inline-flex h-5 w-5 items-center justify-center whitespace-nowrap rounded-md border bg-background/20 p-0 font-medium ring-0 ring-transparent transition-all duration-200 hover:ring-2 focus-visible:outline-none focus-visible:ring-1 disabled:pointer-events-none disabled:opacity-50",
                       )}
                     >
                       <svg
@@ -301,7 +301,7 @@ export function HistoryList({ historyLog }: { historyLog: ReadingHistory[] }) {
                         fill="currentColor"
                         strokeWidth="0"
                         viewBox="0 0 512 512"
-                        className="w-2.5 h-2.5"
+                        className="h-2.5 w-2.5"
                         height="1em"
                         width="1em"
                         xmlns="http://www.w3.org/2000/svg"
@@ -330,12 +330,12 @@ export function HistoryList({ historyLog }: { historyLog: ReadingHistory[] }) {
                 </div>
                 <Balancer
                   as="p"
-                  className="text-xs text-muted-foreground font-normal line-clamp-1 items-center"
+                  className="line-clamp-1 items-center text-xs font-normal text-muted-foreground"
                 >
                   {historyLog.authorName} • <span>{historyLog.readTime}</span>
                 </Balancer>
               </div>
-              <div className="flex gap-2 items-center w-fit">
+              <div className="flex w-fit items-center gap-2">
                 <div
                   onClick={() => {
                     Cookies.set(id, historyLog.articleUrl, {
@@ -351,7 +351,7 @@ export function HistoryList({ historyLog }: { historyLog: ReadingHistory[] }) {
                     aria-label="article-link"
                     className={cn(
                       buttonVariants({ variant: "outline" }),
-                      "inline-flex items-center justify-center whitespace-nowrap font-medium transition-all duration-200 ring-0 ring-transparent focus-visible:outline-none focus-visible:ring-1 focus-visible:ringRing disabled:pointer-events-none disabled:opacity-50 bg-background border border-light text-dark shadow-xs disabled:text-light hover:ring center p-0 h-9 w-9 rounded-full relative text-lg hover:bg-accent hover:text-accent-foreground"
+                      "focus-visible:ringRing border-light text-dark shadow-xs disabled:text-light center relative inline-flex h-9 w-9 items-center justify-center whitespace-nowrap rounded-full border bg-background p-0 text-lg font-medium ring-0 ring-transparent transition-all duration-200 hover:bg-accent hover:text-accent-foreground hover:ring focus-visible:outline-none focus-visible:ring-1 disabled:pointer-events-none disabled:opacity-50",
                     )}
                   >
                     <div className="relative">
@@ -363,7 +363,7 @@ export function HistoryList({ historyLog }: { historyLog: ReadingHistory[] }) {
                         strokeWidth="2"
                         strokeLinecap="round"
                         strokeLinejoin="round"
-                        className="lucide lucide-link-2 w-[18px] h-[18px]"
+                        className="lucide lucide-link-2 h-[18px] w-[18px]"
                       >
                         <path d="M9 17H7A5 5 0 0 1 7 7h2"></path>
                         <path d="M15 7h2a5 5 0 1 1 0 10h-2"></path>
@@ -376,8 +376,8 @@ export function HistoryList({ historyLog }: { historyLog: ReadingHistory[] }) {
             </li>
           ))}
         </ul>
-        <div className="flex items-center p-3 gap-2 border-t border-light">
-          <Balancer className="text-xs text-light font-normal px-2 uppercase">
+        <div className="border-light flex items-center gap-2 border-t p-3">
+          <Balancer className="text-light px-2 text-xs font-normal uppercase">
             Page {currentPage}
           </Balancer>
           <div className="flex-1"></div>
@@ -386,7 +386,7 @@ export function HistoryList({ historyLog }: { historyLog: ReadingHistory[] }) {
             onClick={goToPreviousPage}
             disabled={currentPage === 1}
             className={cn(
-              "relative inline-flex items-center justify-center whitespace-nowrap font-medium transition-all duration-200 ring-0 ring-transparent focus-visible:outline-none focus-visible:ring-1 focus-visible:ringRing disabled:pointer-events-none disabled:opacity-50 border border-light text-dark shadow-xs disabled:text-light h-8 px-3.5 rounded-full text-xs hover:ring gap-1 pl-2.5"
+              "focus-visible:ringRing border-light text-dark shadow-xs disabled:text-light relative inline-flex h-8 items-center justify-center gap-1 whitespace-nowrap rounded-full border px-3.5 pl-2.5 text-xs font-medium ring-0 ring-transparent transition-all duration-200 hover:ring focus-visible:outline-none focus-visible:ring-1 disabled:pointer-events-none disabled:opacity-50",
             )}
           >
             <svg
@@ -413,7 +413,7 @@ export function HistoryList({ historyLog }: { historyLog: ReadingHistory[] }) {
             onClick={goToNextPage}
             disabled={currentPage === totalPages}
             className={cn(
-              "relative inline-flex items-center justify-center whitespace-nowrap font-medium transition-all duration-200 ring-0 ring-transparent focus-visible:outline-none focus-visible:ring-1 focus-visible:ringRing disabled:pointer-events-none disabled:opacity-50 bg-background/20 border border-light text-dark shadow-xs disabled:text-light h-8 px-3.5 rounded-full text-xs hover:ring gap-1 pr-2.5"
+              "focus-visible:ringRing border-light text-dark shadow-xs disabled:text-light relative inline-flex h-8 items-center justify-center gap-1 whitespace-nowrap rounded-full border bg-background/20 px-3.5 pr-2.5 text-xs font-medium ring-0 ring-transparent transition-all duration-200 hover:ring focus-visible:outline-none focus-visible:ring-1 disabled:pointer-events-none disabled:opacity-50",
             )}
           >
             <span>Next</span>

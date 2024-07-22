@@ -6,7 +6,7 @@ import { z } from "zod";
 
 export async function createReadingHistoryLog(
   userId: number,
-  articleDetails: z.infer<typeof readingHistorySchema>
+  articleDetails: z.infer<typeof readingHistorySchema>,
 ) {
   const existingReadingHistory = await db.query.readingHistory.findFirst({
     where:
@@ -49,7 +49,7 @@ export async function getReadingHistory(userId: number) {
 
 export async function getReadingHistoryById(
   readingHistoryId: number,
-  userId: number
+  userId: number,
 ) {
   const readingHistoryLog = await db.query.readingHistory.findFirst({
     where:
@@ -63,7 +63,7 @@ export async function getReadingHistoryById(
 export async function updateReadingHistoryProgress(
   readingHistoryId: number,
   userId: number,
-  progress: string
+  progress: string,
 ) {
   const [updatedReadingHistory] = await db
     .update(readingHistory)
@@ -73,7 +73,7 @@ export async function updateReadingHistoryProgress(
     })
     .where(
       eq(readingHistory.userId, userId) &&
-        eq(readingHistory.id, readingHistoryId)
+        eq(readingHistory.id, readingHistoryId),
     )
     .returning();
 
@@ -82,7 +82,7 @@ export async function updateReadingHistoryProgress(
 
 export async function getReadingHistoryProgress(
   readingHistoryId: number,
-  userId: number
+  userId: number,
 ) {
   const readingHistoryLog = await db.query.readingHistory.findFirst({
     where:
@@ -95,13 +95,13 @@ export async function getReadingHistoryProgress(
 
 export async function deleteReadingHistoryById(
   readingHistoryId: number,
-  userId: number
+  userId: number,
 ) {
   await db
     .delete(readingHistory)
     .where(
       eq(readingHistory.userId, userId) &&
-        eq(readingHistory.id, readingHistoryId)
+        eq(readingHistory.id, readingHistoryId),
     );
 }
 

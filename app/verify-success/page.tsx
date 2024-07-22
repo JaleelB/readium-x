@@ -9,13 +9,13 @@ import { SparkleBg } from "@/components/sparkle-bg";
 
 export default function VerifySuccess() {
   return (
-    <main className="dark relative w-full h-full flex flex-col flex-1 items-center justify-center space-y-3 bg-background">
+    <main className="dark relative flex h-full w-full flex-1 flex-col items-center justify-center space-y-3 bg-background">
       <SparkleBg sparkleCount={300} sparkleSize={2} />
-      <div className="rounded-lg border shadow-sm w-full max-w-sm text-foreground p-6 space-y-6 z-20 bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
-        <Link href="/" className="w-full flex justify-center items-center">
+      <div className="z-20 w-full max-w-sm space-y-6 rounded-lg border bg-background/95 p-6 text-foreground shadow-sm backdrop-blur supports-[backdrop-filter]:bg-background/60">
+        <Link href="/" className="flex w-full items-center justify-center">
           <div
             role="img"
-            className="w-12 h-12 bg-primary dark:bg-white rounded-full flex items-center justify-center"
+            className="flex h-12 w-12 items-center justify-center rounded-full bg-primary dark:bg-white"
           >
             <Icons.logo className="text-white dark:text-background" />
           </div>
@@ -23,11 +23,11 @@ export default function VerifySuccess() {
         <div className="flex flex-col space-y-1.5 pb-6">
           <Balancer
             as="h3"
-            className="font-semibold tracking-tight text-2xl text-center"
+            className="text-center text-2xl font-semibold tracking-tight"
           >
             Email Successfully Verified
           </Balancer>
-          <Balancer className="text-sm text-muted-foreground text-center">
+          <Balancer className="text-center text-sm text-muted-foreground">
             Your email has been successfully verified. You can now sign in to
             your account.
           </Balancer>
@@ -38,7 +38,7 @@ export default function VerifySuccess() {
             buttonVariants({
               variant: "default",
             }),
-            "w-full"
+            "w-full",
           )}
         >
           Sign In

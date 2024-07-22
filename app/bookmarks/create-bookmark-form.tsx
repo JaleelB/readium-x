@@ -33,7 +33,6 @@ const bookmarkSchema = z.object({
 
 export function CreateBookmarkForm({ user }: { user: ExisitingUser }) {
   const { toast } = useToast();
-  const [isDialogOpen, setIsDialogOpen] = useState(false);
 
   const { execute } = useServerAction(createBookmarkAction, {
     onError({ err }) {
@@ -132,7 +131,7 @@ export function CreateBookmarkForm({ user }: { user: ExisitingUser }) {
               <FormControl>
                 <textarea
                   {...field}
-                  className="flex min-h-[80px] w-full rounded-md border border-input px-3 py-2 text-sm ring-offset-background placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-ring disabled:cursor-not-allowed disabled:opacity-50  focus-visible:ring-0 border-none focus-visible:ring-offset-0 mt-2 bg-input"
+                  className="mt-2 flex min-h-[80px] w-full rounded-md border border-none border-input bg-input px-3 py-2 text-sm ring-offset-background placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-0 focus-visible:ring-ring focus-visible:ring-offset-0 disabled:cursor-not-allowed disabled:opacity-50"
                   id="content"
                   name="content"
                   placeholder="Paste an article URL here. I'll remember it."
@@ -144,7 +143,7 @@ export function CreateBookmarkForm({ user }: { user: ExisitingUser }) {
           )}
         />
         <DialogFooter
-          className="sm:justify-end mt-3"
+          className="mt-3 sm:justify-end"
           aria-disabled={form.formState.disabled}
         >
           <LoaderButton isLoading={form.formState.disabled} type="submit">

@@ -76,21 +76,21 @@ export default function UrlForm({
       <Form {...form}>
         <form
           onSubmit={form.handleSubmit(onSubmit)}
-          className="relative z-10 h-[52px] w-full min-w-0 max-w-xl bg-[#141414] dark:bg-[#191919] rounded-full p-1.5 md:pl-4 mt-2 dark:border dark:border-input"
+          className="relative z-10 mt-2 h-[52px] w-full min-w-0 max-w-xl rounded-full bg-[#141414] p-1.5 dark:border dark:border-input dark:bg-[#191919] md:pl-4"
         >
           <FormField
             control={form.control}
             name="url"
             render={({ field }) => (
               <>
-                <FormItem className="w-full h-full">
-                  <div className="h-full rounded-full flex items-center justify-between relative">
-                    <Icons.sun className="text-white w-8 h-8 ml-2 sm:ml-0" />
+                <FormItem className="h-full w-full">
+                  <div className="relative flex h-full items-center justify-between rounded-full">
+                    <Icons.sun className="ml-2 h-8 w-8 text-white sm:ml-0" />
                     <FormControl>
                       <Input
                         type="url"
                         className={cn(
-                          "w-full mx-4 h-5 p-0 bg-transparent text-neutral-100 placeholder-neutral-300 border-none focus-visible:ring-0 focus:placeholder-neutral-400"
+                          "mx-4 h-5 w-full border-none bg-transparent p-0 text-neutral-100 placeholder-neutral-300 focus:placeholder-neutral-400 focus-visible:ring-0",
                         )}
                         placeholder="Paste Medium Article URL"
                         {...field}

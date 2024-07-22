@@ -11,10 +11,10 @@ export default async function Home() {
   }
 
   return (
-    <section className="px-4 md:px-8 flex w-full flex-col gap-7 items-center relative mb-4 justify-center py-[22vh] pt-[18vh] sm:pt-[20vh]">
+    <section className="relative mb-4 flex w-full flex-col items-center justify-center gap-7 px-4 py-[22vh] pt-[18vh] sm:pt-[20vh] md:px-8">
       <svg
         aria-hidden="true"
-        className="pointer-events-none absolute inset-0 w-full fill-gray-400/30 stroke-gray-400/30 [mask-image:radial-gradient(800px_circle_at_center,white,transparent)] inset-x-0 inset-y-[0%] h-[calc(100vh-64px)] skew-y-[300]"
+        className="pointer-events-none absolute inset-0 inset-x-0 inset-y-[0%] h-[calc(100vh-64px)] w-full skew-y-[300] fill-gray-400/30 stroke-gray-400/30 [mask-image:radial-gradient(800px_circle_at_center,white,transparent)]"
       >
         <defs>
           <pattern
@@ -322,7 +322,7 @@ export default async function Home() {
       <div className="sm:hidden">
         <Balancer
           as="h1"
-          className="sm:hidden px-6 text-center font-sans text-4xl font-bold tracking-tight drop-shadow-sm sm:text-5xl lg:font-heading lg:text-6xl lg:tracking-normal"
+          className="px-6 text-center font-sans text-4xl font-bold tracking-tight drop-shadow-sm sm:hidden sm:text-5xl lg:font-heading lg:text-6xl lg:tracking-normal"
         >
           Read and Manage Premium Medium Articles for Free
         </Balancer>{" "}

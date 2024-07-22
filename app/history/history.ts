@@ -28,7 +28,7 @@ export const createReadingHistoryLogAction = authenticatedAction
         accessTime: z.date(),
         progress: z.string().optional(),
       }),
-    })
+    }),
   )
   .handler(async ({ input }) => {
     const log = await createReadingHistoryLogUseCase(input.userId, {
@@ -50,7 +50,7 @@ export const getReadingHistoryAction = authenticatedAction
   .input(
     z.object({
       userId: z.number(),
-    })
+    }),
   )
   .handler(async ({ input }) => {
     return await getReadingHistoryUseCase(input.userId);
@@ -62,12 +62,12 @@ export const getReadingHistoryProgressAction = authenticatedAction
     z.object({
       userId: z.number(),
       readingHistoryId: z.number(),
-    })
+    }),
   )
   .handler(async ({ input }) => {
     const readingHistoryProgress = await getReadingHistoryProgressUseCase(
       input.readingHistoryId,
-      input.userId
+      input.userId,
     );
     return readingHistoryProgress;
   });
@@ -78,12 +78,12 @@ export const getReadingHistoryByIdAction = authenticatedAction
     z.object({
       userId: z.number(),
       readingHistoryId: z.number(),
-    })
+    }),
   )
   .handler(async ({ input }) => {
     const readingHistory = await getReadingHistoryByIdUseCase(
       input.readingHistoryId,
-      input.userId
+      input.userId,
     );
     revalidatePath("/history");
     return readingHistory;
@@ -96,13 +96,13 @@ export const updateReadingHistoryProgressAction = authenticatedAction
       userId: z.number(),
       readingHistoryId: z.number(),
       progress: z.string(),
-    })
+    }),
   )
   .handler(async ({ input }) => {
     await updateReadingHistoryProgressUseCase(
       input.readingHistoryId,
       input.userId,
-      input.progress
+      input.progress,
     );
   });
 
@@ -112,7 +112,7 @@ export const deleteReadingHistoryByIdAction = authenticatedAction
     z.object({
       userId: z.number(),
       readingHistoryId: z.number(),
-    })
+    }),
   )
   .handler(async ({ input }) => {
     await deleteReadingHistoryByIdUseCase(input.readingHistoryId, input.userId);
@@ -124,7 +124,7 @@ export const deleteAllReadingHistoryAction = authenticatedAction
   .input(
     z.object({
       userId: z.number(),
-    })
+    }),
   )
   .handler(async ({ input }) => {
     await deleteAllReadingHistoryUseCase(input.userId);

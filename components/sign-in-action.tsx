@@ -91,18 +91,18 @@ export default function SignInAction({
   if (isDesktop) {
     return (
       <Dialog open={open} onOpenChange={onOpenChange}>
-        <DialogContent className={cn("w-full p-0 gap-0 rounded-2xl")}>
+        <DialogContent className={cn("w-full gap-0 rounded-2xl p-0")}>
           <DialogHeader
             className={cn(
-              "flex flex-col items-center justify-center space-y-3 border-b bg-background px-4 py-6 pt-8 text-center md:px-16"
+              "flex flex-col items-center justify-center space-y-3 border-b bg-background px-4 py-6 pt-8 text-center md:px-16",
             )}
           >
             <DialogTitle
-              className={cn("flex flex-col gap-2 justify-center items-center")}
+              className={cn("flex flex-col items-center justify-center gap-2")}
             >
               <div
                 role="img"
-                className="w-12 h-12 bg-primary dark:bg-white rounded-full flex items-center justify-center"
+                className="flex h-12 w-12 items-center justify-center rounded-full bg-primary dark:bg-white"
               >
                 <Icons.logo className="text-white dark:text-background" />
               </div>
@@ -117,7 +117,7 @@ export default function SignInAction({
           </DialogHeader>
           <DialogFooter
             className={cn(
-              "flex flex-col space-y-4 bg-secondary/50 px-4 py-8 md:px-16"
+              "flex flex-col space-y-4 bg-secondary/50 px-4 py-8 md:px-16",
             )}
           >
             <Link
@@ -126,7 +126,7 @@ export default function SignInAction({
                 buttonVariants({
                   variant: "default",
                 }),
-                "w-full"
+                "w-full",
               )}
             >
               Sign in and get started
@@ -142,15 +142,15 @@ export default function SignInAction({
       <DrawerContent>
         <DrawerHeader
           className={cn(
-            "flex flex-col items-center justify-center space-y-3 border-b bg-background px-4 py-6 pt-8 text-center md:px-16"
+            "flex flex-col items-center justify-center space-y-3 border-b bg-background px-4 py-6 pt-8 text-center md:px-16",
           )}
         >
           <div
-            className={cn("flex flex-col gap-2 justify-center items-center")}
+            className={cn("flex flex-col items-center justify-center gap-2")}
           >
             <div
               role="img"
-              className="w-12 h-12 bg-primary dark:bg-white rounded-full flex items-center justify-center"
+              className="flex h-12 w-12 items-center justify-center rounded-full bg-primary dark:bg-white"
             >
               <Icons.logo className="text-white dark:text-background" />
             </div>
@@ -170,7 +170,7 @@ export default function SignInAction({
               buttonVariants({
                 variant: "default",
               }),
-              "w-full"
+              "w-full",
             )}
           >
             Sign in and get started

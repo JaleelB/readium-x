@@ -10,7 +10,7 @@ import { z } from "zod";
 
 export async function createBookmarkUseCase(
   userId: number,
-  articleDetails: z.infer<typeof articleSchema>
+  articleDetails: z.infer<typeof articleSchema>,
 ) {
   const bookmark = await createBookark(userId, articleDetails);
 
@@ -25,7 +25,7 @@ export async function getBookmarksUseCase(userId: number) {
 
 export async function getBookmarkByIdUseCase(
   userId: number,
-  bookmarkId: number
+  bookmarkId: number,
 ) {
   const bookmark = await getBookmarkById(userId, bookmarkId);
 
@@ -34,7 +34,7 @@ export async function getBookmarkByIdUseCase(
 
 export async function deleteBookmarkUseCase(
   userId: number,
-  bookmarkId: number
+  bookmarkId: number,
 ) {
   await deleteBookmark(userId, bookmarkId);
 }
@@ -42,7 +42,7 @@ export async function deleteBookmarkUseCase(
 export async function updateBookmarkUseCase(
   userId: number,
   bookmarkId: number,
-  articleDetails: z.infer<typeof articleSchema>
+  articleDetails: z.infer<typeof articleSchema>,
 ) {
   const bookmark = await updateBookmark(userId, bookmarkId, articleDetails);
 

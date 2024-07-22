@@ -16,19 +16,19 @@ export const checkUrlReachability = async (url: string): Promise<boolean> => {
 };
 
 export const getUrlWithoutPaywall = async (
-  url: string | URL
+  url: string | URL,
 ): Promise<string | Error> => {
   try {
     // Validate and parse the input URL
     const validatedUrl = urlSchema.parse(
-      typeof url === "string" ? url : url.href
+      typeof url === "string" ? url : url.href,
     );
 
     // Check if the URL is reachable and valid for the intended use
     const isReachable = await checkUrlReachability(validatedUrl);
     if (!isReachable) {
       return new Error(
-        "URL is not reachable or does not point to a valid article."
+        "URL is not reachable or does not point to a valid article.",
       );
     }
 
@@ -41,7 +41,7 @@ export const getUrlWithoutPaywall = async (
     // Handle validation and unexpected errors
     if (error instanceof z.ZodError) {
       return new Error(
-        `Invalid URL: ${error.errors.map((e) => e.message).join(", ")}`
+        `Invalid URL: ${error.errors.map((e) => e.message).join(", ")}`,
       );
     }
     return new Error("An error occurred while processing the URL.");

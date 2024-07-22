@@ -22,15 +22,15 @@ export async function BookmarkButton() {
 
   return (
     <Dialog>
-      <DialogTrigger className="bg-[#141414] dark:bg-[#191919] rounded-full p-1 dark:border dark:border-input">
+      <DialogTrigger className="rounded-full bg-[#141414] p-1 dark:border dark:border-input dark:bg-[#191919]">
         <Button
           className={cn(
-            "overflow-hidden relative rounded-full items-center h-12 border border-input/25 bg-[#1d1c20] dark:bg-[#1a1a1a] dark:text-white dark:border-white/15 p-0"
+            "relative h-12 items-center overflow-hidden rounded-full border border-input/25 bg-[#1d1c20] p-0 dark:border-white/15 dark:bg-[#1a1a1a] dark:text-white",
           )}
         >
-          <div className="h-full flex items-center sm:gap-1.5 px-4 py-2 z-20">
+          <div className="z-20 flex h-full items-center px-4 py-2 sm:gap-1.5">
             <span className="mr-1">New</span>
-            <Icons.plus className="text-white w-5 h-5" />
+            <Icons.plus className="h-5 w-5 text-white" />
           </div>
           <SparkleBg />
         </Button>

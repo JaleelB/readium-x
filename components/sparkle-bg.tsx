@@ -17,5 +17,5 @@ export function SparkleBg({
     sparkleSize: sparkleSize || 1.5,
   });
 
-  return <div ref={sparkleContainerRef} className="absolute w-full h-full" />;
+  return <div ref={sparkleContainerRef} className="absolute h-full w-full" />;
 }

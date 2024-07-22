@@ -35,16 +35,17 @@ const CustomHeading = (level: number) =>
       return [
         `h${level}`,
         mergeAttributes(HTMLAttributes, {
-          class: cn(`font-sans ${
-            level === 2
-              ? "font-bold font-sans break-normal text-gray-900 dark:text-gray-100 text-1xl md:text-2xl"
-              : level === 3
-              ? "font-bold font-sans break-normal text-gray-900 dark:text-gray-100 text-1xl md:text-2xl pt-12"
-              : level === 4
-              ? "font-bold font-sans break-normal text-gray-900 dark:text-gray-100 text-l md:text-xl pt-8"
-              : `${node.attrs.class}`
-          } 
-          `),
+          class: cn(
+            `font-sans ${
+              level === 2
+                ? "text-1xl break-normal font-sans font-bold text-gray-900 dark:text-gray-100 md:text-2xl"
+                : level === 3
+                  ? "text-1xl break-normal pt-12 font-sans font-bold text-gray-900 dark:text-gray-100 md:text-2xl"
+                  : level === 4
+                    ? "text-l break-normal pt-8 font-sans font-bold text-gray-900 dark:text-gray-100 md:text-xl"
+                    : `${node.attrs.class}`
+            } `,
+          ),
           style: node.attrs.style,
         }),
         0,

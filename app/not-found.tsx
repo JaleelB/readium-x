@@ -25,15 +25,15 @@ export default function NotFound() {
   }, [countdown, router]);
 
   return (
-    <div className="relative w-full h-full flex flex-col flex-1 items-center justify-center bg-background dark space-y-6">
+    <div className="dark relative flex h-full w-full flex-1 flex-col items-center justify-center space-y-6 bg-background">
       <SparkleBg sparkleCount={300} sparkleSize={2} />
       <Balancer
         as="h1"
-        className="px-6 text-white text-center font-sans text-4xl font-bold tracking-tight drop-shadow-sm sm:text-5xl lg:font-heading lg:text-6xl xl:text-7xl lg:tracking-normal"
+        className="px-6 text-center font-sans text-4xl font-bold tracking-tight text-white drop-shadow-sm sm:text-5xl lg:font-heading lg:text-6xl lg:tracking-normal xl:text-7xl"
       >
         Page not found
       </Balancer>
-      <Balancer className="max-w-[40rem] px-6 text-center leading-normal text-lg text-muted-foreground sm:leading-8">
+      <Balancer className="max-w-[40rem] px-6 text-center text-lg leading-normal text-muted-foreground sm:leading-8">
         The page you&apos;re searching for is not available.
       </Balancer>
       <Link
@@ -43,7 +43,7 @@ export default function NotFound() {
             variant: "default",
             size: "lg",
           }),
-          "w-full max-w-[200px] h-12 rounded-full relative overflow-hidden min-w-[110px] font-bold items-center"
+          "relative h-12 w-full min-w-[110px] max-w-[200px] items-center overflow-hidden rounded-full font-bold",
         )}
       >
         Go back home{" "}

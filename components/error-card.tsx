@@ -17,7 +17,7 @@ export function ErrorCard({
   message = "Looks like we ran into an issue while loading the article. Don't worry. Hitting reload should fix the issue.",
 }: ErrorCardProps) {
   return (
-    <Card className={cn("p-8 w-full max-w-2xl border-2 bg-accent space-y-4")}>
+    <Card className={cn("w-full max-w-2xl space-y-4 border-2 bg-accent p-8")}>
       <Image
         src="https://illustrations.popsy.co/white/abstract-art-4.svg"
         alt="Error"
@@ -33,7 +33,7 @@ export function ErrorCard({
         }}
       >
         <h3 className="font-heading text-xl">{title}</h3>
-        <p className="text-muted-foreground text-base max-w-md text-center pb-2">
+        <p className="max-w-md pb-2 text-center text-base text-muted-foreground">
           {message}
         </p>
         <Button className="w-full max-w-[180px] font-bold" type="submit">

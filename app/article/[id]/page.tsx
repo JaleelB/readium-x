@@ -33,7 +33,7 @@ export default async function Page({
   }
 
   return (
-    <main className="container py-[22vh] mt-12 pt-6 flex flex-col gap-12 items-center justify-center">
+    <main className="container mt-12 flex flex-col items-center justify-center gap-12 py-[22vh] pt-6">
       <UrlForm inputValue={url as string} isUser={user} />
       <ArticleWrapper url={url} />
     </main>

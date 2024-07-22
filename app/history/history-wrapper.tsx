@@ -30,18 +30,18 @@ export type ExisitingUser = {
 
 function HistorySkeleton() {
   return (
-    <div className="text-card-foreground flex flex-col border-0 lg:border relative w-full max-w-none min-h-[90%] lg:min-h-[34rem] lg:max-w-3xl rounded-none lg:rounded-xl mx-auto bg-background md:shadow-xl backdrop-blur-lg shadow-2xl">
+    <div className="relative mx-auto flex min-h-[90%] w-full max-w-none flex-col rounded-none border-0 bg-background text-card-foreground shadow-2xl backdrop-blur-lg md:shadow-xl lg:min-h-[34rem] lg:max-w-3xl lg:rounded-xl lg:border">
       <div className="flex flex-col gap-4 p-4">
-        <div className="w-full h-[64px] bg-muted animate-pulse rounded-lg"></div>
-        <div className="w-full h-[64px] bg-muted animate-pulse rounded-lg"></div>
-        <div className="w-full h-[64px] bg-muted animate-pulse rounded-lg"></div>
+        <div className="h-[64px] w-full animate-pulse rounded-lg bg-muted"></div>
+        <div className="h-[64px] w-full animate-pulse rounded-lg bg-muted"></div>
+        <div className="h-[64px] w-full animate-pulse rounded-lg bg-muted"></div>
       </div>
-      <div className="flex items-center p-3 gap-2 border-t border-light">
-        <p className="text-xs text-light font-normal px-2 uppercase">Page 1</p>
+      <div className="border-light flex items-center gap-2 border-t p-3">
+        <p className="text-light px-2 text-xs font-normal uppercase">Page 1</p>
         <div className="flex-1"></div>
         <div
           className={cn(
-            "relative inline-flex items-center justify-center whitespace-nowrap text-accent font-medium transition-all duration-200 ring-0 ring-transparent focus-visible:outline-none focus-visible:ring-1 focus-visible:ringRing disabled:pointer-events-none disabled:opacity-50 border border-light text-dark shadow-xs disabled:text-light h-8 px-3.5 rounded-full text-xs hover:ring gap-1 pl-2.5 bg-accent"
+            "focus-visible:ringRing border-light text-dark shadow-xs disabled:text-light relative inline-flex h-8 items-center justify-center gap-1 whitespace-nowrap rounded-full border bg-accent px-3.5 pl-2.5 text-xs font-medium text-accent ring-0 ring-transparent transition-all duration-200 hover:ring focus-visible:outline-none focus-visible:ring-1 disabled:pointer-events-none disabled:opacity-50",
           )}
         >
           <svg
@@ -65,7 +65,7 @@ function HistorySkeleton() {
         </div>
         <div
           className={cn(
-            "relative inline-flex items-center text-accent bg-accent justify-center whitespace-nowrap font-medium transition-all duration-200 ring-0 ring-transparent focus-visible:outline-none focus-visible:ring-1 focus-visible:ringRing disabled:pointer-events-none disabled:opacity-50 border border-light text-dark shadow-xs disabled:text-light h-8 px-3.5 rounded-full text-xs hover:ring gap-1 pr-2.5"
+            "focus-visible:ringRing border-light text-dark shadow-xs disabled:text-light relative inline-flex h-8 items-center justify-center gap-1 whitespace-nowrap rounded-full border bg-accent px-3.5 pr-2.5 text-xs font-medium text-accent ring-0 ring-transparent transition-all duration-200 hover:ring focus-visible:outline-none focus-visible:ring-1 disabled:pointer-events-none disabled:opacity-50",
           )}
         >
           <span className="text-accent">Next</span>
@@ -99,23 +99,23 @@ async function HistoryLoader({ user }: { user: ExisitingUser }) {
 
   if (!data || data.length === 0) {
     return (
-      <div className="text-card-foreground flex flex-col border-0 lg:border relative w-full max-w-none min-h-[450px] lg:min-h-[34rem] lg:max-w-3xl rounded-none lg:rounded-xl mx-auto bg-background md:shadow-xl backdrop-blur-lg shadow-2xl">
-        <div className="flex-1 flex flex-col p-0">
+      <div className="relative mx-auto flex min-h-[450px] w-full max-w-none flex-col rounded-none border-0 bg-background text-card-foreground shadow-2xl backdrop-blur-lg md:shadow-xl lg:min-h-[34rem] lg:max-w-3xl lg:rounded-xl lg:border">
+        <div className="flex flex-1 flex-col p-0">
           <div
             data-expanded="true"
-            className="flex items-center gap-3 p-3 border-b text-start w-full overflow-hidden focus-visible:outline-none"
+            className="flex w-full items-center gap-3 overflow-hidden border-b p-3 text-start focus-visible:outline-none"
           >
             <div className="flex-1">
-              <div className="flex justify-between items-center">
-                <div className="flex gap-2 items-center">
+              <div className="flex items-center justify-between">
+                <div className="flex items-center gap-2">
                   <Balancer
                     as="h3"
-                    className="text-lg text-dark font-semibold p-1"
+                    className="text-dark p-1 text-lg font-semibold"
                   >
                     Article reading history
                   </Balancer>
                 </div>
-                <div className="flex gap-3 items-center">
+                <div className="flex items-center gap-3">
                   <TooltipProvider>
                     <Tooltip>
                       <TooltipTrigger asChild>
@@ -124,7 +124,7 @@ async function HistoryLoader({ user }: { user: ExisitingUser }) {
                           variant="outline"
                           disabled
                           className={cn(
-                            "relative inline-flex items-center justify-center whitespace-nowrap text-sm font-medium transition-all duration-200 ring-0 ring-transparent focus-visible:outline-none focus-visible:ring-1 focus-visible:ringRing disabled:pointer-events-none disabled:opacity-50 bg-background/20 border border-light text-dark shadow-xs disabled:text-light hover:ring center p-0 h-9 w-9 rounded-full"
+                            "focus-visible:ringRing border-light text-dark shadow-xs disabled:text-light center relative inline-flex h-9 w-9 items-center justify-center whitespace-nowrap rounded-full border bg-background/20 p-0 text-sm font-medium ring-0 ring-transparent transition-all duration-200 hover:ring focus-visible:outline-none focus-visible:ring-1 disabled:pointer-events-none disabled:opacity-50",
                           )}
                         >
                           <svg
@@ -132,7 +132,7 @@ async function HistoryLoader({ user }: { user: ExisitingUser }) {
                             fill="currentColor"
                             strokeWidth="0"
                             viewBox="0 0 24 24"
-                            className="w-4 h-4"
+                            className="h-4 w-4"
                             height="1em"
                             width="1em"
                             xmlns="http://www.w3.org/2000/svg"
@@ -151,7 +151,7 @@ async function HistoryLoader({ user }: { user: ExisitingUser }) {
               </div>
             </div>
           </div>
-          <div className="flex flex-1 flex-col gap-4 items-center justify-center">
+          <div className="flex flex-1 flex-col items-center justify-center gap-4">
             <svg
               width="1.5rem"
               height="1.5rem"
@@ -208,8 +208,8 @@ async function HistoryLoader({ user }: { user: ExisitingUser }) {
             </Link>
           </div>
         </div>
-        <div className="flex items-center p-3 gap-2 border-t border-light">
-          <Balancer className="text-xs text-light font-normal px-2 uppercase">
+        <div className="border-light flex items-center gap-2 border-t p-3">
+          <Balancer className="text-light px-2 text-xs font-normal uppercase">
             Page 1
           </Balancer>
           <div className="flex-1"></div>
@@ -217,7 +217,7 @@ async function HistoryLoader({ user }: { user: ExisitingUser }) {
             variant="outline"
             disabled
             className={cn(
-              "relative inline-flex items-center justify-center whitespace-nowrap font-medium transition-all duration-200 ring-0 ring-transparent focus-visible:outline-none focus-visible:ring-1 focus-visible:ringRing disabled:pointer-events-none disabled:opacity-50 border border-light text-dark shadow-xs disabled:text-light h-8 px-3.5 rounded-full text-xs hover:ring gap-1 pl-2.5"
+              "focus-visible:ringRing border-light text-dark shadow-xs disabled:text-light relative inline-flex h-8 items-center justify-center gap-1 whitespace-nowrap rounded-full border px-3.5 pl-2.5 text-xs font-medium ring-0 ring-transparent transition-all duration-200 hover:ring focus-visible:outline-none focus-visible:ring-1 disabled:pointer-events-none disabled:opacity-50",
             )}
           >
             <svg
@@ -243,7 +243,7 @@ async function HistoryLoader({ user }: { user: ExisitingUser }) {
             variant="outline"
             disabled
             className={cn(
-              "relative inline-flex items-center justify-center whitespace-nowrap font-medium transition-all duration-200 ring-0 ring-transparent focus-visible:outline-none focus-visible:ring-1 focus-visible:ringRing disabled:pointer-events-none disabled:opacity-50 bg-background/20 border border-light text-dark shadow-xs disabled:text-light h-8 px-3.5 rounded-full text-xs hover:ring gap-1 pr-2.5"
+              "focus-visible:ringRing border-light text-dark shadow-xs disabled:text-light relative inline-flex h-8 items-center justify-center gap-1 whitespace-nowrap rounded-full border bg-background/20 px-3.5 pr-2.5 text-xs font-medium ring-0 ring-transparent transition-all duration-200 hover:ring focus-visible:outline-none focus-visible:ring-1 disabled:pointer-events-none disabled:opacity-50",
             )}
           >
             <span>Next</span>

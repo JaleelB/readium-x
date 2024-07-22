@@ -9,7 +9,7 @@ interface ReadingProgressHook {
 }
 
 export const useReadingProgress = (
-  initialProgress: number
+  initialProgress: number,
 ): ReadingProgressHook => {
   const [progress, setProgress] = useState(initialProgress);
   const [isScrolling, setIsScrolling] = useState(false);

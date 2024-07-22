@@ -28,7 +28,7 @@ export async function scrapeArticleContent(url: string) {
     const response = await fetch(url);
     if (!response.ok) {
       throw new Error(
-        `Failed to retrieve the web page. Status code: ${response.status}`
+        `Failed to retrieve the web page. Status code: ${response.status}`,
       );
     }
 
@@ -36,7 +36,7 @@ export async function scrapeArticleContent(url: string) {
 
     const processor = new MediumArticleProcessor();
     const articleMetadata = (await processor.extractArticleMetadata(
-      html
+      html,
     )) as ArticleDetails;
 
     if (!articleMetadata) {

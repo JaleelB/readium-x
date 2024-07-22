@@ -54,21 +54,19 @@ export default function BookmarksList({
 }) {
   const { toast } = useToast();
   return (
-    <div className="w-full grid grid-cols-1 gap-4 sm:grid-cols-2 xl:grid-cols-3 ">
+    <div className="grid w-full grid-cols-1 gap-4 sm:grid-cols-2 xl:grid-cols-3">
       {bookmarks.map((bookmark) => (
         // border-gray-950/[.1] bg-gray-950/[.01] hover:bg-gray-950/[.05] dark:border-gray-50/[.1] dark:bg-gray-50/[.10] dark:hover:bg-gray-50/[.15]
         <Card
           key={bookmark.id}
           className={cn(
-            `flex flex-col gap-2 w-full shadow-sm relative cursor-pointer rounded-xl border p-2 
-            transition-all duration-200 ease-in-out hover:scale-[103%] bg-white [box-shadow:0_0_0_1px_rgba(0,0,0,.03),0_2px_4px_rgba(0,0,0,.05),0_12px_24px_rgba(0,0,0,.05)] transform-gpu dark:bg-transparent dark:backdrop-blur-md dark:[border:1px_solid_rgba(255,255,255,.1)] dark:[box-shadow:0_-20px_80px_-20px_#ffffff1f_inset]
-            `
+            `relative flex w-full transform-gpu cursor-pointer flex-col gap-2 rounded-xl border bg-white p-2 shadow-sm transition-all duration-200 ease-in-out [box-shadow:0_0_0_1px_rgba(0,0,0,.03),0_2px_4px_rgba(0,0,0,.05),0_12px_24px_rgba(0,0,0,.05)] hover:scale-[103%] dark:bg-transparent dark:backdrop-blur-md dark:[border:1px_solid_rgba(255,255,255,.1)] dark:[box-shadow:0_-20px_80px_-20px_#ffffff1f_inset]`,
           )}
         >
           <CardContent className="p-2">
-            <div className="w-full flex justify-between">
-              <div className="w-full flex gap-3">
-                <Avatar className="w-11 h-11 rounded-md">
+            <div className="flex w-full justify-between">
+              <div className="flex w-full gap-3">
+                <Avatar className="h-11 w-11 rounded-md">
                   <AvatarImage
                     src={
                       bookmark.authorImageURL ||
@@ -84,7 +82,7 @@ export default function BookmarksList({
                   >
                     {bookmark.authorName}
                   </Link>
-                  <div className="text-muted-foreground text-sm">
+                  <div className="text-sm text-muted-foreground">
                     {bookmark.readTime}
                     {bookmark.publishDate && <span className="px-2">·</span>}
                     {bookmark.publishDate && formatDate(bookmark.publishDate)}
@@ -96,9 +94,9 @@ export default function BookmarksList({
                   <Button
                     variant="outline"
                     size="icon"
-                    className="rounded-full w-10 h-10"
+                    className="h-10 w-10 rounded-full"
                   >
-                    <Icons.bookmark className={`w-5 h-5 fill-current`} />
+                    <Icons.bookmark className={`h-5 w-5 fill-current`} />
                   </Button>
                 </AlertDialogTrigger>
                 <AlertDialogContent>
@@ -140,7 +138,7 @@ export default function BookmarksList({
                 </AlertDialogContent>
               </AlertDialog>
             </div>
-            <Balancer as="h3" className="text-xl font-medium pt-4">
+            <Balancer as="h3" className="pt-4 text-xl font-medium">
               {bookmark.title}
             </Balancer>
             <CardDescription className={cn("pt-2")}>

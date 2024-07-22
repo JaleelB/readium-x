@@ -17,10 +17,10 @@ export default async function BookmarkPage() {
   }
 
   return (
-    <div className="relative container px-4 sm:px-8 flex bg-background py-10 pt-16 md:pt-24 h-screen">
+    <div className="container relative flex h-screen bg-background px-4 py-10 pt-16 sm:px-8 md:pt-24">
       <svg
         aria-hidden="true"
-        className="pointer-events-none absolute inset-0 w-full fill-gray-400/30 stroke-gray-400/30 [mask-image:radial-gradient(700px_circle_at_center,white,transparent)] inset-x-0 inset-y-[0%] h-[90%] skew-y-12"
+        className="pointer-events-none absolute inset-0 inset-x-0 inset-y-[0%] h-[90%] w-full skew-y-12 fill-gray-400/30 stroke-gray-400/30 [mask-image:radial-gradient(700px_circle_at_center,white,transparent)]"
       >
         <defs>
           <pattern
@@ -308,9 +308,9 @@ export default async function BookmarkPage() {
           ></rect>
         </svg>
       </svg>
-      <div className="flex-1 flex flex-col gap-12">
+      <div className="flex flex-1 flex-col gap-12">
         <div className="flex flex-col gap-1">
-          <Balancer as="h1" className="text-3xl font-bold font-heading">
+          <Balancer as="h1" className="font-heading text-3xl font-bold">
             Bookmarks
           </Balancer>
           <Balancer className="text-muted-foreground">
@@ -319,7 +319,7 @@ export default async function BookmarkPage() {
         </div>
         <BookmarkWrapper user={user} />
       </div>
-      <div className="fixed bottom-8 left-1/2 -translate-x-1/2 ">
+      <div className="fixed bottom-8 left-1/2 -translate-x-1/2">
         <BookmarkButton />
       </div>
     </div>

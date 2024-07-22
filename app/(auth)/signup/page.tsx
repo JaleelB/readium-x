@@ -65,17 +65,17 @@ export default function RegisterPage() {
   }
 
   return (
-    <div className="relative w-full h-full min-h-screen flex flex-col items-center justify-center space-y-3 bg-background dark">
+    <div className="dark relative flex h-full min-h-screen w-full flex-col items-center justify-center space-y-3 bg-background">
       <SparkleBg sparkleCount={300} sparkleSize={3} />
       <Form {...form}>
         <form
           onSubmit={form.handleSubmit(onSubmit)}
-          className="rounded-lg border shadow-sm w-full max-w-sm text-foreground px-6 py-6 space-y-6 z-20 bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60"
+          className="z-20 w-full max-w-sm space-y-6 rounded-lg border bg-background/95 px-6 py-6 text-foreground shadow-sm backdrop-blur supports-[backdrop-filter]:bg-background/60"
         >
-          <Link href="/" className="w-full flex justify-center items-center">
+          <Link href="/" className="flex w-full items-center justify-center">
             <div
               role="img"
-              className="w-12 h-12 bg-primary dark:bg-white rounded-full flex items-center justify-center"
+              className="flex h-12 w-12 items-center justify-center rounded-full bg-primary dark:bg-white"
             >
               <Icons.logo className="text-white dark:text-background" />
             </div>
@@ -83,11 +83,11 @@ export default function RegisterPage() {
           <div className="flex flex-col space-y-1.5">
             <Balancer
               as="h3"
-              className="font-semibold tracking-tight text-2xl text-center"
+              className="text-center text-2xl font-semibold tracking-tight"
             >
               Welcome to ReadiumX
             </Balancer>
-            <Balancer className="text-sm text-muted-foreground text-center">
+            <Balancer className="text-center text-sm text-muted-foreground">
               Create your account
             </Balancer>
           </div>
@@ -151,7 +151,7 @@ export default function RegisterPage() {
           {error && (
             <Alert
               variant="destructive"
-              className="fixed top-0 right-0 sm:top-4 sm:right-8 w-full sm:w-fit"
+              className="fixed right-0 top-0 w-full sm:right-8 sm:top-4 sm:w-fit"
             >
               <Terminal className="h-4 w-4" />
               <AlertTitle>Uhoh, we couldn&apos;t log you in</AlertTitle>
@@ -163,7 +163,7 @@ export default function RegisterPage() {
             Register
           </LoaderButton>
 
-          <Separator className="shrink-0 bg-border h-[1px] w-full my-4" />
+          <Separator className="my-4 h-[1px] w-full shrink-0 bg-border" />
 
           <div className="space-y-4">
             <Link
@@ -172,7 +172,7 @@ export default function RegisterPage() {
                 buttonVariants({
                   variant: "outline",
                 }),
-                "w-full"
+                "w-full",
               )}
             >
               <Icons.google className="mr-2 h-4 w-4" />
@@ -184,7 +184,7 @@ export default function RegisterPage() {
                 buttonVariants({
                   variant: "outline",
                 }),
-                "w-full"
+                "w-full",
               )}
             >
               <Icons.github className="mr-2 h-4 w-4" />

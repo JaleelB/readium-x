@@ -37,7 +37,7 @@ export function OptionsMenu({ user }: { user: UserInfo }) {
           <Icons.menu className="mr-2 h-4 w-4" />
           <Icons.chevronDown
             className={`h-4 w-4 text-muted-foreground transition duration-200 ${
-              open ? "transform rotate-180" : ""
+              open ? "rotate-180 transform" : ""
             }`}
           />
         </Button>
@@ -53,7 +53,7 @@ export function OptionsMenu({ user }: { user: UserInfo }) {
             </Link>
           )}
           {user && (
-            <DropdownMenuItem className="text-muted-foreground text-sm py-0.5">
+            <DropdownMenuItem className="py-0.5 text-sm text-muted-foreground">
               {user.email}
             </DropdownMenuItem>
           )}
@@ -133,7 +133,7 @@ export function OptionsMenu({ user }: { user: UserInfo }) {
         {user && (
           <DropdownMenuItem>
             <Link className="flex items-center" href={"/api/sign-out"}>
-              <Icons.logout className="w-4 h-4 mr-2" />
+              <Icons.logout className="mr-2 h-4 w-4" />
               Sign Out
             </Link>
           </DropdownMenuItem>

@@ -6,7 +6,7 @@ import { z } from "zod";
 
 export async function createBookark(
   userId: number,
-  articleDetails: z.infer<typeof articleSchema>
+  articleDetails: z.infer<typeof articleSchema>,
 ) {
   const existingBookmark = await db.query.bookmarks.findFirst({
     where:
@@ -65,7 +65,7 @@ export async function deleteBookmark(userId: number, bookmarkId: number) {
 export async function updateBookmark(
   userId: number,
   bookmarkId: number,
-  articleDetails: z.infer<typeof articleSchema>
+  articleDetails: z.infer<typeof articleSchema>,
 ) {
   const [bookmark] = await db
     .update(bookmarks)

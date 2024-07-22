@@ -14,7 +14,7 @@ import { redirect } from "next/navigation";
 
 export const getCachedArticle = unstable_cache(
   async (url) => scrapeArticleContent(url),
-  ["url"]
+  ["url"],
 );
 
 async function ArticleLoader({ url }: { url: string }) {

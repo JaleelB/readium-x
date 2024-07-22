@@ -61,13 +61,13 @@ export default function ResetPasswordPage({
   }
 
   return (
-    <div className="relative w-full h-full flex flex-col flex-1 items-center justify-center bg-background dark space-y-6">
+    <div className="dark relative flex h-full w-full flex-1 flex-col items-center justify-center space-y-6 bg-background">
       <SparkleBg sparkleCount={300} sparkleSize={2} />
       {isSuccess && (
         <>
           <Alert
             variant="default"
-            className="fixed top-0 right-0 sm:top-4 sm:right-8 w-full sm:w-fit"
+            className="fixed right-0 top-0 w-full sm:right-8 sm:top-4 sm:w-fit"
           >
             <Terminal className="h-4 w-4" />
             <AlertTitle>Password updated</AlertTitle>
@@ -76,25 +76,25 @@ export default function ResetPasswordPage({
             </AlertDescription>
           </Alert>
 
-          <div className="rounded-lg border shadow-sm w-full max-w-sm text-foreground px-6 py-6 space-y-6 z-20 bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
-            <Link href="/" className="w-full flex justify-center items-center">
+          <div className="z-20 w-full max-w-sm space-y-6 rounded-lg border bg-background/95 px-6 py-6 text-foreground shadow-sm backdrop-blur supports-[backdrop-filter]:bg-background/60">
+            <Link href="/" className="flex w-full items-center justify-center">
               <div
                 role="img"
-                className="w-12 h-12 bg-primary dark:bg-white rounded-full flex items-center justify-center"
+                className="flex h-12 w-12 items-center justify-center rounded-full bg-primary dark:bg-white"
               >
                 <Icons.logo className="text-white dark:text-background" />
               </div>
             </Link>
-            <div className="flex flex-col gap-2 items-center">
+            <div className="flex flex-col items-center gap-2">
               <Balancer
                 as="h3"
-                className="font-semibold tracking-tight text-2xl text-center"
+                className="text-center text-2xl font-semibold tracking-tight"
               >
                 All done!
               </Balancer>
               <Balancer
                 as="p"
-                className="text-sm text-muted-foreground text-center"
+                className="text-center text-sm text-muted-foreground"
               >
                 Your password has been successfully updated
               </Balancer>
@@ -104,7 +104,7 @@ export default function ResetPasswordPage({
                   buttonVariants({
                     variant: "default",
                   }),
-                  "w-full max-w-[230px] mx-auto mt-4"
+                  "mx-auto mt-4 w-full max-w-[230px]",
                 )}
               >
                 Login with new password
@@ -127,15 +127,15 @@ export default function ResetPasswordPage({
           <Form {...form}>
             <form
               onSubmit={form.handleSubmit(onSubmit)}
-              className="rounded-lg border shadow-sm w-full max-w-sm text-foreground px-6 py-6 space-y-6 z-20 bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60"
+              className="z-20 w-full max-w-sm space-y-6 rounded-lg border bg-background/95 px-6 py-6 text-foreground shadow-sm backdrop-blur supports-[backdrop-filter]:bg-background/60"
             >
               <Link
                 href="/"
-                className="w-full flex justify-center items-center"
+                className="flex w-full items-center justify-center"
               >
                 <div
                   role="img"
-                  className="w-12 h-12 bg-primary dark:bg-white rounded-full flex items-center justify-center"
+                  className="flex h-12 w-12 items-center justify-center rounded-full bg-primary dark:bg-white"
                 >
                   <Icons.logo className="text-white dark:text-background" />
                 </div>
@@ -143,13 +143,13 @@ export default function ResetPasswordPage({
               <div className="flex flex-col space-y-1.5">
                 <Balancer
                   as="h3"
-                  className="font-semibold tracking-tight text-2xl text-center"
+                  className="text-center text-2xl font-semibold tracking-tight"
                 >
                   Set a new password
                 </Balancer>
                 <Balancer
                   as="p"
-                  className="text-sm text-muted-foreground text-center"
+                  className="text-center text-sm text-muted-foreground"
                 >
                   Your new password must be atleast 8 characters long.
                 </Balancer>
@@ -203,7 +203,7 @@ export default function ResetPasswordPage({
           </Form>
           <Link
             href="/signin"
-            className="text-muted-foreground underline flex items-center"
+            className="flex items-center text-muted-foreground underline"
           >
             <Icons.arrowLeft className="mr-2 h-4 w-4" />
             Back to sign in
