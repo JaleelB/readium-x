@@ -3,6 +3,8 @@
 [![Twitter Follow](https://img.shields.io/twitter/follow/JaleelB?style=social)](https://twitter.com/jal_eelll)
 [![GitHub Repo stars](https://img.shields.io/github/stars/JaleelB/readium-x?style=social)](https://github.com/JaleelB/readium-x/stargazers)
 
+https://github.com/user-attachments/assets/1c3a5138-0fc7-43e9-b0a2-761e70f9c83c
+
 <h3 align="center">ReadiumX</h3>
 
 <p align="center">
