@@ -6,8 +6,16 @@ import { ThemeProvider } from "@/components/theme-provider";
 import { Toaster } from "@/components/ui/toaster";
 import { siteConfig } from "@/app-config";
 import Script from "next/script";
+import type { Viewport } from "next";
 
-export const metadata = {
+export const viewport: Viewport = {
+  themeColor: [
+    { media: "(prefers-color-scheme: light)", color: "white" },
+    { media: "(prefers-color-scheme: dark)", color: "black" },
+  ],
+};
+
+export const metadata: Metadata = {
   title: {
     default: siteConfig.name,
     template: "%s | " + siteConfig.name,
@@ -31,10 +39,10 @@ export const metadata = {
     },
   ],
   creator: "jaleelb",
-  themeColor: [
-    { media: "(prefers-color-scheme: light)", color: "white" },
-    { media: "(prefers-color-scheme: dark)", color: "black" },
-  ],
+  // themeColor: [
+  //   { media: "(prefers-color-scheme: light)", color: "white" },
+  //   { media: "(prefers-color-scheme: dark)", color: "black" },
+  // ],
   openGraph: {
     type: "website",
     locale: "en_US",
@@ -47,7 +55,7 @@ export const metadata = {
         url: `${siteConfig.url}/web-shot.png`,
         width: 1200,
         height: 715,
-        alt: "Callsquare",
+        alt: "ReadiumX",
       },
     ],
   },

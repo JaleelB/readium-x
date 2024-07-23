@@ -19,9 +19,12 @@ export const env = createEnv({
     UMAMI_URL: z.string().min(1),
     UMAMI_DATA_WEBSITE_ID: z.string().min(1),
   },
-  client: {},
+  client: {
+    NEXT_PUBLIC_APP_URL: z.string().min(1),
+  },
   runtimeEnv: {
     NODE_ENV: process.env.NODE_ENV,
+    NEXT_PUBLIC_APP_URL: process.env.NEXT_PUBLIC_APP_URL,
     DATABASE_URL: process.env.DATABASE_URL,
     DB_AUTH_TOKEN: process.env.DB_AUTH_TOKEN,
     GOOGLE_CLIENT_ID: process.env.GOOGLE_CLIENT_ID,
