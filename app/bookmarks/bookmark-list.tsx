@@ -22,6 +22,7 @@ import {
   AlertDialogTrigger,
 } from "@/components/ui/alert-dialog";
 import { Bookmark } from "./bookmark-wrapper";
+import { usePathname } from "next/navigation";
 
 function extractFirstSentence(htmlContent: string): string {
   // Create a new DOMParser instance
@@ -53,6 +54,7 @@ export default function BookmarksList({
   userId: number;
 }) {
   const { toast } = useToast();
+  const pathname = usePathname();
   return (
     <div className="grid w-full grid-cols-1 gap-4 sm:grid-cols-2 xl:grid-cols-3">
       {bookmarks.map((bookmark) => (
@@ -112,7 +114,8 @@ export default function BookmarksList({
                     <AlertDialogCancel>Cancel</AlertDialogCancel>
                     <AlertDialogAction
                       onClick={async () => {
-                        const [data, error] = await deleteBookmarkAction({
+                        const [_, error] = await deleteBookmarkAction({
+                          path: pathname,
                           id: bookmark.id,
                           userId: userId,
                         });

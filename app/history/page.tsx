@@ -27,7 +27,7 @@ export default async function HistoryPage() {
     <div className="container relative flex h-screen items-center justify-center px-4 sm:px-8">
       <svg
         aria-hidden="true"
-        className="pointer-events-none absolute inset-0 inset-x-0 inset-y-[0%] h-[90%] w-full skew-y-[300] fill-gray-400/30 stroke-gray-400/30 [mask-image:radial-gradient(800px_circle_at_center,white,transparent)]"
+        className="pointer-events-none absolute inset-0 inset-x-0 inset-y-[0%] h-[100%] w-full skew-y-[300] fill-gray-400/30 stroke-gray-400/30 [mask-image:radial-gradient(800px_circle_at_center,white,transparent)]"
       >
         <defs>
           <pattern
