@@ -12,7 +12,6 @@ import {
   getBookmarksUseCase,
 } from "@/use-cases/bookmarks";
 import { revalidatePath } from "next/cache";
-import { b } from "vitest/dist/suite-BWgaIsVn.js";
 import { z } from "zod";
 
 export const createBookmarkAction = authenticatedAction
@@ -44,9 +43,8 @@ export const createBookmarkAction = authenticatedAction
         readTime: input.readTime,
         publishDate: input.publishDate,
       });
-
-      revalidatePath(input.path);
     }
+    revalidatePath(input.path);
   });
 
 export const getBookmarksAction = authenticatedAction
@@ -59,11 +57,34 @@ export const getBookmarksAction = authenticatedAction
     }
   });
 
+export const getBookmarkAction = authenticatedAction
+  .createServerAction()
+  .input(
+    z.object({
+      userId: z.number(),
+      title: z.string(),
+      publishDate: z.string(),
+    }),
+  )
+  .handler(async ({ input }) => {
+    const user = await getUser(input.userId);
+    if (user !== undefined) {
+      const bookmarks = await getBookmarksUseCase(user.id);
+      const bookmark = bookmarks.find(
+        (bookmark) =>
+          bookmark.title === input.title &&
+          bookmark.publishDate === input.publishDate,
+      );
+
+      return bookmark;
+    }
+  });
+
 export const getBookmarkByIdAction = authenticatedAction
   .createServerAction()
-  .input(z.object({ id: z.number(), bookmarkId: z.number() }))
+  .input(z.object({ userId: z.number(), bookmarkId: z.number() }))
   .handler(async ({ input }) => {
-    const user = await getUser(input.id);
+    const user = await getUser(input.userId);
     if (user !== undefined) {
       return await getBookmarkByIdUseCase(user.id, input.bookmarkId);
     }
@@ -71,7 +92,7 @@ export const getBookmarkByIdAction = authenticatedAction
 
 export const deleteBookmarkAction = authenticatedAction
   .createServerAction()
-  .input(z.object({ userId: z.number(), id: z.number() }))
+  .input(z.object({ userId: z.number(), id: z.number(), path: z.string() }))
   .handler(async ({ input }) => {
     const user = await getUser(input.userId);
 
@@ -80,6 +101,6 @@ export const deleteBookmarkAction = authenticatedAction
       if (bookmark !== undefined) {
         await deleteBookmark(user.id, bookmark.id);
       }
-      revalidatePath("/bookmarks");
+      revalidatePath(input.path);
     }
   });

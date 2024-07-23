@@ -9,12 +9,16 @@ import { Icons } from "./icons";
 import { ArticleViewer } from "./article-viewer";
 import DOMPurify from "dompurify";
 import Balancer from "react-wrap-balancer";
-import { createBookmarkAction } from "@/app/bookmarks/bookmark";
+import {
+  createBookmarkAction,
+  deleteBookmarkAction,
+  getBookmarkAction,
+} from "@/app/bookmarks/bookmark";
 import { generateRandomName } from "@/lib/names";
 import { useToast } from "./ui/use-toast";
-import { usePathname } from "next/navigation";
+import { usePathname, useRouter } from "next/navigation";
 import { useReadingProgress } from "@/hooks/use-reading-progress";
-import { useCallback, useEffect, useLayoutEffect, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import {
   getReadingHistoryProgressAction,
   updateReadingHistoryProgressAction,
@@ -65,15 +69,12 @@ export function Article({
       "data-ll-status",
     ],
   });
-  // const [initialProgress] = useState(() => {
-  //   return parseFloat(
-  //     localStorage.getItem(`article-progress-${readingHistoryId}`) || "0"
-  //   );
-  // });
 
   const { toast } = useToast();
   const pathname = usePathname();
-
+  const router = useRouter();
+  const [isBookmarked, setIsBookmarked] = useState<boolean>(false);
+  const [bookmarkId, setBookmarkId] = useState<number | null>(null);
   const [initialProgress, setInitialProgress] = useState<number>(0);
 
   useEffect(() => {
@@ -125,6 +126,33 @@ export function Article({
       });
     }
   }, [progress, readingHistoryId, toast, user.id]);
+
+  useEffect(() => {
+    const fetchBookmarkStatus = async () => {
+      const [data, error] = await getBookmarkAction({
+        userId: user.id,
+        title: content?.title as string,
+        publishDate: content?.publicationInformation.publishDate as string,
+      });
+
+      if (error) {
+        setIsBookmarked(false);
+        return;
+      }
+
+      if (data) {
+        setIsBookmarked(true);
+        setBookmarkId(data.id);
+      }
+    };
+
+    fetchBookmarkStatus();
+  }, [
+    user.id,
+    readingHistoryId,
+    content?.title,
+    content?.publicationInformation.publishDate,
+  ]);
 
   useEffect(() => {
     updateLocalStorage(progress);
@@ -195,41 +223,64 @@ export function Article({
               size="icon"
               className="rounded-full"
               onClick={async () => {
-                const [_, err] = await createBookmarkAction({
-                  path: pathname,
-                  userId: user.id,
-                  title: content?.title || generateRandomName(),
-                  content: safeHTMLContent,
-                  authorName: content?.authorInformation.authorName || "",
-                  authorImageURL:
-                    content?.authorInformation.authorImageURL || "",
-                  authorProfileURL:
-                    content?.authorInformation.authorProfileURL || "",
-                  publicationName:
-                    content?.publicationInformation.publicationName || "",
-                  readTime:
-                    content?.publicationInformation.readTime ||
-                    calculateReadTime(content?.content as string),
-                  publishDate:
-                    content?.publicationInformation.publishDate || "",
-                });
-
-                if (err) {
-                  toast({
-                    title: "Failed to bookmark article",
-                    description: "Please try again later",
-                    variant: "destructive",
+                if (isBookmarked === false && !bookmarkId) {
+                  const [_, err] = await createBookmarkAction({
+                    path: pathname,
+                    userId: user.id,
+                    title: content?.title || generateRandomName(),
+                    content: safeHTMLContent,
+                    authorName: content?.authorInformation.authorName || "",
+                    authorImageURL:
+                      content?.authorInformation.authorImageURL || "",
+                    authorProfileURL:
+                      content?.authorInformation.authorProfileURL || "",
+                    publicationName:
+                      content?.publicationInformation.publicationName || "",
+                    readTime:
+                      content?.publicationInformation.readTime ||
+                      calculateReadTime(content?.content as string),
+                    publishDate:
+                      content?.publicationInformation.publishDate || "",
                   });
-                  return;
-                }
 
-                toast({
-                  title: "Article bookmarked",
-                  description: "You can view it in your bookmarks",
-                });
+                  if (err) {
+                    toast({
+                      description: "Failed to bookmark article",
+                      variant: "destructive",
+                    });
+                    return;
+                  }
+
+                  toast({
+                    description: "Article bookmarked successfully",
+                  });
+
+                  window.location.reload();
+                } else {
+                  const [_, err] = await deleteBookmarkAction({
+                    userId: user.id,
+                    id: bookmarkId as number,
+                    path: pathname,
+                  });
+
+                  if (err) {
+                    toast({
+                      description: "Failed to remove bookmark",
+                      variant: "destructive",
+                    });
+                    return;
+                  }
+
+                  toast({
+                    description: "Bookmark removed",
+                  });
+                  // window.location.reload();
+                }
               }}
             >
-              <Icons.bookmark className={`h-5 w-5`} onLoad={async () => {}} />
+              <Icons.bookmark
+                className={`h-5 w-5 ${isBookmarked ? "fill-current" : ""}`}
+              />
             </Button>
           </div>
           <Balancer

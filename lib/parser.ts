@@ -333,7 +333,6 @@ export class MediumArticleProcessor {
       },
     };
 
-    console.log("Metadata content: ", metadata.content);
     return metadata;
   }
 }
