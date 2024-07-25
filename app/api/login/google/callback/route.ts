@@ -7,33 +7,6 @@ import { afterLoginUrl } from "@/app-config";
 import { setSession } from "@/lib/session";
 
 export async function GET(request: Request): Promise<Response> {
-  const headersList = headers();
-  const origin = headersList.get("origin");
-
-  // Define allowed origins
-  const allowedOrigins = ["https://www.readiumx.com", "https://readiumx.com"];
-
-  // Set CORS headers
-  const responseHeaders = new Headers();
-  responseHeaders.set("Access-Control-Allow-Credentials", "true");
-  responseHeaders.set(
-    "Access-Control-Allow-Origin",
-    allowedOrigins.includes(origin!) ? origin! : allowedOrigins[0],
-  );
-  responseHeaders.set(
-    "Access-Control-Allow-Methods",
-    "GET,OPTIONS,PATCH,DELETE,POST,PUT",
-  );
-  responseHeaders.set(
-    "Access-Control-Allow-Headers",
-    "X-CSRF-Token, X-Requested-With, Accept, Accept-Version, Content-Length, Content-MD5, Content-Type, Date, X-Api-Version",
-  );
-
-  // Handle preflight request
-  if (request.method === "OPTIONS") {
-    return new Response(null, { headers: responseHeaders });
-  }
-
   const url = new URL(request.url);
   const code = url.searchParams.get("code");
   const state = url.searchParams.get("state");
