@@ -16,5 +16,7 @@ export async function GET(): Promise<Response> {
     sameSite: "lax",
   });
 
-  return Response.redirect(url);
+  // return Response.redirect(url);
+  // Instead of redirecting, return the URL to the client
+  return Response.json({ url: url.toString() });
 }

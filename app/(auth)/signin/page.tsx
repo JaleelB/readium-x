@@ -156,34 +156,8 @@ export default function SignInPage() {
           <Separator className="my-4 h-[1px] w-full shrink-0 bg-border" />
 
           <div className="space-y-4">
-            {/* <Link
-              href="/api/login/google"
-              className={cn(
-                buttonVariants({
-                  variant: "outline",
-                }),
-                "w-full",
-              )}
-            >
-              <Icons.google className="mr-2 h-4 w-4" />
-              Sign in with Google
-            </Link> */}
-            <OAuthButton provider="google">
-              <Icons.google className="mr-2 h-4 w-4" />
-              Sign in with Google
-            </OAuthButton>
-            <Link
-              href="/api/login/github"
-              className={cn(
-                buttonVariants({
-                  variant: "outline",
-                }),
-                "w-full",
-              )}
-            >
-              <Icons.github className="mr-2 h-4 w-4" />
-              Sign in with GitHub
-            </Link>
+            <OAuthButton provider="google">Sign in with Google</OAuthButton>
+            <OAuthButton provider="github">Sign in with Github</OAuthButton>
           </div>
           <div className="text-center text-sm">
             Don&apos;t have an account?{" "}

@@ -4,6 +4,7 @@ import { useState } from "react";
 import { cn } from "@/lib/utils";
 import { buttonVariants } from "@/components/ui/button";
 import { LoaderButton } from "./loader-button";
+import { Icons } from "./icons";
 
 export function OAuthButton({
   provider,
@@ -42,6 +43,12 @@ export function OAuthButton({
       )}
       type="submit"
     >
+      {provider === "google" && !isLoading && (
+        <Icons.google className="mr-2 h-4 w-4" />
+      )}
+      {provider === "github" && !isLoading && (
+        <Icons.github className="mr-2 h-4 w-4" />
+      )}
       {children}
     </LoaderButton>
   );
