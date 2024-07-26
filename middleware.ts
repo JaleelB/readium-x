@@ -5,22 +5,33 @@ export function middleware(request: NextRequest) {
   const res = NextResponse.next();
 
   const origin = request.headers.get("origin");
-  const allowedOrigins = [
-    "https://www.readiumx.com",
-    "https://readiumx.com",
-    "https://readiumx.up.railway.app",
-  ];
+  const allowedOrigins = ["https://www.readiumx.com", "https://readiumx.com"];
 
-  if (origin && allowedOrigins.includes(origin)) {
-    res.headers.set("Access-Control-Allow-Origin", origin);
+  if (request.method === "OPTIONS") {
+    res.headers.append("Access-Control-Allow-Origin", origin!);
+    res.headers.append("Access-Control-Allow-Credentials", "true");
+    res.headers.append(
+      "Access-Control-Allow-Methods",
+      "GET,DELETE,PATCH,POST,PUT,OPTIONS",
+    );
+    res.headers.append(
+      "Access-Control-Allow-Headers",
+      "X-CSRF-Token, X-Requested-With, Accept, Accept-Version, Content-Length, Content-MD5, Content-Type, Date, X-Api-Version",
+    );
+
+    return res;
   }
 
-  res.headers.set("Access-Control-Allow-Credentials", "true");
-  res.headers.set(
+  if (origin && !allowedOrigins.includes(origin)) {
+    res.headers.append("Access-Control-Allow-Origin", origin);
+  }
+
+  res.headers.append("Access-Control-Allow-Credentials", "true");
+  res.headers.append(
     "Access-Control-Allow-Methods",
     "GET,DELETE,PATCH,POST,PUT,OPTIONS",
   );
-  res.headers.set(
+  res.headers.append(
     "Access-Control-Allow-Headers",
     "X-CSRF-Token, X-Requested-With, Accept, Accept-Version, Content-Length, Content-MD5, Content-Type, Date, X-Api-Version",
   );
