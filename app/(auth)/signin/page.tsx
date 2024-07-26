@@ -24,9 +24,9 @@ import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import { Terminal } from "lucide-react";
 import { Icons } from "@/components/icons";
 import { Separator } from "@/components/ui/separator";
-import { useSparkle } from "@/hooks/use-sparkle";
 import Balancer from "react-wrap-balancer";
 import { SparkleBg } from "@/components/sparkle-bg";
+import { OAuthButton } from "@/components/oauth-button";
 
 const registrationSchema = z.object({
   email: z.string().email(),
@@ -156,7 +156,7 @@ export default function SignInPage() {
           <Separator className="my-4 h-[1px] w-full shrink-0 bg-border" />
 
           <div className="space-y-4">
-            <Link
+            {/* <Link
               href="/api/login/google"
               className={cn(
                 buttonVariants({
@@ -167,7 +167,11 @@ export default function SignInPage() {
             >
               <Icons.google className="mr-2 h-4 w-4" />
               Sign in with Google
-            </Link>
+            </Link> */}
+            <OAuthButton provider="google">
+              <Icons.google className="mr-2 h-4 w-4" />
+              Sign in with Google
+            </OAuthButton>
             <Link
               href="/api/login/github"
               className={cn(

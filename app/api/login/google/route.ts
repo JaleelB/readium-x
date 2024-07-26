@@ -23,5 +23,7 @@ export async function GET(): Promise<Response> {
     maxAge: 60 * 10,
   });
 
-  return Response.redirect(url);
+  // return Response.redirect(url);
+  // Instead of redirecting, return the URL to the client
+  return Response.json({ url: url.toString() });
 }
