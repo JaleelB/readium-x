@@ -1,15 +1,6 @@
 import { getUser } from "@/data-access/users";
 import { getCurrentUser } from "@/lib/session";
 import { redirect } from "next/navigation";
-// import Balancer from "react-wrap-balancer";
-// import { Button } from "@/components/ui/button";
-// import {
-//   Tooltip,
-//   TooltipContent,
-//   TooltipProvider,
-//   TooltipTrigger,
-// } from "@/components/ui/tooltip";
-// import { cn } from "@/lib/utils";
 import HistoryWrapper from "./history-wrapper";
 
 export default async function HistoryPage() {
@@ -315,58 +306,7 @@ export default async function HistoryPage() {
           ></rect>
         </svg>
       </svg>
-      {/* <div className="text-card-foreground flex flex-col border-0 lg:border relative w-full max-w-none min-h-[450px] lg:min-h-[34rem] lg:max-w-3xl rounded-none lg:rounded-xl mx-auto bg-background md:shadow-xl backdrop-blur-lg shadow-2xl">
-        <div className="flex-1 flex flex-col p-0">
-          <div
-            data-expanded="true"
-            className="flex items-center gap-3 p-3 border-b text-start w-full overflow-hidden focus-visible:outline-none"
-          >
-            <div className="flex-1">
-              <div className="flex justify-between items-center">
-                <Balancer
-                  as="h3"
-                  className="text-lg text-dark font-semibold p-1"
-                >
-                  Article reading history
-                </Balancer>
-                <div className="flex gap-2">
-                  <TooltipProvider>
-                    <Tooltip>
-                      <TooltipTrigger asChild>
-                        <Button
-                          aria-label="Manage history"
-                          variant="outline"
-                          className={cn(
-                            "relative inline-flex items-center justify-center whitespace-nowrap text-sm font-medium transition-all duration-200 ring-0 ring-transparent focus-visible:outline-none focus-visible:ring-1 focus-visible:ringRing disabled:pointer-events-none disabled:opacity-50 bg-background/20 border border-light text-dark shadow-xs disabled:text-light hover:ring center p-0 h-9 w-9 rounded-full"
-                          )}
-                        >
-                          <svg
-                            stroke="currentColor"
-                            fill="currentColor"
-                            strokeWidth="0"
-                            viewBox="0 0 24 24"
-                            className="w-4 h-4"
-                            height="1em"
-                            width="1em"
-                            xmlns="http://www.w3.org/2000/svg"
-                          >
-                            <path fill="none" d="M0 0h24v24H0z"></path>
-                            <path d="M3 10h11v2H3v-2zm0-2h11V6H3v2zm0 8h7v-2H3v2zm15.01-3.13l.71-.71a.996.996 0 011.41 0l.71.71c.39.39.39 1.02 0 1.41l-.71.71-2.12-2.12zm-.71.71l-5.3 5.3V21h2.12l5.3-5.3-2.12-2.12z"></path>
-                          </svg>
-                        </Button>
-                      </TooltipTrigger>
-                      <TooltipContent>
-                        <Balancer>Manage reading history</Balancer>
-                      </TooltipContent>
-                    </Tooltip>
-                  </TooltipProvider>
-                </div>
-              </div>
-            </div>
-          </div> */}
       <HistoryWrapper user={user} />
-      {/* </div> */}
-      {/* </div> */}
     </div>
   );
 }
