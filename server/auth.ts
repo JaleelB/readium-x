@@ -18,6 +18,9 @@ export const lucia = new Lucia(adapter, {
       secure: process.env.NODE_ENV === "production",
       sameSite: "lax",
       path: "/", // Ensure the cookie is available for all paths
+      domain: process.env.NEXT_PUBLIC_DOMAIN
+        ? env.NEXT_PUBLIC_DOMAIN
+        : undefined,
     },
   },
   getUserAttributes: (attributes) => {
