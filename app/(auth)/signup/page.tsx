@@ -13,7 +13,6 @@ import {
   FormLabel,
   FormMessage,
 } from "@/components/ui/form";
-import { cn } from "@/lib/utils";
 import { useServerAction } from "zsa-react";
 import { signUpAction } from "./actions";
 import { LoaderButton } from "@/components/loader-button";
@@ -23,9 +22,9 @@ import { Terminal } from "lucide-react";
 import { Icons } from "@/components/icons";
 import { Separator } from "@radix-ui/react-dropdown-menu";
 import Link from "next/link";
-import { buttonVariants } from "@/components/ui/button";
 import Balancer from "react-wrap-balancer";
 import { SparkleBg } from "@/components/sparkle-bg";
+import { OAuthButton } from "@/components/oauth-button";
 
 const registrationSchema = z
   .object({
@@ -166,30 +165,8 @@ export default function RegisterPage() {
           <Separator className="my-4 h-[1px] w-full shrink-0 bg-border" />
 
           <div className="space-y-4">
-            <Link
-              href="/api/login/google"
-              className={cn(
-                buttonVariants({
-                  variant: "outline",
-                }),
-                "w-full",
-              )}
-            >
-              <Icons.google className="mr-2 h-4 w-4" />
-              Sign up with Google
-            </Link>
-            <Link
-              href="/api/login/github"
-              className={cn(
-                buttonVariants({
-                  variant: "outline",
-                }),
-                "w-full",
-              )}
-            >
-              <Icons.github className="mr-2 h-4 w-4" />
-              Sign up with GitHub
-            </Link>
+            <OAuthButton provider="google">Sign in with Google</OAuthButton>
+            <OAuthButton provider="github">Sign in with Github</OAuthButton>
           </div>
           <div className="text-center text-sm">
             Already have an account?{" "}
