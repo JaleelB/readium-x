@@ -18,9 +18,9 @@ export const lucia = new Lucia(adapter, {
       secure: process.env.NODE_ENV === "production",
       sameSite: "lax",
       path: "/", // Ensure the cookie is available for all paths
-      domain: process.env.NEXT_PUBLIC_DOMAIN
-        ? env.NEXT_PUBLIC_DOMAIN
-        : undefined,
+      // domain: process.env.NEXT_PUBLIC_DOMAIN
+      //   ? env.NEXT_PUBLIC_DOMAIN
+      //   : undefined,
     },
   },
   getUserAttributes: (attributes) => {
@@ -29,7 +29,6 @@ export const lucia = new Lucia(adapter, {
     };
   },
 });
-console.log("lucia", lucia);
 
 export const validateRequest = async (): Promise<
   { user: User; session: Session } | { user: null; session: null }
@@ -65,8 +64,13 @@ export const validateRequest = async (): Promise<
         sessionCookie.attributes,
       );
     }
-  } catch {
-    console.log("error setting cookie:", result);
+  } catch (error) {
+    // console.log("error setting cookie:", result);
+    if (error instanceof Error) {
+      console.error("error setting cookie: ", error.message);
+    }
+
+    console.log("result of not being able to set cookie:", error);
   }
   return result;
 };
