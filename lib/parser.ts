@@ -220,6 +220,21 @@ export class MediumArticleProcessor {
         return;
       }
 
+      if (tagName === "a") {
+        const href = $child.attr("href");
+        if (href && href.startsWith("/")) {
+          $child.attr("href", `https://medium.com${href}`);
+        }
+
+        elements.push({
+          type: "A",
+          content: $.html($child),
+        });
+        captured.add(child);
+
+        return;
+      }
+
       if (
         supportedTypes.includes(tagName.toUpperCase() as ElementsType) &&
         !captured.has(child)
