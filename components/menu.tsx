@@ -131,12 +131,21 @@ export function OptionsMenu({ user }: { user: UserInfo }) {
           </DropdownMenuItem>
         </Link>
         {user && (
-          <DropdownMenuItem>
-            <Link className="flex items-center" href={"/api/sign-out"}>
+          // <DropdownMenuItem>
+          //   <Link className="flex items-center" href={"/api/sign-out"}>
+          //     <Icons.logout className="mr-2 h-4 w-4" />
+          //     Sign Out
+          //   </Link>
+          // </DropdownMenuItem>
+          <form action="/api/sign-out" method="POST">
+            <Button
+              className="flex h-fit cursor-default items-center p-0 hover:bg-transparent"
+              variant="ghost"
+            >
               <Icons.logout className="mr-2 h-4 w-4" />
               Sign Out
-            </Link>
-          </DropdownMenuItem>
+            </Button>
+          </form>
         )}
       </DropdownMenuContent>
     </DropdownMenu>
