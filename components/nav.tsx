@@ -9,11 +9,13 @@ import { cn } from "@/lib/utils";
 import { OptionsMenu } from "./menu";
 import { siteConfig } from "@/app-config";
 import { User } from "@/server/db/schema";
+import { usePathname } from "next/navigation";
 
 export default function Nav({ user }: { user: User | undefined }) {
   const headerRef = useRef<HTMLHeadingElement>(null);
   const lastScrollY = useRef(0);
   const [isScrolled, setIsScrolled] = useState(false);
+  const pathname = usePathname();
 
   useEffect(() => {
     const handleScroll = () => {
@@ -32,6 +34,10 @@ export default function Nav({ user }: { user: User | undefined }) {
           headerRef.current.style.transform = "translateY(0)";
           headerRef.current.style.transition = "transform 0.3s ease-in-out";
         }
+
+        if (currentScrollY === 0) {
+          setIsScrolled(false);
+        }
       }
       lastScrollY.current = currentScrollY;
     };
@@ -46,14 +52,9 @@ export default function Nav({ user }: { user: User | undefined }) {
   return (
     <header
       ref={headerRef}
-      className={`fixed inset-0 z-[1500] flex h-[64px] w-full items-center justify-between px-4 md:px-8`}
+      className={`${isScrolled && pathname.includes("article") ? "fixed border-b border-border bg-background" : "relative"} inset-0 z-[500] flex h-[64px] w-full items-center justify-between px-4 md:px-8`}
     >
-      <Link
-        href="/"
-        className={`flex items-center ${
-          isScrolled ? "rounded-full border bg-background px-4 py-2" : ""
-        }`}
-      >
+      <Link href="/" className={`flex items-center`}>
         <Icons.logo />
         <h4 className="ml-2 font-heading text-xl">{siteConfig.short_name}</h4>
       </Link>

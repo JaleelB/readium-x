@@ -42,7 +42,7 @@ export function OptionsMenu({ user }: { user: UserInfo }) {
           />
         </Button>
       </DropdownMenuTrigger>
-      <DropdownMenuContent className="w-60">
+      <DropdownMenuContent className="z-[550] w-60">
         <DropdownMenuLabel className="p-1 px-0">
           {!user && (
             <Link href="/signin">
@@ -131,12 +131,6 @@ export function OptionsMenu({ user }: { user: UserInfo }) {
           </DropdownMenuItem>
         </Link>
         {user && (
-          // <DropdownMenuItem>
-          //   <Link className="flex items-center" href={"/api/sign-out"}>
-          //     <Icons.logout className="mr-2 h-4 w-4" />
-          //     Sign Out
-          //   </Link>
-          // </DropdownMenuItem>
           <form action="/api/sign-out" method="POST">
             <Button
               className="flex h-fit cursor-default items-center p-0 hover:bg-transparent"
