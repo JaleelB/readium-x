@@ -35,6 +35,7 @@ import {
   Minus,
   History,
   Search,
+  ListFilter,
   type Icon as LucideIcon,
   CircleX,
 } from "lucide-react";
@@ -78,6 +79,7 @@ export const Icons = {
   zoomOut: Minus,
   history: History,
   search: Search,
+  filter: ListFilter,
   closeCircled: CircleX,
   github: ({ ...props }: LucideProps) => (
     <svg

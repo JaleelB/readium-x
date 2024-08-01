@@ -24,8 +24,13 @@ import {
 import { Bookmark } from "../bookmark-wrapper";
 import { usePathname, useSearchParams } from "next/navigation";
 import * as cheerio from "cheerio";
-import { useMemo } from "react";
-import { BookmarksSearchBox } from "./bokmarks-search-box";
+import { useEffect, useMemo, useState } from "react";
+import { BookmarksSearchBox } from "./bookmarks-search-box";
+import { BookmarksDisplayMenu } from "./bookmarks-display";
+import { BookmarkButton } from "./bookmark-button";
+
+export type Layout = "grid" | "rows";
+export type OrderBy = "date" | "readTime" | "title";
 
 function extractFirstSentence(htmlContent: string): string {
   const $ = cheerio.load(htmlContent);
@@ -55,16 +60,48 @@ export default function BookmarksList({
   const searchParams = useSearchParams();
   const searchTerm = searchParams.get("search") || "";
 
-  const filteredBookmarks = useMemo(() => {
-    if (!searchTerm) return bookmarks;
-    return bookmarks.filter((bookmark) =>
-      bookmark.title.toLowerCase().includes(searchTerm.toLowerCase()),
-    );
-  }, [bookmarks, searchTerm]);
+  const [layout, setLayout] = useState<"grid" | "rows">(() => {
+    return (localStorage.getItem("layout") as "grid" | "rows") || "grid";
+  });
+  const [orderBy, setOrderBy] = useState<OrderBy>(() => {
+    return (localStorage.getItem("orderBy") as OrderBy) || "date";
+  });
+
+  useEffect(() => {
+    localStorage.setItem("layout", layout);
+  }, [layout]);
+
+  useEffect(() => {
+    localStorage.setItem("orderBy", orderBy);
+  }, [orderBy]);
+
+  const sortedAndFilteredBookmarks = useMemo(() => {
+    let filtered = bookmarks;
+    if (searchTerm) {
+      filtered = bookmarks.filter((bookmark) =>
+        bookmark.title.toLowerCase().includes(searchTerm.toLowerCase()),
+      );
+    }
+
+    return filtered.sort((a, b) => {
+      switch (orderBy) {
+        case "date":
+          return b.createdAt && a.createdAt
+            ? new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()
+            : 0;
+        case "readTime":
+          return parseInt(a.readTime || "0") - parseInt(b.readTime || "0");
+        case "title":
+          return a.title.localeCompare(b.title);
+        default:
+          return 0;
+      }
+    });
+  }, [bookmarks, searchTerm, orderBy]);
 
   return (
-    <div className="flex flex-1 flex-col gap-12 overflow-y-auto">
-      <div className="flex items-center justify-between">
+    <div className="flex flex-1 flex-col gap-12">
+      <div className="flex flex-col gap-4 lg:flex-row lg:items-center lg:justify-between lg:gap-0">
         <div className="flex flex-col gap-1">
           <Balancer as="h1" className="font-heading text-3xl font-bold">
             Bookmarks
@@ -73,14 +110,27 @@ export default function BookmarksList({
             Manage your bookmarked articles
           </Balancer>
         </div>
-        <div className="mr-1 w-full md:w-56 lg:w-64">
+        <div className="mr-1 flex items-center gap-2">
           <BookmarksSearchBox />
+          <BookmarksDisplayMenu
+            layout={layout}
+            setLayout={setLayout}
+            orderBy={orderBy}
+            setOrderBy={setOrderBy}
+          />
+          <BookmarkButton />
         </div>
       </div>
 
-      {/* Grid layout */}
-      <div className="grid w-full grid-cols-1 gap-4 sm:grid-cols-2 xl:grid-cols-3">
-        {filteredBookmarks.map((bookmark) => (
+      <div
+        className={cn(
+          "grid w-full gap-3",
+          layout === "grid"
+            ? "grid-cols-1 sm:grid-cols-2 xl:grid-cols-3"
+            : "grid-cols-1 gap-2",
+        )}
+      >
+        {sortedAndFilteredBookmarks.map((bookmark) => (
           <Card
             key={bookmark.id}
             className={cn(

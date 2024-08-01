@@ -133,7 +133,7 @@ export function OptionsMenu({ user }: { user: UserInfo }) {
         {user && (
           <form action="/api/sign-out" method="POST">
             <Button
-              className="flex h-fit cursor-default items-center p-0 hover:bg-transparent"
+              className="flex h-fit cursor-pointer items-center p-0 px-2 py-1.5 hover:bg-transparent"
               variant="ghost"
             >
               <Icons.logout className="mr-2 h-4 w-4" />

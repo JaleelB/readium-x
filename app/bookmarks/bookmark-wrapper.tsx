@@ -14,7 +14,10 @@ import { User } from "lucia";
 
 export type Bookmark = {
   id: number;
-} & z.infer<typeof articleSchema>;
+} & z.infer<typeof articleSchema> & {
+    createdAt: Date;
+    updatedAt: Date | null;
+  };
 
 function BookmarkSkeleton() {
   return (

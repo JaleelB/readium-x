@@ -186,6 +186,26 @@ export class MediumArticleProcessor {
         return; // Do not process children of this, as it's converted and captured
       }
 
+      if (tagName === "a") {
+        const href = $child.attr("href");
+        if (href && href.startsWith("/")) {
+          $child.attr("href", `https://medium.com${href}`);
+          console.log(
+            "Updated href for:",
+            $child.html(),
+            "to",
+            $child.attr("href"),
+          );
+        }
+
+        elements.push({
+          type: "A",
+          content: $.html($child),
+        });
+        captured.add(child);
+        return;
+      }
+
       if (tagName === "p") {
         const cssClass = ["leading-8"]; // Default css class
 
@@ -220,25 +240,23 @@ export class MediumArticleProcessor {
         return;
       }
 
-      if (tagName === "a") {
-        const href = $child.attr("href");
-        if (href && href.startsWith("/")) {
-          $child.attr("href", `https://medium.com${href}`);
-        }
-
-        elements.push({
-          type: "A",
-          content: $.html($child),
-        });
-        captured.add(child);
-
-        return;
-      }
-
       if (
         supportedTypes.includes(tagName.toUpperCase() as ElementsType) &&
         !captured.has(child)
       ) {
+        if (tagName === "a") {
+          const href = $child.attr("href");
+          if (href && href.startsWith("/")) {
+            $child.attr("href", `https://medium.com${href}`);
+            console.log(
+              "Updated href for:",
+              $child.html(),
+              "to",
+              $child.attr("href"),
+            );
+          }
+        }
+
         elements.push({
           type: tagName.toUpperCase() as ElementsType,
           content: $.html($child),
