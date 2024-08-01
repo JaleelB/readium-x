@@ -4,7 +4,7 @@ import { headers } from "next/headers";
 import { getBookmarksUseCase } from "@/use-cases/bookmarks";
 import { SuspenseIf } from "@/components/suspense-if";
 import { Card } from "@/components/ui/card";
-import BookmarksList from "./bookmark-list";
+import BookmarksList from "./components/bookmark-list";
 import Image from "next/image";
 import { cn } from "@/lib/utils";
 import { Icons } from "@/components/icons";

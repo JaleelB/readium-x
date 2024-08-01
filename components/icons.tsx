@@ -34,7 +34,9 @@ import {
   ChevronDown,
   Minus,
   History,
+  Search,
   type Icon as LucideIcon,
+  CircleX,
 } from "lucide-react";
 
 export type Icon = typeof LucideIcon;
@@ -75,6 +77,8 @@ export const Icons = {
   zoomIn: Plus,
   zoomOut: Minus,
   history: History,
+  search: Search,
+  closeCircled: CircleX,
   github: ({ ...props }: LucideProps) => (
     <svg
       aria-hidden="true"

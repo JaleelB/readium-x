@@ -2,8 +2,7 @@ import { getUser } from "@/data-access/users";
 import { getCurrentUser } from "@/lib/session";
 import { redirect } from "next/navigation";
 import { BookmarkWrapper } from "./bookmark-wrapper";
-import Balancer from "react-wrap-balancer";
-import { BookmarkButton } from "./bookmark-button";
+import { BookmarkButton } from "./components/bookmark-button";
 
 export default async function BookmarkPage() {
   const userSession = await getCurrentUser();
@@ -17,7 +16,7 @@ export default async function BookmarkPage() {
   }
 
   return (
-    <div className="container relative flex h-full flex-1 overflow-hidden bg-background px-4 py-10 pt-16 sm:px-8">
+    <div className="container relative flex h-full flex-1 bg-background px-4 py-10 pt-16 sm:px-8">
       <svg
         aria-hidden="true"
         className="pointer-events-none absolute inset-0 inset-x-0 inset-y-[0%] h-[100%] w-full skew-y-12 fill-gray-400/30 stroke-gray-400/30 [mask-image:radial-gradient(700px_circle_at_center,white,transparent)]"
@@ -308,17 +307,7 @@ export default async function BookmarkPage() {
           ></rect>
         </svg>
       </svg>
-      <div className="flex flex-1 flex-col gap-12">
-        <div className="flex flex-col gap-1">
-          <Balancer as="h1" className="font-heading text-3xl font-bold">
-            Bookmarks
-          </Balancer>
-          <Balancer className="text-muted-foreground">
-            Manage your bookmarked articles
-          </Balancer>
-        </div>
-        <BookmarkWrapper user={user} />
-      </div>
+      <BookmarkWrapper user={user} />
       <div className="fixed bottom-8 left-1/2 -translate-x-1/2">
         <BookmarkButton />
       </div>
