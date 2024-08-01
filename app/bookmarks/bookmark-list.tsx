@@ -23,24 +23,19 @@ import {
 } from "@/components/ui/alert-dialog";
 import { Bookmark } from "./bookmark-wrapper";
 import { usePathname } from "next/navigation";
+import * as cheerio from "cheerio";
 
 function extractFirstSentence(htmlContent: string): string {
-  // Create a new DOMParser instance
-  const parser = new DOMParser();
+  const $ = cheerio.load(htmlContent);
 
-  // Parse the HTML content
-  const doc = parser.parseFromString(htmlContent, "text/html");
-
-  // Find the first paragraph element
-  const firstParagraph = doc.querySelector("p");
-
-  if (!firstParagraph || !firstParagraph.textContent) {
+  const firstParagraph = $("p").first().text();
+  if (!firstParagraph) {
     return "No content available.";
   }
 
   // Regular expression to match sentences. Adjust according to language specifics.
   const sentenceRegex = /([^.!?]*[.!?])\s*/;
-  const matches = firstParagraph.textContent.match(sentenceRegex);
+  const matches = firstParagraph.match(sentenceRegex);
 
   // Return the first sentence or a default message if no sentence found
   return matches ? matches[0].trim() : "No complete sentence found.";
@@ -58,7 +53,6 @@ export default function BookmarksList({
   return (
     <div className="grid w-full grid-cols-1 gap-4 sm:grid-cols-2 xl:grid-cols-3">
       {bookmarks.map((bookmark) => (
-        // border-gray-950/[.1] bg-gray-950/[.01] hover:bg-gray-950/[.05] dark:border-gray-50/[.1] dark:bg-gray-50/[.10] dark:hover:bg-gray-50/[.15]
         <Card
           key={bookmark.id}
           className={cn(
