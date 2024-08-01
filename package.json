@@ -64,6 +64,7 @@
     "react-hook-form": "^7.52.0",
     "react-wrap-balancer": "^1.1.1",
     "resend": "^3.4.0",
+    "swr": "^2.2.5",
     "tailwind-merge": "^2.3.0",
     "tailwindcss-animate": "^1.0.7",
     "unique-names-generator": "^4.7.1",

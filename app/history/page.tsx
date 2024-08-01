@@ -1,15 +1,10 @@
-import { getUser } from "@/data-access/users";
 import { getCurrentUser } from "@/lib/session";
 import { redirect } from "next/navigation";
 import HistoryWrapper from "./history-wrapper";
+import { User } from "lucia";
 
 export default async function HistoryPage() {
-  const userSession = await getCurrentUser();
-  if (!userSession) {
-    redirect("/signin");
-  }
-
-  const user = await getUser(userSession.id);
+  const user = await getCurrentUser();
   if (!user) {
     redirect("/signin");
   }
@@ -306,7 +301,7 @@ export default async function HistoryPage() {
           ></rect>
         </svg>
       </svg>
-      <HistoryWrapper user={user} />
+      <HistoryWrapper user={user as User} />
     </div>
   );
 }

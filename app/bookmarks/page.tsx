@@ -1,16 +1,9 @@
-import { getUser } from "@/data-access/users";
 import { getCurrentUser } from "@/lib/session";
 import { redirect } from "next/navigation";
 import { BookmarkWrapper } from "./bookmark-wrapper";
-import { BookmarkButton } from "./components/bookmark-button";
 
 export default async function BookmarkPage() {
-  const userSession = await getCurrentUser();
-  if (!userSession) {
-    redirect("/signin");
-  }
-
-  const user = await getUser(userSession.id);
+  const user = await getCurrentUser();
   if (!user) {
     redirect("/signin");
   }
@@ -308,9 +301,6 @@ export default async function BookmarkPage() {
         </svg>
       </svg>
       <BookmarkWrapper user={user} />
-      <div className="fixed bottom-8 left-1/2 -translate-x-1/2">
-        <BookmarkButton />
-      </div>
     </div>
   );
 }

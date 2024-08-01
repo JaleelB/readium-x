@@ -10,16 +10,11 @@ import { cn } from "@/lib/utils";
 import { Icons } from "@/components/icons";
 import { getBookmarksAction } from "./bookmark";
 import { ErrorCard } from "@/components/error-card";
+import { User } from "lucia";
 
 export type Bookmark = {
   id: number;
 } & z.infer<typeof articleSchema>;
-
-export type ExisitingUser = {
-  email: string | null;
-  id: number;
-  emailVerified: Date | null;
-};
 
 function BookmarkSkeleton() {
   return (
@@ -39,8 +34,7 @@ function BookmarkSkeleton() {
   );
 }
 
-async function BookmarkLoader({ user }: { user: ExisitingUser }) {
-  // const bookmarks = await getBookmarksUseCase(user.id);
+async function BookmarkLoader({ user }: { user: User }) {
   const [data, err] = await getBookmarksAction({
     userId: user.id,
   });
@@ -84,15 +78,7 @@ async function BookmarkLoader({ user }: { user: ExisitingUser }) {
   return <BookmarksList bookmarks={data} userId={user.id} />;
 }
 
-export async function BookmarkWrapper({
-  user,
-}: {
-  user: {
-    email: string | null;
-    id: number;
-    emailVerified: Date | null;
-  };
-}) {
+export async function BookmarkWrapper({ user }: { user: User }) {
   let bookmarks: Bookmark[] | null = null;
 
   // if browser is requesting html it means it's the first page load

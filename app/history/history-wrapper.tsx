@@ -17,16 +17,11 @@ import {
   TooltipProvider,
   TooltipTrigger,
 } from "@/components/ui/tooltip";
+import { User } from "lucia";
 
 export type Bookmark = {
   id: number;
 } & z.infer<typeof articleSchema>;
-
-export type ExisitingUser = {
-  email: string | null;
-  id: number;
-  emailVerified: Date | null;
-};
 
 function HistorySkeleton() {
   return (
@@ -92,7 +87,7 @@ function HistorySkeleton() {
   );
 }
 
-async function HistoryLoader({ user }: { user: ExisitingUser }) {
+async function HistoryLoader({ user }: { user: User }) {
   const [data, err] = await getReadingHistoryAction({
     userId: user.id,
   });
@@ -277,15 +272,7 @@ async function HistoryLoader({ user }: { user: ExisitingUser }) {
   return <HistoryList historyLog={data} />;
 }
 
-export default async function HistoryWrapper({
-  user,
-}: {
-  user: {
-    email: string | null;
-    id: number;
-    emailVerified: Date | null;
-  };
-}) {
+export default async function HistoryWrapper({ user }: { user: User }) {
   let historyLog = null;
 
   // if browser is requesting html it means it's the first page load

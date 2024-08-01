@@ -21,8 +21,8 @@ import {
 } from "@/components/ui/form";
 import { DialogFooter } from "@/components/ui/dialog";
 import { LoaderButton } from "@/components/loader-button";
-import { useAuth } from "@/hooks/use-auth";
-import { Label } from "@/components/ui/label";
+import { ExisitingUser } from "./bookmark-wrapper";
+import { useState } from "react";
 
 const bookmarkSchema = z.object({
   url: z
@@ -31,9 +31,8 @@ const bookmarkSchema = z.object({
     .min(1, { message: "A bookmark URL is required" }),
 });
 
-export function CreateBookmarkForm() {
+export function CreateBookmarkForm({ user }: { user: ExisitingUser }) {
   const { toast } = useToast();
-  const { user } = useAuth();
 
   const { execute } = useServerAction(createBookmarkAction, {
     onError({ err }) {
@@ -51,30 +50,6 @@ export function CreateBookmarkForm() {
       url: "",
     },
   });
-
-  if (!user) {
-    return (
-      <div>
-        <Label>Email</Label>
-        <textarea
-          className="mt-2 flex min-h-[80px] w-full rounded-md border border-none border-input bg-input px-3 py-2 text-sm ring-offset-background placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-0 focus-visible:ring-ring focus-visible:ring-offset-0 disabled:cursor-not-allowed disabled:opacity-50"
-          id="content"
-          name="content"
-          disabled
-          placeholder="Paste an article URL here. I'll remember it."
-          spellCheck="false"
-        />
-        <div
-          className="mt-3 sm:justify-end"
-          aria-disabled={form.formState.disabled}
-        >
-          <LoaderButton isLoading={form.formState.disabled}>
-            Save Bookmark
-          </LoaderButton>
-        </div>
-      </div>
-    );
-  }
 
   async function onSubmit(values: z.infer<typeof bookmarkSchema>) {
     values.url = values.url.trim();
