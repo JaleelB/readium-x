@@ -17,6 +17,9 @@ import { getUrlWithoutPaywall } from "./actions/url";
 export const getCachedArticle = unstable_cache(
   async (url) => scrapeArticleContent(url),
   ["url"],
+  {
+    revalidate: 60 * 60, // 1 hour
+  },
 );
 
 async function ArticleLoader({ url }: { url: string }) {
