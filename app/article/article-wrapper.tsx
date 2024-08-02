@@ -23,8 +23,8 @@ export const getCachedArticle = unstable_cache(
 );
 
 async function ArticleLoader({ url }: { url: string }) {
-  // const content = await getCachedArticle(url);
-  const content = await scrapeArticleContent(url);
+  const content = await getCachedArticle(url);
+  // const content = await scrapeArticleContent(url);
 
   if (!content) {
     return <ErrorCard />;
@@ -76,13 +76,13 @@ export async function ArticleWrapper({ url }: { url: string }) {
 
   // if browser is requesting html it means it's the first page load
   if (headers().get("accept")?.includes("text/html")) {
-    // article = await getCachedArticle(url);
-    article = await scrapeArticleContent(url);
+    article = await getCachedArticle(url);
+    // article = await scrapeArticleContent(url);
   }
 
   return (
     <SuspenseIf condition={!article} fallback={<ArticleSkeleton />}>
-      <ArticleLoader url={url} />
+      <ArticleLoader url={urlWithoutPaywall} />
     </SuspenseIf>
   );
 }
