@@ -9,23 +9,20 @@ import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { AvatarImage } from "@radix-ui/react-avatar";
 import Link from "next/link";
 import Cookies from "js-cookie";
-import { cn, formatDate } from "@/lib/utils";
+import { cn, formatDate, getLocalStorageItem } from "@/lib/utils";
 import { v4 as uuidv4 } from "uuid";
 import {
   AlertDialog,
   AlertDialogAction,
   AlertDialogCancel,
   AlertDialogContent,
-  AlertDialogDescription,
   AlertDialogFooter,
   AlertDialogHeader,
-  AlertDialogTitle,
-  AlertDialogTrigger,
 } from "@/components/ui/alert-dialog";
 import { Bookmark } from "../bookmark-wrapper";
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import * as cheerio from "cheerio";
-import { useCallback, useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { BookmarksSearchBox } from "./bookmarks-search-box";
 import { BookmarksDisplayMenu } from "./bookmarks-display";
 import { BookmarkButton } from "./bookmark-button";
@@ -72,12 +69,19 @@ export default function BookmarksList({
   const searchParams = useSearchParams();
   const searchTerm = searchParams.get("search") || "";
 
-  const [layout, setLayout] = useState<"grid" | "rows">(() => {
-    return (localStorage.getItem("layout") as "grid" | "rows") || "grid";
-  });
-  const [orderBy, setOrderBy] = useState<OrderBy>(() => {
-    return (localStorage.getItem("orderBy") as OrderBy) || "date";
-  });
+  // const [layout, setLayout] = useState<"grid" | "rows">(() => {
+  //   return (localStorage.getItem("layout") as "grid" | "rows") || "grid";
+  // });
+  // const [orderBy, setOrderBy] = useState<OrderBy>(() => {
+  //   return (localStorage.getItem("orderBy") as OrderBy) || "date";
+  // });
+  const [layout, setLayout] = useState<"grid" | "rows">("grid");
+  const [orderBy, setOrderBy] = useState<OrderBy>("date");
+
+  useEffect(() => {
+    setLayout(getLocalStorageItem("layout", "grid") as "grid" | "rows");
+    setOrderBy(getLocalStorageItem("orderBy", "date") as OrderBy);
+  }, []);
 
   useEffect(() => {
     localStorage.setItem("layout", layout);

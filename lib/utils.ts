@@ -28,6 +28,19 @@ export function calculateReadTime(text: string[] | string | undefined): string {
   return `${roundedMinutes} min read`;
 }
 
+export function getLocalStorageItem(key: string, defaultValue: string): string {
+  if (typeof window !== "undefined") {
+    return localStorage.getItem(key) || defaultValue;
+  }
+  return defaultValue;
+}
+
+export function setLocalStorageItem(key: string, value: string): void {
+  if (typeof window !== "undefined") {
+    localStorage.setItem(key, value);
+  }
+}
+
 export function formatDate(dateStr: string | null): string {
   let date: Date;
 
