@@ -1,6 +1,5 @@
 "use client";
 
-import { useToast } from "@/components/ui/use-toast";
 import { Card, CardContent, CardDescription } from "@/components/ui/card";
 import Balancer from "react-wrap-balancer";
 import { deleteBookmarkAction } from "../bookmark";
@@ -29,6 +28,7 @@ import { BookmarksSearchBox } from "./bookmarks-search-box";
 import { BookmarksDisplayMenu } from "./bookmarks-display";
 import { BookmarkButton } from "./bookmark-button";
 import Image from "next/image";
+import { toast } from "sonner";
 
 export type Layout = "grid" | "rows";
 export type OrderBy = "date" | "readTime" | "title";
@@ -56,8 +56,6 @@ export default function BookmarksList({
   bookmarks: Bookmark[];
   userId: number;
 }) {
-  const { toast } = useToast();
-
   const router = useRouter();
   const pathname = usePathname();
   const searchParams = useSearchParams();
@@ -203,19 +201,13 @@ export default function BookmarksList({
                             });
 
                             if (error) {
-                              toast({
-                                title: "Error",
-                                description: "Failed to delete bookmark",
-                                variant: "destructive",
-                              });
+                              toast.error("Failed to delete bookmark");
                               return;
                             }
 
-                            toast({
-                              title: "Bookmark deleted",
-                              description:
-                                "Bookmark has been successfully deleted",
-                            });
+                            toast.success(
+                              "Bookmark has been successfully deleted",
+                            );
                           }}
                         >
                           Continue

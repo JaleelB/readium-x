@@ -9,7 +9,7 @@ import {
   getUrlWithoutPaywall,
   validateMediumArticle,
 } from "@/app/article/actions/url";
-import { useToast } from "@/components/ui/use-toast";
+import { toast } from "sonner";
 import { z } from "zod";
 import {
   Form,
@@ -32,16 +32,11 @@ const bookmarkSchema = z.object({
 });
 
 export function CreateBookmarkForm() {
-  const { toast } = useToast();
   const { user } = useAuth();
 
   const { execute } = useServerAction(createBookmarkAction, {
     onError({ err }) {
-      toast({
-        title: "Something went wrong",
-        description: err.message,
-        variant: "destructive",
-      });
+      toast.error(err.message);
     },
   });
 
@@ -79,9 +74,7 @@ export function CreateBookmarkForm() {
   async function onSubmit(values: z.infer<typeof bookmarkSchema>) {
     values.url = values.url.trim();
 
-    toast({
-      title: `Creating reating bookmark...`,
-    });
+    toast.loading("Creating bookmark...");
 
     const isValidMedium = await validateMediumArticle(values.url);
     if (!isValidMedium) {
@@ -89,10 +82,7 @@ export function CreateBookmarkForm() {
         type: "manual",
         message: "The URL is not a valid Medium article.",
       });
-      toast({
-        description: "This URL is not a valid Medium article.",
-        variant: "destructive",
-      });
+      toast.error("This URL is not a valid Medium article.");
       return;
     }
 
@@ -102,22 +92,16 @@ export function CreateBookmarkForm() {
         type: "manual",
         message: "Failed to get article content",
       });
-      toast({
-        description: "Failed to get article content.",
-        variant: "destructive",
-      });
+      toast.error("Failed to get article content.");
       return;
     }
 
     if (!user) {
-      toast({
-        description: "You need to sign in to create a bookmark.",
-        variant: "destructive",
-      });
       form.setError("url", {
         type: "manual",
         message: "You need to sign in to create a bookmark.",
       });
+      toast.error("You need to sign in to create a bookmark.");
       return;
     }
 
@@ -139,9 +123,7 @@ export function CreateBookmarkForm() {
 
     execute(bookmarkContent);
 
-    toast({
-      description: "Bookmark has been successfully created.",
-    });
+    toast.success("Bookmark has been successfully created.");
   }
 
   return (

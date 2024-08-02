@@ -1,8 +1,6 @@
 "use client";
 
 import { z } from "zod";
-
-import { buttonVariants } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
@@ -14,10 +12,8 @@ import {
   FormLabel,
   FormMessage,
 } from "@/components/ui/form";
-import { cn } from "@/lib/utils";
 import { useServerAction } from "zsa-react";
 import Link from "next/link";
-import { useToast } from "@/components/ui/use-toast";
 import { signInAction } from "./actions";
 import { LoaderButton } from "@/components/loader-button";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
@@ -27,6 +23,7 @@ import { Separator } from "@/components/ui/separator";
 import Balancer from "react-wrap-balancer";
 import { SparkleBg } from "@/components/sparkle-bg";
 import { OAuthButton } from "@/components/oauth-button";
+import { toast } from "sonner";
 
 const registrationSchema = z.object({
   email: z.string().email(),
@@ -34,21 +31,12 @@ const registrationSchema = z.object({
 });
 
 export default function SignInPage() {
-  const { toast } = useToast();
-
   const { execute, isPending, error, reset } = useServerAction(signInAction, {
     onError({ err }) {
-      toast({
-        title: "Something went wrong",
-        description: err.message,
-        variant: "destructive",
-      });
+      toast.error(err.message);
     },
     onSuccess() {
-      toast({
-        title: "Let's Go!",
-        description: "Enjoy your session",
-      });
+      toast.success("You're in! Enjoy your session");
     },
   });
 

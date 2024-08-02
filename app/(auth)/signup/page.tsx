@@ -16,7 +16,6 @@ import {
 import { useServerAction } from "zsa-react";
 import { signUpAction } from "./actions";
 import { LoaderButton } from "@/components/loader-button";
-import { useToast } from "@/components/ui/use-toast";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import { Terminal } from "lucide-react";
 import { Icons } from "@/components/icons";
@@ -25,6 +24,7 @@ import Link from "next/link";
 import Balancer from "react-wrap-balancer";
 import { SparkleBg } from "@/components/sparkle-bg";
 import { OAuthButton } from "@/components/oauth-button";
+import { toast } from "sonner";
 
 const registrationSchema = z
   .object({
@@ -38,15 +38,12 @@ const registrationSchema = z
   });
 
 export default function RegisterPage() {
-  const { toast } = useToast();
-
   const { execute, isPending, error } = useServerAction(signUpAction, {
     onError({ err }) {
-      toast({
-        title: "Something went wrong",
-        description: err.message,
-        variant: "destructive",
-      });
+      toast.error(err.message);
+    },
+    onSuccess() {
+      toast.success("You're in! Enjoy your session");
     },
   });
 

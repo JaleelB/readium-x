@@ -19,7 +19,7 @@ import {
   deleteAllReadingHistoryAction,
   deleteReadingHistoryByIdAction,
 } from "./history";
-import { useToast } from "@/components/ui/use-toast";
+import { toast } from "sonner";
 import { useServerAction } from "zsa-react";
 import { LoaderButton } from "@/components/loader-button";
 import { Alert, AlertTitle, AlertDescription } from "@/components/ui/alert";
@@ -43,7 +43,6 @@ export type ReadingHistory = {
 
 export function HistoryList({ historyLog }: { historyLog: ReadingHistory[] }) {
   const id = uuidv4();
-  const { toast } = useToast();
 
   // Pagination
   const [currentPage, setCurrentPage] = useState(1);
@@ -71,16 +70,10 @@ export function HistoryList({ historyLog }: { historyLog: ReadingHistory[] }) {
     reset: deleteByIdReset,
   } = useServerAction(deleteReadingHistoryByIdAction, {
     onError({ err }) {
-      toast({
-        title: "Something went wrong",
-        description: err.message,
-        variant: "destructive",
-      });
+      toast.error(err.message);
     },
     onSuccess() {
-      toast({
-        description: "Successfully deleted reading history log",
-      });
+      toast.success("Successfully deleted reading history log");
     },
   });
 
@@ -91,15 +84,10 @@ export function HistoryList({ historyLog }: { historyLog: ReadingHistory[] }) {
     reset: deleteAllLogsReset,
   } = useServerAction(deleteAllReadingHistoryAction, {
     onError({ err }) {
-      toast({
-        description: err.message,
-        variant: "destructive",
-      });
+      toast.error(err.message);
     },
     onSuccess() {
-      toast({
-        description: "Successfully deleted reading history logs",
-      });
+      toast.success("Successfully deleted all reading history logs");
     },
   });
 

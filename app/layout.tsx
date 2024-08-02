@@ -3,10 +3,11 @@ import { cn } from "@/lib/utils";
 import { fontHeading, fontMono, fontSans } from "@/lib/fonts";
 import "./globals.css";
 import { ThemeProvider } from "@/components/theme-provider";
-import { Toaster } from "@/components/ui/toaster";
+// import { Toaster } from "@/components/ui/toaster";
 import { siteConfig } from "@/app-config";
 import Script from "next/script";
 import type { Viewport } from "next";
+import { Toaster } from "@/components/ui/sonner";
 
 export const viewport: Viewport = {
   themeColor: [
@@ -96,7 +97,7 @@ export default function RootLayout({
           disableTransitionOnChange
         >
           {children}
-          <Toaster />
+          <Toaster richColors />
         </ThemeProvider>
         <Script
           async

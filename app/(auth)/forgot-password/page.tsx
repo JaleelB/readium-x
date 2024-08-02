@@ -17,29 +17,23 @@ import { Terminal } from "lucide-react";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import { useServerAction } from "zsa-react";
 import { LoaderButton } from "@/components/loader-button";
-import { useToast } from "@/components/ui/use-toast";
 import { resetPasswordAction } from "./actions";
 import Balancer from "react-wrap-balancer";
 import Link from "next/link";
 import { Icons } from "@/components/icons";
 import { SparkleBg } from "@/components/sparkle-bg";
+import { toast } from "sonner";
 
 const registrationSchema = z.object({
   email: z.string().email(),
 });
 
 export default function ForgotPasswordPage() {
-  const { toast } = useToast();
-
   const { execute, isPending, isSuccess } = useServerAction(
     resetPasswordAction,
     {
       onError({ err }) {
-        toast({
-          title: "Something went wrong",
-          description: err.message,
-          variant: "destructive",
-        });
+        toast.error(err.message);
       },
     },
   );

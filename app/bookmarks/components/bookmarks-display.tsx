@@ -17,7 +17,7 @@ import {
 import { cn } from "@/lib/utils";
 import { Dispatch, SetStateAction, useState } from "react";
 import { Layout, OrderBy } from "./bookmark-list";
-import { useToast } from "@/components/ui/use-toast";
+import { toast } from "sonner";
 
 export function BookmarksDisplayMenu({
   layout,
@@ -32,20 +32,15 @@ export function BookmarksDisplayMenu({
 }) {
   const [open, setOpen] = useState(false);
   const [openPopover, setOpenPopover] = useState(false);
-  const { toast } = useToast();
 
   const handleSetDefault = () => {
-    toast({
-      description: "Your current display settings have been set as default.",
-    });
+    toast.info("Your current display settings have been set as default.");
   };
 
   const handleResetToDefaults = () => {
     setLayout("grid");
     setOrderBy("date");
-    toast({
-      description: "Display settings have been reset to defaults.",
-    });
+    toast.info("Display settings have been reset to defaults.");
   };
 
   return (

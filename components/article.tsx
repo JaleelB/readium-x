@@ -15,7 +15,7 @@ import {
   getBookmarkAction,
 } from "@/app/bookmarks/bookmark";
 import { generateRandomName } from "@/lib/names";
-import { useToast } from "./ui/use-toast";
+import { toast } from "sonner";
 import { usePathname, useRouter } from "next/navigation";
 import { useReadingProgress } from "@/hooks/use-reading-progress";
 import { useCallback, useEffect, useState } from "react";
@@ -70,9 +70,7 @@ export function Article({
     ],
   });
 
-  const { toast } = useToast();
   const pathname = usePathname();
-  const router = useRouter();
   const [isBookmarked, setIsBookmarked] = useState<boolean>(false);
   const [bookmarkId, setBookmarkId] = useState<number | null>(null);
   const [initialProgress, setInitialProgress] = useState<number>(0);
@@ -88,10 +86,7 @@ export function Article({
         readingHistoryId,
       }).then(([progress, error]) => {
         if (error) {
-          toast({
-            description: "Failed to retrieve reading progress from database",
-            variant: "destructive",
-          });
+          toast.error("Failed to retrieve reading progress from database");
           return;
         }
         if (progress) {
@@ -100,7 +95,7 @@ export function Article({
         }
       });
     }
-  }, [readingHistoryId, user.id, toast]);
+  }, [readingHistoryId, user.id]);
 
   const { progress, articleRef } = useReadingProgress(initialProgress);
 
@@ -120,12 +115,9 @@ export function Article({
     });
 
     if (error) {
-      toast({
-        description: "Failed to save reading progress",
-        variant: "destructive",
-      });
+      toast.error("Failed to save reading progress");
     }
-  }, [progress, readingHistoryId, toast, user.id]);
+  }, [progress, readingHistoryId, user.id]);
 
   useEffect(() => {
     const fetchBookmarkStatus = async () => {
@@ -244,16 +236,11 @@ export function Article({
                   });
 
                   if (err) {
-                    toast({
-                      description: "Failed to bookmark article",
-                      variant: "destructive",
-                    });
+                    toast.error("Failed to bookmark article");
                     return;
                   }
 
-                  toast({
-                    description: "Article bookmarked successfully",
-                  });
+                  toast.success("Article bookmarked");
 
                   window.location.reload();
                 } else {
@@ -264,16 +251,11 @@ export function Article({
                   });
 
                   if (err) {
-                    toast({
-                      description: "Failed to remove bookmark",
-                      variant: "destructive",
-                    });
+                    toast.error("Failed to remove bookmark");
                     return;
                   }
 
-                  toast({
-                    description: "Bookmark removed",
-                  });
+                  toast.success("Bookmark removed");
                   // window.location.reload();
                 }
               }}
