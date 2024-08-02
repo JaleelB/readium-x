@@ -28,6 +28,7 @@ export const createBookmarkAction = authenticatedAction
       publicationName: z.string(),
       readTime: z.string(),
       publishDate: z.string(),
+      articleUrl: z.string(),
     }),
   )
   .handler(async ({ input }) => {
@@ -42,6 +43,7 @@ export const createBookmarkAction = authenticatedAction
         publicationName: input.publicationName,
         readTime: input.readTime,
         publishDate: input.publishDate,
+        articleUrl: input.articleUrl,
       });
     }
     revalidatePath(input.path);

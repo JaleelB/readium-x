@@ -29,6 +29,7 @@ export function Article({
   content,
   user,
   readingHistoryId,
+  url,
 }: {
   content: ArticleDetails;
   user: {
@@ -36,6 +37,7 @@ export function Article({
     id: number;
     emailVerified: Date | null;
   };
+  url: string;
   readingHistoryId: number;
 }) {
   const safeHTMLContent = DOMPurify.sanitize(content?.content || "", {
@@ -228,6 +230,7 @@ export function Article({
                       content?.authorInformation.authorProfileURL || "",
                     publicationName:
                       content?.publicationInformation.publicationName || "",
+                    articleUrl: url,
                     readTime:
                       content?.publicationInformation.readTime ||
                       calculateReadTime(content?.content as string),

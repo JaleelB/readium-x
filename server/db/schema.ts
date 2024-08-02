@@ -83,6 +83,7 @@ export const bookmarks = sqliteTable("bookmark", {
   authorName: text("author_name"),
   authorImageURL: text("author_image_url"),
   authorProfileURL: text("author_profile_url"),
+  articleUrl: text("article_url").notNull(),
   publicationName: text("publication_name"),
   readTime: text("read_time"),
   publishDate: text("publish_date"),

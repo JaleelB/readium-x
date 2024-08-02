@@ -10,7 +10,7 @@ import { z } from "zod";
 
 export async function createBookmarkUseCase(
   userId: number,
-  articleDetails: z.infer<typeof articleSchema>,
+  articleDetails: z.infer<typeof articleSchema> & { articleUrl: string },
 ) {
   const bookmark = await createBookark(userId, articleDetails);
 

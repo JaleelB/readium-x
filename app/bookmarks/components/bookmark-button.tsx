@@ -12,7 +12,7 @@ import {
 import { SparkleBg } from "@/components/sparkle-bg";
 import { CreateBookmarkForm } from "./create-bookmark-form";
 
-export async function BookmarkButton() {
+export async function BookmarkButton({ text = "New" }: { text?: string }) {
   return (
     <Dialog>
       <DialogTrigger>
@@ -22,7 +22,7 @@ export async function BookmarkButton() {
           )}
         >
           <div className="z-20 flex h-full items-center px-4 py-2 sm:gap-1.5">
-            <span className="mr-1">New</span>
+            <span className="mr-1">{text}</span>
             <Icons.plus className="h-5 w-5 text-white" />
           </div>
           <SparkleBg />

@@ -11,10 +11,13 @@ import { Icons } from "@/components/icons";
 import { getBookmarksAction } from "./bookmark";
 import { ErrorCard } from "@/components/error-card";
 import { User } from "lucia";
+import { BookmarkButton } from "./components/bookmark-button";
+import Balancer from "react-wrap-balancer";
 
 export type Bookmark = {
   id: number;
 } & z.infer<typeof articleSchema> & {
+    articleUrl: string;
     createdAt: Date;
     updatedAt: Date | null;
   };
@@ -45,26 +48,37 @@ async function BookmarkLoader({ user }: { user: User }) {
   if (!data || data.length === 0) {
     return (
       <div className="flex-1">
-        <Card
-          className={cn(
-            "mx-auto mt-12 w-full max-w-2xl space-y-4 border-none p-8",
-          )}
-        >
-          <Image
-            src="https://illustrations.popsy.co/white/abstract-art-4.svg"
-            alt="Error"
-            className="mx-auto"
-            width={300}
-            height={200}
-          />
-          <div className="flex flex-col items-center justify-center space-y-2">
-            <h3 className="font-heading text-xl">No bookmarked articles</h3>
-            <p className="max-w-md pb-2 text-center text-base text-muted-foreground">
-              You haven&apos;t bookmarked any articles yet. Click the button
-              below to start bookmarking.
-            </p>
+        <div className="flex flex-col gap-4">
+          <div className="flex flex-col gap-1">
+            <Balancer as="h1" className="font-heading text-3xl font-bold">
+              Bookmarks
+            </Balancer>
+            <Balancer className="text-muted-foreground">
+              Manage your bookmarked articles
+            </Balancer>
           </div>
-        </Card>
+          <Card
+            className={cn(
+              "mx-auto mt-12 w-full max-w-2xl space-y-4 border-2 bg-accent p-8 shadow-none",
+            )}
+          >
+            <Image
+              src="https://illustrations.popsy.co/white/abstract-art-4.svg"
+              alt="Error"
+              className="mx-auto"
+              width={300}
+              height={200}
+            />
+            <div className="flex flex-col items-center justify-center space-y-2">
+              <h3 className="font-heading text-xl">No bookmarked articles</h3>
+              <p className="max-w-md pb-2 text-center text-base text-muted-foreground">
+                You haven&apos;t bookmarked any articles yet. Click the button
+                below to start bookmarking.
+              </p>
+              <BookmarkButton text="Create a new bookmark" />
+            </div>
+          </Card>
+        </div>
       </div>
     );
   }

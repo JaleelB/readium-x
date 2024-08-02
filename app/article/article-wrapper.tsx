@@ -69,7 +69,14 @@ async function ArticleLoader({
     );
   }
 
-  return <Article content={content} user={user} readingHistoryId={data.id} />;
+  return (
+    <Article
+      content={content}
+      user={user}
+      readingHistoryId={data.id}
+      url={url}
+    />
+  );
 }
 
 export async function ArticleWrapper({ url }: { url: string }) {

@@ -6,13 +6,14 @@ import { z } from "zod";
 
 export async function createBookark(
   userId: number,
-  articleDetails: z.infer<typeof articleSchema>,
+  articleDetails: z.infer<typeof articleSchema> & { articleUrl: string },
 ) {
   const existingBookmark = await db.query.bookmarks.findFirst({
     where:
       eq(bookmarks.userId, userId) &&
       eq(bookmarks.title, articleDetails.title) &&
-      eq(bookmarks.publishDate, articleDetails.publishDate ?? ""),
+      eq(bookmarks.publishDate, articleDetails.publishDate ?? "") &&
+      eq(bookmarks.articleUrl, articleDetails.articleUrl),
   });
 
   if (existingBookmark) {
@@ -31,6 +32,7 @@ export async function createBookark(
       publicationName: articleDetails.publicationName,
       readTime: articleDetails.readTime,
       publishDate: articleDetails.publishDate,
+      articleUrl: articleDetails.articleUrl,
       createdAt: new Date(),
     })
     .onConflictDoNothing()

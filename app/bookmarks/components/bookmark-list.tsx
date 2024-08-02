@@ -8,7 +8,9 @@ import { Button } from "@/components/ui/button";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { AvatarImage } from "@radix-ui/react-avatar";
 import Link from "next/link";
+import Cookies from "js-cookie";
 import { cn, formatDate } from "@/lib/utils";
+import { v4 as uuidv4 } from "uuid";
 import {
   AlertDialog,
   AlertDialogAction,
@@ -56,6 +58,7 @@ export default function BookmarksList({
   bookmarks: Bookmark[];
   userId: number;
 }) {
+  // const id = uuidv4();
   const router = useRouter();
   const pathname = usePathname();
   const searchParams = useSearchParams();
@@ -141,7 +144,16 @@ export default function BookmarksList({
               className={cn(
                 `relative flex w-full transform-gpu cursor-pointer flex-col gap-2 rounded-xl border bg-white p-2 shadow-sm transition-all duration-200 ease-in-out [box-shadow:0_0_0_1px_rgba(0,0,0,.03),0_2px_4px_rgba(0,0,0,.05),0_12px_24px_rgba(0,0,0,.05)] hover:scale-[103%] dark:bg-transparent dark:backdrop-blur-md dark:[border:1px_solid_rgba(255,255,255,.1)] dark:[box-shadow:0_-20px_80px_-20px_#ffffff1f_inset]`,
               )}
+              // onClick={() => {
+              //   Cookies.set(id, bookmark.articleUrl, {
+              //     expires: 1 / 288, // Cookie expires in 5 minutes (1/288 of a day)
+              //     secure: true,
+              //     path: "/",
+              //     sameSite: "strict", // Cookie is sent only when the request is coming from the same origin
+              //   });
+              // }}
             >
+              {/* <Link href={`/article/${id}`} aria-label="article-link"> */}
               <CardContent className="p-2">
                 <div className="flex w-full justify-between">
                   <div className="flex w-full gap-3">
@@ -223,6 +235,7 @@ export default function BookmarksList({
                   {extractFirstSentence(bookmark.content)}
                 </CardDescription>
               </CardContent>
+              {/* </Link> */}
             </Card>
           ))
         ) : (

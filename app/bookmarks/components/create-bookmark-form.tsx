@@ -115,6 +115,7 @@ export function CreateBookmarkForm() {
       authorImageURL: scrapedArticle?.authorInformation.authorImageURL || "",
       authorProfileURL:
         scrapedArticle?.authorInformation.authorProfileURL || "",
+      articleUrl: values.url,
       publicationName:
         scrapedArticle?.publicationInformation.publicationName || "",
       readTime: scrapedArticle?.publicationInformation.readTime || "",
