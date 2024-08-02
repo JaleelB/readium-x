@@ -22,8 +22,14 @@ export const getCachedArticle = unstable_cache(
   },
 );
 
-async function ArticleLoader({ url }: { url: string }) {
-  const content = await getCachedArticle(url);
+async function ArticleLoader({
+  url,
+  urlWithoutPaywall,
+}: {
+  url: string;
+  urlWithoutPaywall: string;
+}) {
+  const content = await getCachedArticle(urlWithoutPaywall);
   // const content = await scrapeArticleContent(url);
 
   if (!content) {
@@ -82,7 +88,7 @@ export async function ArticleWrapper({ url }: { url: string }) {
 
   return (
     <SuspenseIf condition={!article} fallback={<ArticleSkeleton />}>
-      <ArticleLoader url={urlWithoutPaywall} />
+      <ArticleLoader url={url} urlWithoutPaywall={urlWithoutPaywall} />
     </SuspenseIf>
   );
 }
