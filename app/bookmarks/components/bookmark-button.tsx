@@ -18,7 +18,7 @@ export async function BookmarkButton({ text = "New" }: { text?: string }) {
       <DialogTrigger>
         <Button
           className={cn(
-            "relative h-10 items-center overflow-hidden rounded-[0.5rem] border border-input/25 bg-[#1d1c20] p-0 dark:border-white/15 dark:bg-[#1a1a1a] dark:text-white",
+            "relative h-10 w-full items-center overflow-hidden rounded-[0.5rem] border border-input/25 bg-[#1d1c20] p-0 dark:border-white/15 dark:bg-[#1a1a1a] dark:text-white md:w-fit",
           )}
         >
           <div className="z-20 flex h-full items-center px-4 py-2 sm:gap-1.5">

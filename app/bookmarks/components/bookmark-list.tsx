@@ -69,12 +69,6 @@ export default function BookmarksList({
   const searchParams = useSearchParams();
   const searchTerm = searchParams.get("search") || "";
 
-  // const [layout, setLayout] = useState<"grid" | "rows">(() => {
-  //   return (localStorage.getItem("layout") as "grid" | "rows") || "grid";
-  // });
-  // const [orderBy, setOrderBy] = useState<OrderBy>(() => {
-  //   return (localStorage.getItem("orderBy") as OrderBy) || "date";
-  // });
   const [layout, setLayout] = useState<"grid" | "rows">("grid");
   const [orderBy, setOrderBy] = useState<OrderBy>("date");
 
@@ -116,25 +110,27 @@ export default function BookmarksList({
   }, [bookmarks, searchTerm, orderBy]);
 
   return (
-    <div className="flex flex-1 flex-col gap-12">
-      <div className="flex flex-col gap-4 lg:flex-row lg:items-center lg:justify-between lg:gap-0">
+    <div className="mx-auto flex w-full max-w-screen-2xl flex-1 flex-col gap-12 lg:px-20">
+      <div className="flex flex-col justify-between gap-4 md:flex-row lg:items-center lg:gap-0">
         <div className="flex flex-col gap-1">
           <Balancer as="h1" className="font-heading text-3xl font-bold">
             Bookmarks
           </Balancer>
-          <Balancer className="text-muted-foreground">
+          {/* <Balancer className="!lg:block !hidden text-muted-foreground">
             Manage your bookmarked articles
-          </Balancer>
+          </Balancer> */}
         </div>
-        <div className="mr-1 flex items-center gap-2">
+        <div className="mr-1 flex flex-col items-center gap-2 md:flex-row md:justify-end">
           <BookmarksSearchBox />
-          <BookmarksDisplayMenu
-            layout={layout}
-            setLayout={setLayout}
-            orderBy={orderBy}
-            setOrderBy={setOrderBy}
-          />
-          <BookmarkButton />
+          <div className="flex w-full gap-2 md:w-fit">
+            <BookmarksDisplayMenu
+              layout={layout}
+              setLayout={setLayout}
+              orderBy={orderBy}
+              setOrderBy={setOrderBy}
+            />
+            <BookmarkButton />
+          </div>
         </div>
       </div>
 
@@ -219,16 +215,7 @@ function BookmarkCard({
       className={cn(
         `relative flex w-full transform-gpu cursor-pointer flex-col gap-2 rounded-xl border bg-white p-2 shadow-sm transition-all duration-200 ease-in-out [box-shadow:0_0_0_1px_rgba(0,0,0,.03),0_2px_4px_rgba(0,0,0,.05),0_12px_24px_rgba(0,0,0,.05)] dark:bg-transparent dark:backdrop-blur-md dark:[border:1px_solid_rgba(255,255,255,.1)] dark:[box-shadow:0_-20px_80px_-20px_#ffffff1f_inset]`,
       )}
-      // onClick={() => {
-      //   Cookies.set(id, bookmark.articleUrl, {
-      //     expires: 1 / 288, // Cookie expires in 5 minutes (1/288 of a day)
-      //     secure: true,
-      //     path: "/",
-      //     sameSite: "strict", // Cookie is sent only when the request is coming from the same origin
-      //   });
-      // }}
     >
-      {/* <Link href={`/article/${id}`} aria-label="article-link"> */}
       <CardContent className="p-2">
         <div className="flex w-full justify-between">
           <div className="flex w-full gap-3">
@@ -479,14 +466,16 @@ function BookmarkCard({
             </AlertDialog>
           </div>
         </div>
-        <Balancer as="h3" className="pt-4 text-xl font-medium">
+        <Balancer
+          as="h3"
+          className={`truncate pt-4 font-semibold leading-6 transition-colors md:text-xl`}
+        >
           {bookmark.title}
         </Balancer>
         <CardDescription className={cn("pt-2")}>
           {extractFirstSentence(bookmark.content)}
         </CardDescription>
       </CardContent>
-      {/* </Link> */}
     </Card>
   );
 }

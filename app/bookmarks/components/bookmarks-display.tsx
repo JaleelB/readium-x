@@ -48,11 +48,13 @@ export function BookmarksDisplayMenu({
       <DropdownMenuTrigger asChild className="bg-background">
         <Button
           className={cn(
-            "gap-2 rounded-[0.5rem] border border-input bg-background py-2 text-sm font-normal text-primary shadow-sm transition-all hover:bg-background focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring",
+            "w-full justify-between gap-2 rounded-[0.5rem] border border-input bg-background py-2 text-sm font-normal text-primary shadow-sm transition-all hover:bg-background focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring md:w-fit",
           )}
         >
-          <Icons.filter className={"h-4 w-4 text-muted-foreground"} />
-          <span>Display</span>
+          <div className="flex items-center gap-2">
+            <Icons.filter className={"h-4 w-4 text-muted-foreground"} />
+            <span>Display</span>
+          </div>
           <Icons.chevronDown
             className={`h-4 w-4 text-muted-foreground transition duration-200 ${
               open ? "rotate-180 transform" : ""
