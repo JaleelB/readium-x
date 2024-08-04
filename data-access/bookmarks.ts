@@ -12,7 +12,6 @@ export async function createBookark(
     where:
       eq(bookmarks.userId, userId) &&
       eq(bookmarks.title, articleDetails.title) &&
-      eq(bookmarks.publishDate, articleDetails.publishDate ?? "") &&
       eq(bookmarks.articleUrl, articleDetails.articleUrl),
   });
 

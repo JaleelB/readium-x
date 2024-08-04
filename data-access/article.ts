@@ -11,6 +11,7 @@ export async function createReadingHistoryLog(
   const existingReadingHistory = await db.query.readingHistory.findFirst({
     where:
       eq(readingHistory.userId, userId) &&
+      eq(readingHistory.articleTitle, articleDetails.title) &&
       eq(readingHistory.articleUrl, articleDetails.articleUrl),
   });
 
