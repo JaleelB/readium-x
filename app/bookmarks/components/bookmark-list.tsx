@@ -153,6 +153,7 @@ export default function BookmarksList({
               userId={userId}
               pathname={pathname}
               articleId={id}
+              layout={layout}
             />
           ))
         ) : (
@@ -200,11 +201,13 @@ function BookmarkCard({
   userId,
   articleId,
   pathname,
+  layout,
 }: {
   bookmark: Bookmark;
   userId: number;
   articleId: string;
   pathname: string;
+  layout: Layout;
 }) {
   const [dialogState, setDialogState] = useState<
     "closed" | "dropdown" | "alert"
@@ -229,12 +232,18 @@ function BookmarkCard({
               <AvatarFallback>CN</AvatarFallback>
             </Avatar>
             <div className="flex flex-col">
-              <Link
-                href={(bookmark.authorProfileURL as string) || "#"}
-                className="font-medium"
-              >
-                {bookmark.authorName}
-              </Link>
+              {layout === "grid" ? (
+                <Link
+                  href={(bookmark.authorProfileURL as string) || "#"}
+                  className="pb-1 font-medium"
+                >
+                  {bookmark.authorName}
+                </Link>
+              ) : (
+                <Balancer as="h3" className="pb-1 font-medium">
+                  {bookmark.title}
+                </Balancer>
+              )}
               <div className="text-sm text-muted-foreground">
                 {bookmark.readTime}
                 {bookmark.publishDate && <span className="px-2">·</span>}
@@ -466,15 +475,19 @@ function BookmarkCard({
             </AlertDialog>
           </div>
         </div>
-        <Balancer
-          as="h3"
-          className={`truncate pt-4 font-semibold leading-6 transition-colors md:text-xl`}
-        >
-          {bookmark.title}
-        </Balancer>
-        <CardDescription className={cn("pt-2")}>
-          {extractFirstSentence(bookmark.content)}
-        </CardDescription>
+        {layout === "grid" ? (
+          <>
+            <Balancer
+              as="h3"
+              className={`truncate pt-4 font-semibold leading-6 transition-colors md:text-xl`}
+            >
+              {bookmark.title}
+            </Balancer>
+            <CardDescription className={cn("pt-2")}>
+              {extractFirstSentence(bookmark.content)}
+            </CardDescription>
+          </>
+        ) : null}
       </CardContent>
     </Card>
   );
