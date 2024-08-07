@@ -1,3 +1,5 @@
+"use client";
+
 import {
   AlertTriangle,
   ArrowLeft,
@@ -36,8 +38,14 @@ import {
   History,
   Search,
   ListFilter,
+  Cog,
+  ShieldCheck,
+  Key,
+  PaintbrushVertical,
   type Icon as LucideIcon,
   CircleX,
+  Keyboard,
+  Volume2,
 } from "lucide-react";
 
 export type Icon = typeof LucideIcon;
@@ -81,6 +89,12 @@ export const Icons = {
   search: Search,
   filter: ListFilter,
   closeCircled: CircleX,
+  cog: Cog,
+  security: ShieldCheck,
+  paintbrush: PaintbrushVertical,
+  keyboard: Keyboard,
+  key: Key,
+  microphone: Volume2,
   github: ({ ...props }: LucideProps) => (
     <svg
       aria-hidden="true"

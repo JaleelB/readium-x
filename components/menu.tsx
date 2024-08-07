@@ -78,6 +78,19 @@ export function OptionsMenu({ user }: { user: UserInfo }) {
             <DropdownMenuSeparator />
           </>
         )}
+        <Link href="/">
+          <DropdownMenuItem>
+            <Icons.logo className="mr-2 h-4 w-4" />
+            <span>Home</span>
+          </DropdownMenuItem>
+        </Link>
+        <Link href="/account/settings">
+          <DropdownMenuItem>
+            <Icons.settings className="mr-2 h-4 w-4" />
+            <span>Preferences</span>
+          </DropdownMenuItem>
+        </Link>
+        <DropdownMenuSeparator />
         <DropdownMenuGroup>
           <DropdownMenuSub>
             <DropdownMenuSubTrigger>
@@ -124,12 +137,6 @@ export function OptionsMenu({ user }: { user: UserInfo }) {
           </DropdownMenuItem>
         </Link>
         <DropdownMenuSeparator />
-        <Link href="/">
-          <DropdownMenuItem>
-            <Icons.logo className="mr-2 h-4 w-4" />
-            <span>Home</span>
-          </DropdownMenuItem>
-        </Link>
         {user && (
           <form action="/api/sign-out" method="POST">
             <Button
