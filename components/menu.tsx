@@ -21,8 +21,15 @@ import { useTheme } from "next-themes";
 import Link from "next/link";
 import { siteConfig } from "@/app-config";
 import { UserInfo } from "./site-header";
+import { Profile } from "@/server/db/schema";
 
-export function OptionsMenu({ user }: { user: UserInfo }) {
+export function OptionsMenu({
+  user,
+  profile,
+}: {
+  user: UserInfo;
+  profile: Profile;
+}) {
   const [open, setOpen] = useState(false);
   const { setTheme } = useTheme();
 
@@ -53,8 +60,13 @@ export function OptionsMenu({ user }: { user: UserInfo }) {
             </Link>
           )}
           {user && (
-            <DropdownMenuItem className="py-0.5 text-sm text-muted-foreground">
-              {user.email}
+            <DropdownMenuItem className="flex flex-col items-start py-0.5">
+              <span className="truncate text-sm capitalize">
+                {profile.displayName}
+              </span>
+              <span className="text-xs text-muted-foreground">
+                {user.email}
+              </span>
             </DropdownMenuItem>
           )}
         </DropdownMenuLabel>
@@ -91,7 +103,7 @@ export function OptionsMenu({ user }: { user: UserInfo }) {
           </DropdownMenuItem>
         </Link>
         <DropdownMenuSeparator />
-        <DropdownMenuGroup>
+        <DropdownMenuGroup className={cn("z-[550]")}>
           <DropdownMenuSub>
             <DropdownMenuSubTrigger>
               <Icons.theme className="mr-2 h-4 w-4" />

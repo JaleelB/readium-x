@@ -8,10 +8,16 @@ import { Icons } from "./icons";
 import { cn } from "@/lib/utils";
 import { OptionsMenu } from "./menu";
 import { siteConfig } from "@/app-config";
-import { User } from "@/server/db/schema";
+import { Profile, User } from "@/server/db/schema";
 import { usePathname } from "next/navigation";
 
-export default function Nav({ user }: { user: User | undefined }) {
+export default function Nav({
+  user,
+  profile,
+}: {
+  user: User | undefined;
+  profile: Profile;
+}) {
   const headerRef = useRef<HTMLHeadingElement>(null);
   const lastScrollY = useRef(0);
   const [isScrolled, setIsScrolled] = useState(false);
@@ -72,7 +78,7 @@ export default function Nav({ user }: { user: User | undefined }) {
             <span>Sign in</span>
           </Link>
         )}
-        <OptionsMenu user={user} />
+        <OptionsMenu user={user} profile={profile} />
       </div>
     </header>
   );
