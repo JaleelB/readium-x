@@ -6,7 +6,7 @@ import { z } from "zod";
 
 export async function createBookark(
   userId: number,
-  articleDetails: z.infer<typeof articleSchema> & { articleUrl: string },
+  articleDetails: z.infer<typeof articleSchema>,
 ) {
   const existingBookmark = await db.query.bookmarks.findFirst({
     where:
@@ -24,7 +24,8 @@ export async function createBookark(
     .values({
       userId,
       title: articleDetails.title,
-      content: articleDetails.content,
+      htmlContent: articleDetails.htmlContent,
+      textContent: articleDetails.textContent,
       authorName: articleDetails.authorName,
       authorImageURL: articleDetails.authorImageURL,
       authorProfileURL: articleDetails.authorProfileURL,

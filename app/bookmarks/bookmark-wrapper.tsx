@@ -1,4 +1,4 @@
-import { articleSchema } from "@/schemas/article";
+import { articleSchema, bookmarkSchema } from "@/schemas/article";
 import { z } from "zod";
 import { headers } from "next/headers";
 import { getBookmarksUseCase } from "@/use-cases/bookmarks";
@@ -7,20 +7,13 @@ import { Card } from "@/components/ui/card";
 import BookmarksList from "./components/bookmark-list";
 import Image from "next/image";
 import { cn } from "@/lib/utils";
-import { Icons } from "@/components/icons";
 import { getBookmarksAction } from "./bookmark";
 import { ErrorCard } from "@/components/error-card";
 import { User } from "lucia";
 import { BookmarkButton } from "./components/bookmark-button";
 import Balancer from "react-wrap-balancer";
 
-export type Bookmark = {
-  id: number;
-} & z.infer<typeof articleSchema> & {
-    articleUrl: string;
-    createdAt: Date;
-    updatedAt: Date | null;
-  };
+export type Bookmark = z.infer<typeof bookmarkSchema>;
 
 function BookmarkSkeleton() {
   return (
@@ -31,9 +24,8 @@ function BookmarkSkeleton() {
         <div className="h-[200px] w-full animate-pulse rounded-lg bg-muted"></div>
       </div>
       <div className="fixed bottom-8 left-1/2 -translate-x-1/2">
-        <div className="inline-flex h-12 animate-pulse items-center rounded-full bg-muted">
+        <div className="inline-flex h-12 w-10 animate-pulse items-center rounded-full bg-muted">
           <span className="mr-1 text-muted">New</span>
-          <Icons.plus className="h-5 w-5 text-muted" />
         </div>
       </div>
     </>

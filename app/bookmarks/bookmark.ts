@@ -21,7 +21,8 @@ export const createBookmarkAction = authenticatedAction
       path: z.string(),
       userId: z.number(),
       title: z.string(),
-      content: z.string(),
+      htmlContent: z.string(),
+      textContent: z.string(),
       authorName: z.string(),
       authorImageURL: z.string().url(),
       authorProfileURL: z.string().url(),
@@ -36,7 +37,8 @@ export const createBookmarkAction = authenticatedAction
     if (user !== undefined) {
       await createBookark(user.id, {
         title: input.title,
-        content: input.content,
+        htmlContent: input.htmlContent,
+        textContent: input.textContent,
         authorName: input.authorName,
         authorImageURL: input.authorImageURL,
         authorProfileURL: input.authorProfileURL,

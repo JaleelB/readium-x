@@ -5,7 +5,8 @@ import { urlSchema } from "@/schemas/url";
 
 export type ArticleDetails = {
   title: string;
-  content: string;
+  htmlContent: string;
+  textContent: string;
   authorInformation: {
     authorName: string | null;
     authorImageURL: string | null;
@@ -16,9 +17,11 @@ export type ArticleDetails = {
     readTime: string | null;
     publishDate: string | null;
   };
-} | null;
+};
 
-export async function scrapeArticleContent(url: string) {
+export async function scrapeArticleContent(
+  url: string,
+): Promise<ArticleDetails | { error: string }> {
   try {
     const urlResult = urlSchema.safeParse(url);
     if (!urlResult.success) {
@@ -50,12 +53,13 @@ export async function scrapeArticleContent(url: string) {
     )) as ArticleDetails;
 
     if (!articleMetadata) {
-      return null;
+      throw new Error("Unable to extract article metadata");
     }
 
     return {
       title: articleMetadata.title,
-      content: articleMetadata.content,
+      htmlContent: articleMetadata.htmlContent,
+      textContent: articleMetadata.textContent,
       authorInformation: {
         ...articleMetadata.authorInformation,
         authorProfileURL: `https://medium.com${articleMetadata.authorInformation.authorProfileURL}`,
@@ -66,6 +70,11 @@ export async function scrapeArticleContent(url: string) {
     };
   } catch (error) {
     console.error("Scraping failed:", error);
-    return null;
+    return {
+      error:
+        error instanceof Error
+          ? error.message
+          : "Failed to scrape extract article metadata",
+    };
   }
 }

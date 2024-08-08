@@ -79,7 +79,8 @@ export const bookmarks = sqliteTable("bookmark", {
     .references(() => users.id, { onDelete: "cascade" })
     .notNull(),
   title: text("title").notNull(),
-  content: text("content").notNull(),
+  htmlContent: text("html_content").notNull(),
+  textContent: text("text_content").notNull(),
   authorName: text("author_name"),
   authorImageURL: text("author_image_url"),
   authorProfileURL: text("author_profile_url"),

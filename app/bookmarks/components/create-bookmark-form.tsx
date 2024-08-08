@@ -60,10 +60,10 @@ export function CreateBookmarkForm() {
           spellCheck="false"
         />
         <div
-          className="mt-3 sm:justify-end"
+          className="w-fullsm:justify-end mt-3"
           aria-disabled={form.formState.disabled}
         >
-          <LoaderButton isLoading={form.formState.disabled}>
+          <LoaderButton isLoading={form.formState.disabled} className="ml-auto">
             Save Bookmark
           </LoaderButton>
         </div>
@@ -83,6 +83,7 @@ export function CreateBookmarkForm() {
         message: "The URL is not a valid Medium article.",
       });
       toast.error("This URL is not a valid Medium article.");
+      toast.dismiss();
       return;
     }
 
@@ -93,6 +94,7 @@ export function CreateBookmarkForm() {
         message: "Failed to get article content",
       });
       toast.error("Failed to get article content.");
+      toast.dismiss();
       return;
     }
 
@@ -102,15 +104,28 @@ export function CreateBookmarkForm() {
         message: "You need to sign in to create a bookmark.",
       });
       toast.error("You need to sign in to create a bookmark.");
+      toast.dismiss();
       return;
     }
 
     const scrapedArticle = await scrapeArticleContent(urlWithoutPaywall);
+
+    if ("error" in scrapedArticle) {
+      form.setError("url", {
+        type: "manual",
+        message: scrapedArticle.error,
+      });
+      toast.error(scrapedArticle.error);
+      toast.dismiss();
+      return;
+    }
+
     const bookmarkContent = {
       path: "/bookmarks",
       userId: user.id,
       title: scrapedArticle?.title || "No title available",
-      content: scrapedArticle?.content || "",
+      htmlContent: scrapedArticle?.htmlContent || "",
+      textContent: scrapedArticle?.textContent || "",
       authorName: scrapedArticle?.authorInformation.authorName || "",
       authorImageURL: scrapedArticle?.authorInformation.authorImageURL || "",
       authorProfileURL:
@@ -125,6 +140,8 @@ export function CreateBookmarkForm() {
     execute(bookmarkContent);
 
     toast.success("Bookmark has been successfully created.");
+    form.reset();
+    toast.dismiss();
   }
 
   return (
