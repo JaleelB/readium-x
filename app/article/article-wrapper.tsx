@@ -4,7 +4,7 @@ import {
 } from "@/app/article/actions/article";
 import { headers } from "next/headers";
 import { SuspenseIf } from "../../components/suspense-if";
-import { Article } from "../../components/article";
+import { Article } from "./article";
 import { unstable_cache } from "next/cache";
 import { ArticleSkeleton } from "./article-skeleton";
 import { ErrorCard } from "../../components/error-card";
@@ -29,8 +29,8 @@ async function ArticleLoader({
   url: string;
   urlWithoutPaywall: string;
 }) {
-  const content = await getCachedArticle(urlWithoutPaywall);
-  // const content = await scrapeArticleContent(url);
+  // const content = await getCachedArticle(urlWithoutPaywall);
+  const content = await scrapeArticleContent(urlWithoutPaywall);
 
   if (!content) {
     return <ErrorCard />;
@@ -59,6 +59,9 @@ async function ArticleLoader({
       progress: "0%",
     },
   });
+
+  console.log("data: ", data);
+  console.log("err: ", err);
 
   if (err) {
     return (
@@ -89,8 +92,8 @@ export async function ArticleWrapper({ url }: { url: string }) {
 
   // if browser is requesting html it means it's the first page load
   if (headers().get("accept")?.includes("text/html")) {
-    article = await getCachedArticle(url);
-    // article = await scrapeArticleContent(url);
+    // article = await getCachedArticle(url);
+    article = await scrapeArticleContent(urlWithoutPaywall);
   }
 
   return (
