@@ -116,7 +116,7 @@ function DeleteAccountModal({
                 }
 
                 toast.success("Account has been successfully deleted");
-                redirect("/signin");
+                redirect("/signup");
               }}
             >
               Delete Account
