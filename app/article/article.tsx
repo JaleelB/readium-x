@@ -7,7 +7,12 @@ import {
   AvatarImage,
 } from "../../components/ui/avatar";
 import Link from "next/link";
-import { calculateReadTime, formatDate } from "@/lib/utils";
+import {
+  calculateReadTime,
+  fetchFromLocalStorage,
+  formatDate,
+  setLocalStorageItem,
+} from "@/lib/utils";
 import { Button } from "../../components/ui/button";
 import { Icons } from "../../components/icons";
 import { ArticleViewer } from "./article-viewer";
@@ -28,14 +33,7 @@ import {
   updateReadingHistoryProgressAction,
 } from "@/app/history/history";
 import { debounce } from "lodash";
-import { ReadArticleButton } from "@/components/tts";
-
-function getArticleProgressFromLocalStorage() {
-  const progressObj = JSON.parse(
-    localStorage.getItem("readiumx-article-progress") || "{}",
-  );
-  return progressObj;
-}
+import { ReadArticleButton } from "@/components/tts-button";
 
 export function Article({
   content,
@@ -89,6 +87,11 @@ export function Article({
   const [bookmarkId, setBookmarkId] = useState<number | null>(null);
   const [initialProgress, setInitialProgress] = useState<number>(0);
 
+  const getArticleProgressFromLocalStorage = () => {
+    const progressObj = fetchFromLocalStorage("readiumx-article-progress");
+    return progressObj;
+  };
+
   useEffect(() => {
     const progressObj = getArticleProgressFromLocalStorage();
     const savedProgress = progressObj[readingHistoryId];
@@ -108,7 +111,7 @@ export function Article({
             ...progressObj,
             [readingHistoryId]: progress,
           };
-          localStorage.setItem(
+          setLocalStorageItem(
             "readiumx-article-progress",
             JSON.stringify(newProgressObj),
           );
@@ -126,7 +129,7 @@ export function Article({
       ...progressObj,
       [readingHistoryId]: progress.toString(),
     };
-    localStorage.setItem(
+    setLocalStorageItem(
       "readiumx-article-progress",
       JSON.stringify(newProgressObj),
     );
@@ -250,7 +253,8 @@ export function Article({
                       path: pathname,
                       userId: user.id,
                       title: content?.title || generateRandomName(),
-                      content: safeHTMLContent,
+                      htmlContent: safeHTMLContent,
+                      textContent: content?.textContent as string,
                       authorName: content?.authorInformation.authorName || "",
                       authorImageURL:
                         content?.authorInformation.authorImageURL || "",

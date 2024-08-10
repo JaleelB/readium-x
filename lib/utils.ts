@@ -1,5 +1,6 @@
 import { env } from "@/env";
 import { type ClassValue, clsx } from "clsx";
+import { debounce } from "lodash";
 import { twMerge } from "tailwind-merge";
 
 export function cn(...inputs: ClassValue[]) {
@@ -28,7 +29,7 @@ export function calculateReadTime(text: string[] | string | undefined): string {
   return `${roundedMinutes} min read`;
 }
 
-export function getLocalStorageItem(key: string, defaultValue: string): string {
+export function getLocalStorageItem(key: string, defaultValue: any): string {
   if (typeof window !== "undefined") {
     return localStorage.getItem(key) || defaultValue;
   }
@@ -40,6 +41,33 @@ export function setLocalStorageItem(key: string, value: string): void {
     localStorage.setItem(key, value);
   }
 }
+
+export const fetchFromLocalStorage = (mainKey: string) => {
+  if (typeof window !== "undefined") {
+    const storedValue = localStorage.getItem(mainKey);
+    if (!storedValue) return {};
+    try {
+      return JSON.parse(storedValue);
+    } catch {
+      return storedValue;
+    }
+  }
+  return {};
+};
+
+export const updateLocalStorageGroup = debounce(
+  (mainKey: string, group: string, key: string, value: string) => {
+    if (typeof window !== "undefined") {
+      const progressObj = fetchFromLocalStorage(`readiumx-${mainKey}`);
+      progressObj[group] = {
+        ...progressObj[group],
+        [key]: value,
+      };
+      localStorage.setItem(`readiumx-${mainKey}`, JSON.stringify(progressObj));
+    }
+  },
+  500,
+);
 
 export function formatDate(dateStr: string | null): string {
   let date: Date;
