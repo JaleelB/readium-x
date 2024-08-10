@@ -225,7 +225,8 @@ export default function TextToSpeechPage() {
                       {/* <LanguageDropdown /> */}
                       <div id="browser-voice-select">
                         <Select
-                          value={selectedVoice?.name}
+                          defaultValue={ttsSettings.settings.voice}
+                          // value={selectedVoice?.name}
                           onValueChange={(value) => {
                             const newVoice = voices.find(
                               (v) => v.name === value,
@@ -238,6 +239,13 @@ export default function TextToSpeechPage() {
                                 "voice",
                                 newVoice.name,
                               );
+                              setTTSSettings({
+                                ...ttsSettings,
+                                settings: {
+                                  ...ttsSettings.settings,
+                                  voice: newVoice.name,
+                                },
+                              });
                             }
                           }}
                           disabled={isLoading}
