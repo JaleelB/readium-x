@@ -32,6 +32,7 @@ export interface ArticleElement {
 
 interface Article {
   html: string;
+  text: string;
 }
 
 export class MediumArticleProcessor {
@@ -132,6 +133,53 @@ export class MediumArticleProcessor {
     return $.html();
   }
 
+  private extractTextContent(html: string): string {
+    const $ = cheerio.load(html);
+    let extractedText = "";
+
+    function processElement(element: cheerio.Cheerio) {
+      element.contents().each((_, el) => {
+        if (el.type === "text") {
+          const text = $(el).text().trim();
+          if (text) {
+            extractedText += text + " ";
+          }
+        } else if (el.type === "tag") {
+          const tagName = el.tagName.toLowerCase();
+
+          if (
+            ["p", "h1", "h2", "h3", "h4", "blockquote", "figcaption"].includes(
+              tagName,
+            )
+          ) {
+            processElement($(el));
+            extractedText += "\n\n";
+          } else if (tagName === "br") {
+            extractedText += "\n";
+          } else if (tagName === "li") {
+            extractedText += "• "; // or use '- ' for unordered lists
+            processElement($(el));
+            extractedText += "\n";
+          } else if (["ol", "ul"].includes(tagName)) {
+            extractedText += "\n";
+            processElement($(el));
+            extractedText += "\n";
+          } else if (tagName === "pre") {
+            const preText = $(el).text().trim();
+            if (preText) {
+              extractedText += "```\n" + preText + "\n```\n\n";
+            }
+          } else {
+            processElement($(el));
+          }
+        }
+      });
+    }
+
+    processElement($("body"));
+    return extractedText.replace(/\n{3,}/g, "\n\n").trim();
+  }
+
   private processElement(
     $: cheerio.Root,
     element: cheerio.Cheerio,
@@ -190,12 +238,6 @@ export class MediumArticleProcessor {
         const href = $child.attr("href");
         if (href && href.startsWith("/")) {
           $child.attr("href", `https://medium.com${href}`);
-          console.log(
-            "Updated href for:",
-            $child.html(),
-            "to",
-            $child.attr("href"),
-          );
         }
 
         elements.push({
@@ -318,7 +360,9 @@ export class MediumArticleProcessor {
       const finalHtml = elements.map((el) => el.content).join("");
       const wrappedHtml = `<div class="main-content mt-6">${finalHtml}</div>`;
 
-      return { html: wrappedHtml };
+      const textContent = this.extractTextContent(wrappedHtml);
+
+      return { html: wrappedHtml, text: textContent };
     } catch (error) {
       console.error("Error scraping article:", error);
       throw error;
@@ -333,9 +377,12 @@ export class MediumArticleProcessor {
       title:
         sectionElement.find('[data-testid="storyTitle"]').text().trim() ||
         "No title available",
-      content: (
+      htmlContent: (
         await this.processArticleContent(sectionElement.html() as string)
       ).html,
+      textContent: (
+        await this.processArticleContent(sectionElement.html() as string)
+      ).text,
       authorInformation: {
         authorName:
           sectionElement.find('a[data-testid="authorName"]').text().trim() ||
