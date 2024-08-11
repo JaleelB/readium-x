@@ -93,6 +93,8 @@ export class WebTextToSpeechService {
   public speak(
     text: string,
     voice: SpeechSynthesisVoice,
+    rate: number = 1,
+    pitch: number = 1,
   ): Promise<AudioBuffer> {
     return new Promise((resolve, reject) => {
       if (!this.synthesis) {
@@ -102,6 +104,8 @@ export class WebTextToSpeechService {
 
       const utterance = new SpeechSynthesisUtterance(text);
       utterance.voice = voice;
+      utterance.rate = rate;
+      utterance.pitch = pitch;
 
       const audioContext = new AudioContext();
       const source = audioContext.createBufferSource();

@@ -107,6 +107,10 @@
     z-index: 5;
     animation: twinkling 1s infinite ease-in-out;
   }
+
+  .scrollbar-hide {
+    scrollbar-width: none;
+  }
 }
 
 @layer base {

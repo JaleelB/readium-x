@@ -14,7 +14,13 @@ const TooltipSlider = React.forwardRef<
   React.ElementRef<typeof SliderPrimitive.Root>,
   React.ComponentPropsWithoutRef<typeof SliderPrimitive.Root>
 >(({ className, ...props }, ref) => {
-  const [value, setValue] = React.useState(props.defaultValue || [0]);
+  const [value, setValue] = React.useState<number[]>(
+    Array.isArray(props.defaultValue)
+      ? props.defaultValue
+      : props.defaultValue !== undefined
+        ? [props.defaultValue as number]
+        : [0],
+  );
 
   return (
     <TooltipProvider>
@@ -24,7 +30,10 @@ const TooltipSlider = React.forwardRef<
           "relative flex w-full touch-none select-none items-center",
           className,
         )}
-        onValueChange={setValue}
+        onValueChange={(newValue) => {
+          setValue(newValue);
+          props.onValueChange?.(newValue);
+        }}
         {...props}
       >
         <>
@@ -39,7 +48,7 @@ const TooltipSlider = React.forwardRef<
               className="rounded bg-secondary px-2 py-1 text-sm text-secondary-foreground"
               side="top"
             >
-              {value[0].toFixed(1)}
+              {value[0]}
             </TooltipContent>
           </Tooltip>
         </>

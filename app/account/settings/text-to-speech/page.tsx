@@ -65,6 +65,8 @@ export default function TextToSpeechPage() {
     setSelectedVoice,
     isLoading,
     playAudio,
+    updateRate,
+    updatePitch,
   } = useTTS();
 
   useEffect(() => {
@@ -314,12 +316,7 @@ export default function TextToSpeechPage() {
                         step={0.1}
                         className="w-full"
                         onValueChange={(value: number[]) => {
-                          updateLocalStorageGroup(
-                            "text-to-speech-settings",
-                            "browser",
-                            "rate",
-                            value[0].toString(),
-                          );
+                          updateRate(value[0]);
                         }}
                       />
                       <span className="text-xs text-muted-foreground">
@@ -353,12 +350,7 @@ export default function TextToSpeechPage() {
                         step={0.1}
                         className="w-full"
                         onValueChange={(value: number[]) => {
-                          updateLocalStorageGroup(
-                            "text-to-speech-settings",
-                            "browser",
-                            "pitch",
-                            value[0].toString(),
-                          );
+                          updatePitch(value[0]);
                         }}
                       />
                       <span className="text-xs text-muted-foreground">
