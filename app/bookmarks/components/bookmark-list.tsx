@@ -73,7 +73,7 @@ export default function BookmarksList({
   const [orderBy, setOrderBy] = useState<OrderBy>("date");
 
   useEffect(() => {
-    setLayout(getLocalStorageItem("layout", "grid") as "grid" | "rows");
+    setLayout(getLocalStorageItem("layout", "grid") as Layout);
     setOrderBy(getLocalStorageItem("orderBy", "date") as OrderBy);
   }, []);
 
@@ -229,7 +229,11 @@ function BookmarkCard({
                   "https://illustrations.popsy.co/white/genius.svg"
                 }
               />
-              <AvatarFallback>CN</AvatarFallback>
+              <AvatarFallback>
+                {bookmark.authorName
+                  ? bookmark.authorName[0]
+                  : bookmark.title[0]}
+              </AvatarFallback>
             </Avatar>
             <div className="flex flex-col">
               {layout === "grid" ? (
@@ -358,7 +362,7 @@ function BookmarkCard({
                     }}
                   >
                     <Link
-                      href={`/article/${articleId}`}
+                      href={`/article/${articleId}?bookmark_id=${bookmark.id}`}
                       aria-label="article-link"
                       className="flex items-center gap-3"
                     >
@@ -484,7 +488,7 @@ function BookmarkCard({
               {bookmark.title}
             </Balancer>
             <CardDescription className={cn("pt-2")}>
-              {extractFirstSentence(bookmark.content)}
+              {extractFirstSentence(bookmark.htmlContent)}
             </CardDescription>
           </>
         ) : null}

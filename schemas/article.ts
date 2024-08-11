@@ -27,6 +27,6 @@ export const readingHistorySchema = z.object({
 export const bookmarkSchema = articleSchema.extend({
   id: z.number(),
   userId: z.number(),
-  updatedAt: z.date().nullable(),
-  createdAt: z.date(),
+  updatedAt: z.date().nullable().optional(),
+  createdAt: z.date().optional(),
 });

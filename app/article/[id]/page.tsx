@@ -6,9 +6,13 @@ import { ArticleWrapper } from "../article-wrapper";
 
 export default async function Page({
   params,
+  searchParams,
 }: {
   params: {
     id: string;
+  };
+  searchParams: {
+    [key: string]: string | string[] | undefined;
   };
 }) {
   if (!params.id) {
@@ -32,10 +36,12 @@ export default async function Page({
     redirect("/signin");
   }
 
+  const bookmarkId = searchParams.bookmark_id as string | undefined;
+
   return (
     <main className="container mt-12 flex flex-col items-center justify-center gap-12 py-[22vh] pt-6">
       <UrlForm inputValue={url as string} isUser={user} />
-      <ArticleWrapper url={url} />
+      <ArticleWrapper url={url} bookmarkId={bookmarkId} />
     </main>
   );
 }

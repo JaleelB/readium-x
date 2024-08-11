@@ -13,6 +13,8 @@ import { getUser } from "@/data-access/users";
 import { notFound, redirect } from "next/navigation";
 import { createReadingHistoryLogAction } from "../history/history";
 import { getUrlWithoutPaywall } from "./actions/url";
+import { bookmarkSchema } from "@/schemas/article";
+import { getBookmarkByIdUseCase } from "@/use-cases/bookmarks";
 
 export const getCachedArticle = unstable_cache(
   async (url) => scrapeArticleContent(url),
@@ -25,17 +27,12 @@ export const getCachedArticle = unstable_cache(
 async function ArticleLoader({
   url,
   urlWithoutPaywall,
+  bookmarkId,
 }: {
   url: string;
   urlWithoutPaywall: string;
+  bookmarkId?: string;
 }) {
-  // const content = await getCachedArticle(urlWithoutPaywall);
-  const content = await scrapeArticleContent(urlWithoutPaywall);
-
-  if (!content) {
-    return <ErrorCard />;
-  }
-
   const userSession = await getCurrentUser();
   if (!userSession) {
     redirect("/signin");
@@ -44,6 +41,45 @@ async function ArticleLoader({
   const user = await getUser(userSession.id);
   if (!user) {
     redirect("/signin");
+  }
+
+  let content: ArticleDetails | { error: string } | null = null;
+
+  // if article is bookmarked, get the bookmark content from the database
+  if (!bookmarkId) {
+    content = await scrapeArticleContent(urlWithoutPaywall);
+    if ("error" in content) {
+      return (
+        <ErrorCard title="Failed to scrape article" message={content.error} />
+      );
+    }
+  } else {
+    const bookmark = await getBookmarkByIdUseCase(user.id, Number(bookmarkId));
+    if (bookmark) {
+      const { createdAt, updatedAt, ...bookmarkWithoutTimestamps } = bookmark;
+      const bookmarkContent = bookmarkSchema.parse(bookmarkWithoutTimestamps);
+      content = {
+        title: bookmarkContent.title,
+        htmlContent: bookmarkContent.htmlContent,
+        textContent: bookmarkContent.textContent,
+        authorInformation: {
+          authorName: bookmarkContent.authorName,
+          authorImageURL: bookmarkContent.authorImageURL,
+          authorProfileURL: bookmarkContent.authorProfileURL,
+        },
+        publicationInformation: {
+          publicationName: bookmarkContent.publicationName,
+          readTime: bookmarkContent.readTime,
+          publishDate: bookmarkContent.publishDate,
+        },
+      };
+    } else {
+      content = null;
+    }
+  }
+
+  if (!content) {
+    return <ErrorCard />;
   }
 
   const [data, err] = await createReadingHistoryLogAction({
@@ -59,9 +95,6 @@ async function ArticleLoader({
       progress: "0%",
     },
   });
-
-  console.log("data: ", data);
-  console.log("err: ", err);
 
   if (err) {
     return (
@@ -82,8 +115,16 @@ async function ArticleLoader({
   );
 }
 
-export async function ArticleWrapper({ url }: { url: string }) {
-  let article: ArticleDetails | null = null;
+export async function ArticleWrapper({
+  url,
+  bookmarkId,
+}: {
+  url: string;
+  bookmarkId?: string;
+}) {
+  let article: ArticleDetails | { error: string } | null = null;
+
+  console.log("bookmarkId", bookmarkId);
 
   const urlWithoutPaywall = await getUrlWithoutPaywall(url);
   if (urlWithoutPaywall instanceof Error) {
@@ -94,11 +135,20 @@ export async function ArticleWrapper({ url }: { url: string }) {
   if (headers().get("accept")?.includes("text/html")) {
     // article = await getCachedArticle(url);
     article = await scrapeArticleContent(urlWithoutPaywall);
+    if ("error" in article) {
+      return (
+        <ErrorCard title="Failed to scrape article" message={article.error} />
+      );
+    }
   }
 
   return (
     <SuspenseIf condition={!article} fallback={<ArticleSkeleton />}>
-      <ArticleLoader url={url} urlWithoutPaywall={urlWithoutPaywall} />
+      <ArticleLoader
+        url={url}
+        urlWithoutPaywall={urlWithoutPaywall}
+        bookmarkId={bookmarkId}
+      />
     </SuspenseIf>
   );
 }
