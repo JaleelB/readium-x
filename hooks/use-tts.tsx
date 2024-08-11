@@ -15,14 +15,18 @@ export const useTTS = () => {
     useState<SpeechSynthesisVoice | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   const [isPlaying, setIsPlaying] = useState(false);
+  const [isPaused, setIsPaused] = useState(false);
   const [rate, setRate] = useState(1);
   const [pitch, setPitch] = useState(1);
   const audioContextRef = useRef<AudioContext | null>(null);
-  const sourceNodeRef = useRef<AudioBufferSourceNode | null>(null);
+  const currentTextRef = useRef<string | null>(null);
+  const [speechSynthesis, setSpeechSynthesis] =
+    useState<SpeechSynthesis | null>(null);
 
   useEffect(() => {
     const ttsService = new WebSpeechTextToSpeechService();
     setTts(ttsService);
+    setSpeechSynthesis(window.speechSynthesis);
 
     const loadVoices = async () => {
       setIsLoading(true);
@@ -31,7 +35,7 @@ export const useTTS = () => {
       setVoices(availableVoices);
       setGroupedVoices(groupedAvailableVoices);
 
-      // Load saved voice from localStorage
+      // Load saved settings from localStorage
       const savedSettings = fetchFromLocalStorage(
         "readiumx-text-to-speech-settings",
       );
@@ -43,94 +47,85 @@ export const useTTS = () => {
         const savedVoice = availableVoices.find(
           (voice) => voice.name === savedVoiceName,
         );
-        if (savedVoice) {
-          setSelectedVoice(savedVoice);
-        } else {
-          setSelectedVoice(availableVoices[0]);
-          console.warn(
-            `Saved voice "${savedVoiceName}" not found. Using default.`,
-          );
-        }
+        setSelectedVoice(savedVoice || availableVoices[0]);
       } else {
         setSelectedVoice(availableVoices[0]);
       }
 
-      if (savedRate) {
-        setRate(savedRate);
-      }
-
-      if (savedPitch) {
-        setPitch(savedPitch);
-      }
+      if (savedRate) setRate(Number(savedRate));
+      if (savedPitch) setPitch(Number(savedPitch));
 
       setIsLoading(false);
     };
 
     loadVoices();
 
+    const currentAudioContext = audioContextRef.current;
+
     return () => {
-      if (audioContextRef.current) {
-        audioContextRef.current.close();
+      if (currentAudioContext) {
+        currentAudioContext.close();
       }
     };
   }, []);
 
   const playAudio = useCallback(
-    async (articleText: string) => {
-      if (tts && selectedVoice) {
+    (articleText: string) => {
+      if (tts && selectedVoice && speechSynthesis) {
         try {
-          if (sourceNodeRef.current) {
-            sourceNodeRef.current.stop();
-          }
-          const audioBuffer = await tts.speak(
-            articleText,
-            selectedVoice,
-            rate,
-            pitch,
-          );
-          audioContextRef.current = new AudioContext();
-          sourceNodeRef.current = audioContextRef.current.createBufferSource();
-          sourceNodeRef.current.buffer = audioBuffer;
-          sourceNodeRef.current.connect(audioContextRef.current.destination);
-          sourceNodeRef.current.start();
+          speechSynthesis.cancel(); // Cancel any ongoing speech
+          const utterance = new SpeechSynthesisUtterance(articleText);
+          utterance.voice = selectedVoice;
+          utterance.rate = rate;
+          utterance.pitch = pitch;
+          speechSynthesis.speak(utterance);
           setIsPlaying(true);
-
-          sourceNodeRef.current.onended = () => {
-            setIsPlaying(false);
-          };
+          setIsPaused(false);
+          currentTextRef.current = articleText;
         } catch (error) {
-          if (error instanceof Error) {
-            toast.error(`${error.message}`);
-          } else {
-            toast.error("An error occurred while reading the article");
-          }
+          toast.error("An error occurred while reading the article");
           setIsPlaying(false);
+          setIsPaused(false);
         }
       }
     },
-    [tts, selectedVoice, rate, pitch],
+    [tts, selectedVoice, rate, pitch, speechSynthesis],
   );
 
-  const stopAudio = useCallback(() => {
-    if (sourceNodeRef.current) {
-      sourceNodeRef.current.stop();
-      setIsPlaying(false);
+  const pauseAudio = useCallback(() => {
+    if (speechSynthesis) {
+      speechSynthesis.pause();
+      setIsPaused(true);
     }
-  }, []);
+  }, [speechSynthesis]);
+
+  const resumeAudio = useCallback(() => {
+    if (speechSynthesis) {
+      speechSynthesis.resume();
+      setIsPaused(false);
+    }
+  }, [speechSynthesis]);
+
+  const stopAudio = useCallback(() => {
+    if (speechSynthesis) {
+      speechSynthesis.cancel();
+      setIsPlaying(false);
+      setIsPaused(false);
+      currentTextRef.current = null;
+    }
+  }, [speechSynthesis]);
 
   const togglePlayPause = useCallback(
     (articleText: string) => {
-      setIsPlaying((prevIsPlaying) => {
-        if (prevIsPlaying) {
-          stopAudio();
-          return false;
-        } else {
-          playAudio(articleText);
-          return true;
-        }
-      });
+      if (!isPlaying) {
+        playAudio(articleText);
+      } else if (isPaused) {
+        resumeAudio();
+      } else {
+        pauseAudio();
+      }
     },
-    [stopAudio, playAudio],
+    [isPlaying, isPaused, playAudio, resumeAudio, pauseAudio],
   );
 
   const updateRate = useCallback((newRate: number) => {
@@ -161,9 +156,14 @@ export const useTTS = () => {
     setSelectedVoice,
     isLoading,
     isPlaying,
+    isPaused,
     playAudio,
+    pauseAudio,
+    resumeAudio,
     stopAudio,
     togglePlayPause,
+    rate,
+    pitch,
     updateRate,
     updatePitch,
   };

@@ -41,11 +41,13 @@ import {
   Cog,
   ShieldCheck,
   Key,
+  Play,
   PaintbrushVertical,
   type Icon as LucideIcon,
   CircleX,
   Keyboard,
   Volume2,
+  Pause,
 } from "lucide-react";
 
 export type Icon = typeof LucideIcon;
@@ -94,6 +96,8 @@ export const Icons = {
   paintbrush: PaintbrushVertical,
   keyboard: Keyboard,
   key: Key,
+  play: Play,
+  pause: Pause,
   microphone: Volume2,
   github: ({ ...props }: LucideProps) => (
     <svg
