@@ -22,6 +22,7 @@ import Link from "next/link";
 import { siteConfig } from "@/app-config";
 import { UserInfo } from "./site-header";
 import { Profile } from "@/server/db/schema";
+import { Avatar, AvatarFallback, AvatarImage } from "./ui/avatar";
 
 export function OptionsMenu({
   user,
@@ -36,18 +37,14 @@ export function OptionsMenu({
   return (
     <DropdownMenu open={open} onOpenChange={(isOpen) => setOpen(isOpen)}>
       <DropdownMenuTrigger asChild>
-        <Button
-          variant="outline"
-          size="sm"
-          className={cn("rounded-full dark:border-white/20")}
-        >
-          <Icons.menu className="mr-2 h-4 w-4" />
-          <Icons.chevronDown
-            className={`h-4 w-4 text-muted-foreground transition duration-200 ${
-              open ? "rotate-180 transform" : ""
-            }`}
-          />
-        </Button>
+        <div className="flex items-center gap-1">
+          <Avatar className="h-8 w-8 cursor-pointer">
+            <AvatarImage src={profile.image as string} />
+            <AvatarFallback className="bg-[#ffb92e] text-white">
+              {profile.displayName?.charAt(0).toUpperCase()}
+            </AvatarFallback>
+          </Avatar>
+        </div>
       </DropdownMenuTrigger>
       <DropdownMenuContent className="z-[550] w-60">
         <DropdownMenuLabel className="p-1 px-0">
