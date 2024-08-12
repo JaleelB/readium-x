@@ -16,10 +16,10 @@ export default function PersonalSettingsLayout({
       name: "Appearance",
       segment: "appearances",
     },
-    {
-      name: "Keyboard Shortcuts",
-      segment: "keyboard-shortcuts",
-    },
+    // {
+    //   name: "Keyboard Shortcuts",
+    //   segment: "keyboard-shortcuts",
+    // },
     {
       name: "Text to Speech",
       segment: "text-to-speech",

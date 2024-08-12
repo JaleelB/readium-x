@@ -50,7 +50,7 @@ async function ArticleLoader({
     content = await scrapeArticleContent(urlWithoutPaywall);
     if ("error" in content) {
       return (
-        <ErrorCard title="Failed to scrape article" message={content.error} />
+        <ErrorCard title="Failed to fetch article" message={content.error} />
       );
     }
   } else {

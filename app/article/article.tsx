@@ -241,7 +241,7 @@ export function Article({
                 </div>
               </div>
             </div>
-            <div className="flex items-center gap-4">
+            <div className="flex items-center gap-3">
               <ReadArticleButton articleText={content?.textContent as string} />
               <Button
                 variant="outline"
