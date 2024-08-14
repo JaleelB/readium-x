@@ -2,6 +2,7 @@
 
 import { MediumArticleProcessor } from "@/lib/parser";
 import { urlSchema } from "@/schemas/url";
+import { getUrlWithoutPaywall } from "./url";
 
 export type ArticleDetails = {
   title: string;
@@ -28,7 +29,12 @@ export async function scrapeArticleContent(
       throw new Error("Invalid URL");
     }
 
-    const response = await fetch(url, {
+    const urlWithoutPaywall = await getUrlWithoutPaywall(url);
+    if (urlWithoutPaywall instanceof Error) {
+      throw new Error("Unable to get URL without paywall");
+    }
+
+    const response = await fetch(urlWithoutPaywall.url, {
       headers: {
         "User-Agent":
           "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/58.0.3029.110 Safari/537.36",
@@ -50,6 +56,7 @@ export async function scrapeArticleContent(
     const processor = new MediumArticleProcessor();
     const articleMetadata = (await processor.extractArticleMetadata(
       html,
+      urlWithoutPaywall.type,
     )) as ArticleDetails;
 
     if (!articleMetadata) {
@@ -62,7 +69,6 @@ export async function scrapeArticleContent(
       textContent: articleMetadata.textContent,
       authorInformation: {
         ...articleMetadata.authorInformation,
-        authorProfileURL: `https://medium.com${articleMetadata.authorInformation.authorProfileURL}`,
       },
       publicationInformation: {
         ...articleMetadata.publicationInformation,

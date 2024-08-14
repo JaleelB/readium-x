@@ -5,10 +5,7 @@ import { createBookmarkAction } from "@/app/bookmarks/bookmark";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { scrapeArticleContent } from "@/app/article/actions/article";
-import {
-  getUrlWithoutPaywall,
-  validateMediumArticle,
-} from "@/app/article/actions/url";
+import { validateMediumArticle } from "@/app/article/actions/url";
 import { toast } from "sonner";
 import { z } from "zod";
 import {
@@ -87,17 +84,6 @@ export function CreateBookmarkForm() {
       return;
     }
 
-    const urlWithoutPaywall = await getUrlWithoutPaywall(values.url);
-    if (urlWithoutPaywall instanceof Error) {
-      form.setError("url", {
-        type: "manual",
-        message: "Failed to get article content",
-      });
-      toast.error("Failed to get article content.");
-      toast.dismiss();
-      return;
-    }
-
     if (!user) {
       form.setError("url", {
         type: "manual",
@@ -108,7 +94,7 @@ export function CreateBookmarkForm() {
       return;
     }
 
-    const scrapedArticle = await scrapeArticleContent(urlWithoutPaywall);
+    const scrapedArticle = await scrapeArticleContent(values.url);
 
     if ("error" in scrapedArticle) {
       form.setError("url", {

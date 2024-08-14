@@ -12,7 +12,6 @@ import { getCurrentUser } from "@/lib/session";
 import { getUser } from "@/data-access/users";
 import { notFound, redirect } from "next/navigation";
 import { createReadingHistoryLogAction } from "../history/history";
-import { getUrlWithoutPaywall } from "./actions/url";
 import { bookmarkSchema } from "@/schemas/article";
 import { getBookmarkByIdUseCase } from "@/use-cases/bookmarks";
 
@@ -26,11 +25,11 @@ export const getCachedArticle = unstable_cache(
 
 async function ArticleLoader({
   url,
-  urlWithoutPaywall,
+  // urlWithoutPaywall,
   bookmarkId,
 }: {
   url: string;
-  urlWithoutPaywall: string;
+  // urlWithoutPaywall: string;
   bookmarkId?: string;
 }) {
   const userSession = await getCurrentUser();
@@ -47,7 +46,7 @@ async function ArticleLoader({
 
   // if article is bookmarked, get the bookmark content from the database
   if (!bookmarkId) {
-    content = await scrapeArticleContent(urlWithoutPaywall);
+    content = await scrapeArticleContent(url);
     if ("error" in content) {
       return (
         <ErrorCard title="Failed to fetch article" message={content.error} />
@@ -124,17 +123,10 @@ export async function ArticleWrapper({
 }) {
   let article: ArticleDetails | { error: string } | null = null;
 
-  console.log("bookmarkId", bookmarkId);
-
-  const urlWithoutPaywall = await getUrlWithoutPaywall(url);
-  if (urlWithoutPaywall instanceof Error) {
-    notFound();
-  }
-
   // if browser is requesting html it means it's the first page load
   if (headers().get("accept")?.includes("text/html")) {
     // article = await getCachedArticle(url);
-    article = await scrapeArticleContent(urlWithoutPaywall);
+    article = await scrapeArticleContent(url);
     if ("error" in article) {
       return (
         <ErrorCard title="Failed to scrape article" message={article.error} />
@@ -146,7 +138,7 @@ export async function ArticleWrapper({
     <SuspenseIf condition={!article} fallback={<ArticleSkeleton />}>
       <ArticleLoader
         url={url}
-        urlWithoutPaywall={urlWithoutPaywall}
+        // urlWithoutPaywall={urlWithoutPaywall}
         bookmarkId={bookmarkId}
       />
     </SuspenseIf>

@@ -1,5 +1,6 @@
 import * as cheerio from "cheerio";
 import { type ArticleDetails as ArticleMetadata } from "@/app/article/actions/article";
+import { UrlType } from "@/app/article/actions/url";
 
 type ElementsType =
   | "H1"
@@ -310,10 +311,10 @@ export class MediumArticleProcessor {
     });
   }
 
-  public async processArticleContent(html: string): Promise<Article> {
+  private async processArticleContent(html: string): Promise<Article> {
     try {
       const $ = cheerio.load(html);
-
+      // console.log("Processing article content:", html);
       const elements: ArticleElement[] = [];
 
       // Supported tags
@@ -347,7 +348,6 @@ export class MediumArticleProcessor {
       // Start processing from the section level
       $(sectionHtmlContent).each((_, section) => {
         const $section = cheerio.load(section);
-
         this.processElement(
           $,
           $section("section"),
@@ -369,49 +369,260 @@ export class MediumArticleProcessor {
     }
   }
 
-  public async extractArticleMetadata(html: string): Promise<ArticleMetadata> {
+  public async extractArticleMetadata(
+    html: string,
+    type: UrlType,
+  ): Promise<ArticleMetadata | null> {
     const $ = cheerio.load(html);
     const sectionElement = $("article").first();
+    const articleBar = $("div.bg-gray-100.border.border-gray-300.m-2.mt-5");
+    let metadata: ArticleMetadata;
 
-    const metadata: ArticleMetadata = {
-      title:
-        sectionElement.find('[data-testid="storyTitle"]').text().trim() ||
-        "No title available",
-      htmlContent: (
-        await this.processArticleContent(sectionElement.html() as string)
-      ).html,
-      textContent: (
-        await this.processArticleContent(sectionElement.html() as string)
-      ).text,
-      authorInformation: {
-        authorName:
-          sectionElement.find('a[data-testid="authorName"]').text().trim() ||
-          null,
-        authorProfileURL:
-          sectionElement.find('a[data-testid="authorName"]').attr("href") ||
-          null,
-        authorImageURL:
-          sectionElement.find('img[data-testid="authorPhoto"]').attr("src") ||
-          null,
-      },
-      publicationInformation: {
-        readTime:
-          sectionElement
-            .find('span[data-testid="storyReadTime"]')
-            .text()
-            .trim() || null,
-        publishDate:
-          sectionElement
-            .find('span[data-testid="storyPublishDate"]')
-            .text()
-            .trim() || null,
-        publicationName:
-          sectionElement
-            .find('a[data-testid="publicationName"]')
-            .text()
-            .trim() || null,
-      },
-    };
+    switch (type) {
+      case "freedium":
+        metadata = {
+          title:
+            $(
+              "h1.font-bold.font-sans.break-normal.text-gray-900.dark\\:text-gray-100.pt-6.pb-2.text-3xl.md\\:text-4xl",
+            )
+              .first()
+              .text()
+              .trim() || "No title available",
+          htmlContent: (() => {
+            const mainContentElement = $("div.main-content.mt-8");
+            const previewImage = $(
+              'img[alt="Preview image"][loading="eager"][role="presentation"][src^="https://miro.medium.com/"]',
+            ).first();
+            if (previewImage.length) {
+              previewImage.attr(
+                "style",
+                "max-height: 65vh; width: auto; margin: auto",
+              );
+              return `<div class="main-content mt-6">${previewImage.prop("outerHTML") + $.html(mainContentElement)}</div>`;
+            }
+            return $.html(mainContentElement);
+          })(),
+          textContent: (() => {
+            const mainContentElement = $("div.main-content.mt-8");
+            return this.extractTextContent($.html(mainContentElement));
+          })(),
+          authorInformation: {
+            authorName:
+              articleBar.find("div.flex-grow > a").first().text().trim() ||
+              null,
+            authorProfileURL:
+              articleBar.find('a[href^="https://medium.com/@"]').attr("href") ||
+              null,
+            authorImageURL:
+              articleBar
+                .find('a[href^="https://medium.com/@"] img')
+                .attr("src") || null,
+          },
+          publicationInformation: {
+            readTime: (() => {
+              const readTimeElement = articleBar.find(
+                'span.text-gray-500.dark\\:text-white:contains("min read")',
+              );
+              if (readTimeElement.length > 0) {
+                const readTimeText = readTimeElement.text().trim();
+                return readTimeText.startsWith("~")
+                  ? readTimeText.substring(1)
+                  : readTimeText;
+              }
+              return null;
+            })(),
+            publishDate: (() => {
+              const dateElement = articleBar
+                .find("span.text-gray-500.dark\\:text-white")
+                .filter((_, el) => {
+                  const text = $(el).text();
+                  return /\b(January|February|March|April|May|June|July|August|September|October|November|December)\b/.test(
+                    text,
+                  );
+                });
+              if (dateElement.length > 0) {
+                const dateText = dateElement.text().trim();
+                const match = dateText.match(/^([^(]+)/);
+                return match ? match[1].trim() : null;
+              }
+              return null;
+            })(),
+            publicationName: (() => {
+              const publicationImage = articleBar.find(
+                "img.h-4.w-4.rounded-full.no-lightense",
+              );
+              if (publicationImage.length > 0) {
+                const publicationNameElement = publicationImage
+                  .parent()
+                  .next("p");
+                return publicationNameElement.text().trim() || null;
+              }
+              return null;
+            })(),
+          },
+        };
+        break;
+      // case "archive":
+      //   metadata = {
+      //     title:
+      //       sectionElement
+      //         .find(
+      //           'h1[style*="color:rgb(36, 36, 36)"][style*="font-family:sohne, \\"Helvetica Neue\\", Helvetica, Arial, sans-serif"][style*="font-size:42px"][style*="font-weight:700"][style*="line-height:52px"]',
+      //         )
+      //         .first()
+      //         .text()
+      //         .trim() || "No title available",
+      //     htmlContent: (
+      //       await this.processArticleContent(sectionElement.html() as string)
+      //     ).html,
+      //     textContent: (
+      //       await this.processArticleContent(sectionElement.html() as string)
+      //     ).text,
+      //     authorInformation: {
+      //       authorName: (() => {
+      //         const authorLink = sectionElement.find(
+      //           'a[href*="https://medium.com/@"]',
+      //         );
+      //         const authorNameElement = sectionElement.find(
+      //           'a[data-testid="authorName"]',
+      //         );
+      //         return authorNameElement.length > 0
+      //           ? authorNameElement.text().trim()
+      //           : authorLink.text().trim() || null;
+      //       })(),
+      //       authorProfileURL: (() => {
+      //         const authorLink = sectionElement.find(
+      //           'a[href*="https://medium.com/@"]',
+      //         );
+      //         const authorPhotoElement = sectionElement.find(
+      //           'img[data-testid="authorPhoto"]',
+      //         );
+      //         if (authorLink.length > 0) {
+      //           const href = authorLink.attr("href");
+      //           if (href) {
+      //             const match = href.match(/https:\/\/medium\.com\/@.+/);
+      //             return match ? match[0] : null;
+      //           }
+      //         } else if (authorPhotoElement.length > 0) {
+      //           return authorPhotoElement.attr("src") || null;
+      //         }
+      //         return null;
+      //       })(),
+      //       authorImageURL: (() => {
+      //         const imgElement = sectionElement.find(
+      //           'div[style*="box-sizing:border-box;display:block;position:relative"] img',
+      //         );
+      //         const archiveImgElement = sectionElement.find(
+      //           'a[href*="https://archive.ph/o/"] img[old-src][new-cursrc]',
+      //         );
+      //         if (archiveImgElement.length > 0) {
+      //           return (
+      //             archiveImgElement.attr("old-src") ||
+      //             archiveImgElement.attr("new-cursrc") ||
+      //             null
+      //           );
+      //         }
+      //         if (imgElement.length > 0) {
+      //           return (
+      //             imgElement.attr("old-src") || imgElement.attr("src") || null
+      //           );
+      //         }
+      //         return null;
+      //       })(),
+      //     },
+      //     publicationInformation: {
+      //       readTime: (() => {
+      //         const readTimeElement = sectionElement.find(
+      //           'span[style*="box-sizing:border-box;"]:contains("min read"):not(:contains("Published in")):not(:contains("·"))',
+      //         );
+      //         if (readTimeElement.length > 0) {
+      //           const readTimeText = readTimeElement.text().trim();
+      //           return readTimeText.startsWith("~")
+      //             ? readTimeText.substring(1)
+      //             : readTimeText;
+      //         }
+      //         return null;
+      //       })(),
+      //       publishDate: (() => {
+      //         const dateElement = sectionElement
+      //           .find(
+      //             'span[style*="box-sizing:border-box;"]:not(:contains("min read")):not(:contains("Published in"))',
+      //           )
+      //           .filter((_, el) => {
+      //             const text = $(el).text();
+      //             return /\b(Jan|Feb|Mar|Apr|May|Jun|Jul|Aug|Sep|Oct|Nov|Dec)\b/.test(
+      //               text,
+      //             );
+      //           });
+      //         if (dateElement.length > 0) {
+      //           const dateText = dateElement.text().trim();
+      //           const match = dateText.match(/^([^(]+)/);
+      //           return match ? match[1].trim() : null;
+      //         }
+      //         return null;
+      //       })(),
+      //       publicationName: (() => {
+      //         const publishedInElement = sectionElement.find(
+      //           'div[style*="color:rgb(107, 107, 107);font-family:sohne, \\"Helvetica Neue\\", Helvetica, Arial, sans-serif;font-size:14px;font-weight:400;box-sizing:border-box;display:flex;line-height:20px;white-space:pre-wrap;"] a',
+      //         );
+      //         const publicationName = publishedInElement
+      //           .find("div")
+      //           .text()
+      //           .trim();
+
+      //         return publicationName || null;
+      //       })(),
+      //     },
+      //   };
+      //   break;
+      case "webcache":
+      case "medium":
+      case "original":
+      default:
+        metadata = {
+          title:
+            sectionElement.find('[data-testid="storyTitle"]').text().trim() ||
+            sectionElement.find("h1").first().text().trim() ||
+            "No title available",
+          htmlContent: (
+            await this.processArticleContent(sectionElement.html() as string)
+          ).html,
+          textContent: (
+            await this.processArticleContent(sectionElement.html() as string)
+          ).text,
+          authorInformation: {
+            authorName:
+              sectionElement
+                .find('a[data-testid="authorName"]')
+                .text()
+                .trim() || null,
+            authorProfileURL:
+              `https://medium.com${sectionElement.find('a[data-testid="authorName"]').attr("href")}` ||
+              null,
+            authorImageURL:
+              sectionElement
+                .find('img[data-testid="authorPhoto"]')
+                .attr("src") || null,
+          },
+          publicationInformation: {
+            readTime:
+              sectionElement
+                .find('span[data-testid="storyReadTime"]')
+                .text()
+                .trim() || null,
+            publishDate:
+              sectionElement
+                .find('span[data-testid="storyPublishDate"]')
+                .text()
+                .trim() || null,
+            publicationName:
+              sectionElement
+                .find('a[data-testid="publicationName"]')
+                .text()
+                .trim() || null,
+          },
+        };
+    }
 
     return metadata;
   }
