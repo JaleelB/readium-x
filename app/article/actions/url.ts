@@ -2,35 +2,73 @@
 
 import { urlSchema } from "@/schemas/url";
 import { z } from "zod";
+import * as cheerio from "cheerio";
 
-export const checkUrlReachability = async (url: string): Promise<boolean> => {
-  try {
-    const response = await fetch(url, {
-      method: "HEAD", // Use HEAD to fetch headers only for faster response
-    });
-    return response.ok;
-  } catch (error) {
-    console.error("Error fetching URL:", error);
-    return false;
+export type UrlType =
+  | "medium"
+  | "webcache"
+  | "archive"
+  | "freedium"
+  | "original";
+
+interface UrlResult {
+  url: string;
+  type: UrlType;
+}
+
+async function tryUrlWithService(
+  baseUrl: string,
+  articleUrl: string,
+): Promise<string | null> {
+  if (baseUrl.includes("archive.ph")) {
+    // Special handling for archive.ph
+    const searchUrl = `https://archive.ph/${encodeURIComponent(articleUrl)}`;
+    console.log("Trying archive.ph with URL:", searchUrl);
+    try {
+      const response = await fetch(searchUrl);
+      if (response.ok) {
+        const html = await response.text();
+        const $ = cheerio.load(html);
+        const archiveLink = $(".TEXT-BLOCK a").first().attr("href");
+        if (archiveLink) {
+          return archiveLink.startsWith("http")
+            ? archiveLink
+            : `https://archive.ph${archiveLink}`;
+        }
+      }
+    } catch (error) {
+      console.error("Error fetching from archive.ph:", error);
+    }
+    return null;
   }
-};
+
+  const fullUrl = `${baseUrl}${encodeURIComponent(articleUrl)}`;
+  console.log("Trying URL with service:", fullUrl);
+  try {
+    const response = await fetch(fullUrl, {
+      headers: {
+        "User-Agent":
+          "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/58.0.3029.110 Safari/537.36",
+        Accept:
+          "text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,*/*;q=0.8",
+        "Accept-Language": "en-US,en;q=0.5",
+        Connection: "keep-alive",
+      },
+    });
+    console.log("Response status:", response.status);
+    return response.ok ? fullUrl : null;
+  } catch {
+    return null;
+  }
+}
 
 export const getUrlWithoutPaywall = async (
   url: string | URL,
-): Promise<string | Error> => {
+): Promise<UrlResult | Error> => {
   try {
-    // Validate and parse the input URL
     const validatedUrl = urlSchema.parse(
       typeof url === "string" ? url : url.href,
     );
-
-    // Check if the URL is reachable and valid for the intended use
-    const isReachable = await checkUrlReachability(validatedUrl);
-    if (!isReachable) {
-      return new Error(
-        "URL is not reachable or does not point to a valid article.",
-      );
-    }
 
     const isMedium = await validateMediumArticle(validatedUrl);
     if (isMedium) {
@@ -38,23 +76,55 @@ export const getUrlWithoutPaywall = async (
       if (isFree instanceof Error) {
         return isFree;
       }
-      if (!isFree) {
-        // If it's not free, return the Google cache URL
-        const baseUrl =
-          "https://webcache.googleusercontent.com/search?q=cache:";
-        return `${baseUrl}${validatedUrl}&strip=0&vwsrc=0`;
+      if (isFree) {
+        return { url: validatedUrl, type: "medium" }; // Return original URL for free articles
       }
-      // If it's free, return the original URL
-      return validatedUrl;
+
+      // For paywalled articles, try different services
+      const services = [
+        {
+          url: `https://webcache.googleusercontent.com/search?q=cache:`,
+          type: "webcache" as UrlType,
+        },
+        // { url: `https://archive.ph/`, type: "archive" as UrlType },
+        { url: `https://freedium.cfd/`, type: "freedium" as UrlType },
+      ];
+
+      for (const service of services) {
+        const result = await tryUrlWithService(service.url, validatedUrl);
+        if (result) {
+          return { url: result, type: service.type };
+        }
+      }
+
+      // If all services fail, try fetching the original URL without cookies
+      try {
+        const response = await fetch(validatedUrl, {
+          headers: {
+            "User-Agent":
+              "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/58.0.3029.110 Safari/537.36",
+            Accept:
+              "text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,*/*;q=0.8",
+            "Accept-Language": "en-US,en;q=0.5",
+            Connection: "keep-alive",
+          },
+        });
+        if (response.ok) {
+          return { url: validatedUrl, type: "original" };
+        }
+      } catch (error) {
+        console.error("Error fetching without cookies:", error);
+      }
+
+      // If all attempts fail, return an error
+      return new Error(
+        "Unable to bypass paywall. Article might not be accessible.",
+      );
     }
 
-    // Construct the full URL to bypass the paywall using Google's web cache
-    const baseUrl = "https://webcache.googleusercontent.com/search?q=cache:";
-    const fullUrl = `${baseUrl}${validatedUrl}&strip=0&vwsrc=0`;
-
-    return fullUrl;
+    // For non-Medium URLs, return the original URL
+    return { url: validatedUrl, type: "original" };
   } catch (error) {
-    // Handle validation and unexpected errors
     if (error instanceof z.ZodError) {
       return new Error(
         `Invalid URL: ${error.errors.map((e) => e.message).join(", ")}`,
