@@ -12,6 +12,7 @@ import {
 import { authenticatedAction } from "@/lib/safe-action";
 import { revalidatePath } from "next/cache";
 import { z } from "zod";
+import { rateLimitByIp } from "@/lib/limiter";
 
 export const createReadingHistoryLogAction = authenticatedAction
   .createServerAction()
@@ -31,6 +32,7 @@ export const createReadingHistoryLogAction = authenticatedAction
     }),
   )
   .handler(async ({ input }) => {
+    await rateLimitByIp({ key: "create-history-log", limit: 5, window: 30000 });
     const log = await createReadingHistoryLogUseCase(input.userId, {
       title: input.articleDetails.title,
       authorName: input.articleDetails.authorName,
@@ -99,6 +101,11 @@ export const updateReadingHistoryProgressAction = authenticatedAction
     }),
   )
   .handler(async ({ input }) => {
+    await rateLimitByIp({
+      key: "update-history-progress",
+      limit: 5,
+      window: 30000,
+    });
     await updateReadingHistoryProgressUseCase(
       input.readingHistoryId,
       input.userId,

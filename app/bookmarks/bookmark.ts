@@ -6,6 +6,7 @@ import {
   getBookmarkById,
 } from "@/data-access/bookmarks";
 import { getUser } from "@/data-access/users";
+import { rateLimitByIp } from "@/lib/limiter";
 import { authenticatedAction } from "@/lib/safe-action";
 import {
   getBookmarkByIdUseCase,
@@ -33,6 +34,7 @@ export const createBookmarkAction = authenticatedAction
     }),
   )
   .handler(async ({ input }) => {
+    await rateLimitByIp({ key: "create-bookmark", limit: 5, window: 30000 });
     const user = await getUser(input.userId);
     if (user !== undefined) {
       await createBookark(user.id, {

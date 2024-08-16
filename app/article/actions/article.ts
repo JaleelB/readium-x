@@ -3,6 +3,7 @@
 import { MediumArticleProcessor } from "@/lib/parser";
 import { urlSchema } from "@/schemas/url";
 import { getUrlWithoutPaywall } from "./url";
+import { rateLimitByIp } from "@/lib/limiter";
 
 export type ArticleDetails = {
   title: string;
@@ -24,6 +25,11 @@ export async function scrapeArticleContent(
   url: string,
 ): Promise<ArticleDetails | { error: string }> {
   try {
+    await rateLimitByIp({
+      key: "scrape-article-content",
+      limit: 10,
+      window: 60000,
+    });
     const urlResult = urlSchema.safeParse(url);
     if (!urlResult.success) {
       throw new Error("Invalid URL");
