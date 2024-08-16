@@ -16,6 +16,10 @@ export default function PersonalSettingsLayout({
       name: "Appearance",
       segment: "appearances",
     },
+    {
+      name: "API Keys",
+      segment: "tokens", // look at cursor ai openai api keys settings for inspiration
+    },
     // {
     //   name: "Keyboard Shortcuts",
     //   segment: "keyboard-shortcuts",

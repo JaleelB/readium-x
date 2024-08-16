@@ -23,7 +23,6 @@ async function tryUrlWithService(
   if (baseUrl.includes("archive.ph")) {
     // Special handling for archive.ph
     const searchUrl = `https://archive.ph/${encodeURIComponent(articleUrl)}`;
-    console.log("Trying archive.ph with URL:", searchUrl);
     try {
       const response = await fetch(searchUrl);
       if (response.ok) {
@@ -43,7 +42,7 @@ async function tryUrlWithService(
   }
 
   const fullUrl = `${baseUrl}${encodeURIComponent(articleUrl)}`;
-  console.log("Trying URL with service:", fullUrl);
+
   try {
     const response = await fetch(fullUrl, {
       headers: {
@@ -55,7 +54,6 @@ async function tryUrlWithService(
         Connection: "keep-alive",
       },
     });
-    console.log("Response status:", response.status);
     return response.ok ? fullUrl : null;
   } catch {
     return null;
@@ -86,8 +84,8 @@ export const getUrlWithoutPaywall = async (
           url: `https://webcache.googleusercontent.com/search?q=cache:`,
           type: "webcache" as UrlType,
         },
-        // { url: `https://archive.ph/`, type: "archive" as UrlType },
         { url: `https://freedium.cfd/`, type: "freedium" as UrlType },
+        { url: `https://archive.ph/`, type: "archive" as UrlType },
       ];
 
       for (const service of services) {

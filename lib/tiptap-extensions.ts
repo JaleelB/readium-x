@@ -461,11 +461,11 @@ const CustomDiv = Node.create({
         parseHTML: (element) => element.getAttribute("class"),
         renderHTML: (attributes) => ({ class: attributes.class }),
       },
-      style: {
-        default: null,
-        parseHTML: (element) => element.getAttribute("style"),
-        renderHTML: (attributes) => ({ style: attributes.style }),
-      },
+      // style: {
+      //   default: null,
+      //   parseHTML: (element) => element.getAttribute("style"),
+      //   renderHTML: (attributes) => ({ style: attributes.style }),
+      // },
     };
   },
   parseHTML() {
@@ -474,18 +474,19 @@ const CustomDiv = Node.create({
         tag: "div",
         getAttrs: (node) => ({
           class: node.getAttribute("class") || null,
-          style: node.getAttribute("style") || null,
+          // style: node.getAttribute("style") || null,
         }),
       },
     ];
   },
   renderHTML({ node, HTMLAttributes }) {
+    const { style, ...otherAttributes } = HTMLAttributes;
     return [
       "div",
       mergeAttributes({
-        ...HTMLAttributes,
+        ...otherAttributes,
         class: node.attrs.class || null, // Ensure null defaults don't override
-        style: node.attrs.style || null,
+        // style: node.attrs.style || null,
       }),
       0,
     ];
@@ -649,10 +650,10 @@ const CustomLI = Node.create({
         default: null,
         parseHTML: (element) => element.getAttribute("class"),
       },
-      style: {
-        default: null,
-        parseHTML: (element) => element.getAttribute("style"),
-      },
+      // style: {
+      //   default: null,
+      //   parseHTML: (element) => element.getAttribute("style"),
+      // },
     };
   },
   parseHTML() {
@@ -661,15 +662,19 @@ const CustomLI = Node.create({
         tag: "li",
         getAttrs: (element) => ({
           class: element.getAttribute("class") || null,
-          style: element.getAttribute("style") || null,
+          // style: element.getAttribute("style") || null,
         }),
       },
     ];
   },
   renderHTML({ node, HTMLAttributes }) {
+    const { style, ...otherAttributes } = HTMLAttributes;
     return [
       "li",
-      mergeAttributes({ ...HTMLAttributes, class: `${node.attrs.class} mt-3` }),
+      mergeAttributes({
+        ...otherAttributes,
+        class: `${node.attrs.class} mt-3`,
+      }),
       0,
     ];
   },

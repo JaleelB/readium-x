@@ -204,6 +204,13 @@ export class MediumArticleProcessor {
           const firstSrc = srcset?.split(",")[0].split(" ")[0]; // Take the first URL from srcset
           img.attr("src", firstSrc as string);
           img.attr("class", "pt-5 lazy m-auto w-full max-w-full rounded-lg");
+        } else {
+          const firstSrc = img.attr("old-src") || img.attr("new-cursrc"); // if grabbing images from archive.ph, use old-src attribute
+
+          if (firstSrc) {
+            img.attr("src", firstSrc as string);
+            img.attr("class", "pt-5 lazy m-auto w-full max-w-full rounded-lg");
+          }
         }
         const imgHtml = $.html(img);
 
@@ -214,6 +221,37 @@ export class MediumArticleProcessor {
         });
         captured.add(child);
         return; // Do not process children of picture, as they are already captured
+      }
+
+      // If the div contains text or links, convert it to a p tag. this is to grab the text from archive.ph
+      if (tagName === "div") {
+        const textContent = $child.contents().filter(function (
+          this: cheerio.Element,
+        ) {
+          return (
+            this.type === "text" || (this.type === "tag" && this.name === "a")
+          );
+        });
+
+        if (textContent.length > 0) {
+          const cssClass = ["leading-8"];
+
+          if (elements.length > 0) {
+            const lastElement = elements[elements.length - 1];
+            if (lastElement.type === "H3" || lastElement.type === "H4") {
+              cssClass.push("mt-3");
+            } else {
+              cssClass.push("mt-7");
+            }
+          }
+
+          elements.push({
+            type: "P",
+            content: `<p class="${cssClass.join(" ")}">${$.html(textContent)}</p>`,
+          });
+          captured.add(child);
+          return;
+        }
       }
 
       if (tagName === "h1" || tagName === "h2") {
@@ -375,11 +413,12 @@ export class MediumArticleProcessor {
   ): Promise<ArticleMetadata | null> {
     const $ = cheerio.load(html);
     const sectionElement = $("article").first();
-    const articleBar = $("div.bg-gray-100.border.border-gray-300.m-2.mt-5");
+    const sectionElementClone = sectionElement.clone();
     let metadata: ArticleMetadata;
 
     switch (type) {
       case "freedium":
+        const articleBar = $("div.bg-gray-100.border.border-gray-300.m-2.mt-5");
         metadata = {
           title:
             $(
@@ -462,119 +501,245 @@ export class MediumArticleProcessor {
           },
         };
         break;
-      // case "archive":
-      //   metadata = {
-      //     title:
-      //       sectionElement
-      //         .find(
-      //           'h1[style*="color:rgb(36, 36, 36)"][style*="font-family:sohne, \\"Helvetica Neue\\", Helvetica, Arial, sans-serif"][style*="font-size:42px"][style*="font-weight:700"][style*="line-height:52px"]',
-      //         )
-      //         .first()
-      //         .text()
-      //         .trim() || "No title available",
-      //     htmlContent: (
-      //       await this.processArticleContent(sectionElement.html() as string)
-      //     ).html,
-      //     textContent: (
-      //       await this.processArticleContent(sectionElement.html() as string)
-      //     ).text,
-      //     authorInformation: {
-      //       authorName: (() => {
-      //         const authorLink = sectionElement.find(
-      //           'a[href*="https://medium.com/@"]',
-      //         );
-      //         const authorNameElement = sectionElement.find(
-      //           'a[data-testid="authorName"]',
-      //         );
-      //         return authorNameElement.length > 0
-      //           ? authorNameElement.text().trim()
-      //           : authorLink.text().trim() || null;
-      //       })(),
-      //       authorProfileURL: (() => {
-      //         const authorLink = sectionElement.find(
-      //           'a[href*="https://medium.com/@"]',
-      //         );
-      //         const authorPhotoElement = sectionElement.find(
-      //           'img[data-testid="authorPhoto"]',
-      //         );
-      //         if (authorLink.length > 0) {
-      //           const href = authorLink.attr("href");
-      //           if (href) {
-      //             const match = href.match(/https:\/\/medium\.com\/@.+/);
-      //             return match ? match[0] : null;
-      //           }
-      //         } else if (authorPhotoElement.length > 0) {
-      //           return authorPhotoElement.attr("src") || null;
-      //         }
-      //         return null;
-      //       })(),
-      //       authorImageURL: (() => {
-      //         const imgElement = sectionElement.find(
-      //           'div[style*="box-sizing:border-box;display:block;position:relative"] img',
-      //         );
-      //         const archiveImgElement = sectionElement.find(
-      //           'a[href*="https://archive.ph/o/"] img[old-src][new-cursrc]',
-      //         );
-      //         if (archiveImgElement.length > 0) {
-      //           return (
-      //             archiveImgElement.attr("old-src") ||
-      //             archiveImgElement.attr("new-cursrc") ||
-      //             null
-      //           );
-      //         }
-      //         if (imgElement.length > 0) {
-      //           return (
-      //             imgElement.attr("old-src") || imgElement.attr("src") || null
-      //           );
-      //         }
-      //         return null;
-      //       })(),
-      //     },
-      //     publicationInformation: {
-      //       readTime: (() => {
-      //         const readTimeElement = sectionElement.find(
-      //           'span[style*="box-sizing:border-box;"]:contains("min read"):not(:contains("Published in")):not(:contains("·"))',
-      //         );
-      //         if (readTimeElement.length > 0) {
-      //           const readTimeText = readTimeElement.text().trim();
-      //           return readTimeText.startsWith("~")
-      //             ? readTimeText.substring(1)
-      //             : readTimeText;
-      //         }
-      //         return null;
-      //       })(),
-      //       publishDate: (() => {
-      //         const dateElement = sectionElement
-      //           .find(
-      //             'span[style*="box-sizing:border-box;"]:not(:contains("min read")):not(:contains("Published in"))',
-      //           )
-      //           .filter((_, el) => {
-      //             const text = $(el).text();
-      //             return /\b(Jan|Feb|Mar|Apr|May|Jun|Jul|Aug|Sep|Oct|Nov|Dec)\b/.test(
-      //               text,
-      //             );
-      //           });
-      //         if (dateElement.length > 0) {
-      //           const dateText = dateElement.text().trim();
-      //           const match = dateText.match(/^([^(]+)/);
-      //           return match ? match[1].trim() : null;
-      //         }
-      //         return null;
-      //       })(),
-      //       publicationName: (() => {
-      //         const publishedInElement = sectionElement.find(
-      //           'div[style*="color:rgb(107, 107, 107);font-family:sohne, \\"Helvetica Neue\\", Helvetica, Arial, sans-serif;font-size:14px;font-weight:400;box-sizing:border-box;display:flex;line-height:20px;white-space:pre-wrap;"] a',
-      //         );
-      //         const publicationName = publishedInElement
-      //           .find("div")
-      //           .text()
-      //           .trim();
+      case "archive":
+        const articleAuthorDetails = sectionElement
+          .find(
+            'div[style="box-sizing:border-box;display:block;margin-left:12px;width:100%;"]',
+          )
+          .first();
+        const actionBar = sectionElement
+          .find(
+            'div[style*="box-sizing:border-box"][style*="display:flex"][style*="justify-content:space-between"]',
+          )
+          .first();
+        sectionElementClone.find($(articleAuthorDetails.html())).remove();
+        sectionElementClone.find($(actionBar.html())).remove();
+        sectionElementClone.find("h1").first().remove();
+        sectionElementClone.find("h2").first().remove();
 
-      //         return publicationName || null;
-      //       })(),
-      //     },
-      //   };
-      //   break;
+        // Remove author image
+        sectionElementClone
+          .find('img[alt][src^="/"]')
+          .closest('div[style*="border-radius:50%"]')
+          .remove();
+
+        // Additional cleanup
+        sectionElementClone
+          .find(
+            'div[style*="display:flex"][style*="justify-content:space-between"]',
+          )
+          .remove();
+        sectionElementClone
+          .find(
+            'div[style*="border-bottom-color:rgb(242, 242, 242)"][style*="border-top-color:rgb(242, 242, 242)"]',
+          )
+          .remove();
+
+        metadata = {
+          title: (() => {
+            const specificH1 = sectionElement
+              .find(
+                'h1 [style*="color:rgb(36, 36, 36)"][style*="font-family:sohne, \\"Helvetica Neue\\", Helvetica, Arial, sans-serif"][style*="font-size:42px"][style*="font-weight:700"][style*="line-height:52px"]',
+              )
+              .first();
+
+            if (specificH1.length > 0) {
+              return specificH1.text().trim();
+            }
+
+            const firstH1 = sectionElement.find("h1").first();
+            if (firstH1.length > 0) {
+              return firstH1.text().trim();
+            }
+
+            return "No title available";
+          })(),
+          htmlContent: await (async () => {
+            const article = await this.processArticleContent(
+              sectionElementClone.html() as string,
+            );
+            return article.html;
+          })(),
+          textContent: await (async () => {
+            const article = await this.processArticleContent(
+              sectionElementClone.html() as string,
+            );
+            return article.text;
+          })(),
+          authorInformation: {
+            authorName: (() => {
+              const authorLink = articleAuthorDetails
+                .find(
+                  'a[href*="https://medium.com/@"], a[href*="https://archive.ph/o/"][href*="medium.com"]',
+                )
+                .first();
+              const authorNameElement = articleAuthorDetails
+                .find('a[data-testid="authorName"]')
+                .first();
+
+              if (authorNameElement.length > 0) {
+                return authorNameElement.text().trim();
+              } else if (authorLink.length > 0) {
+                return authorLink.text().trim();
+              }
+              return null;
+            })(),
+            authorProfileURL: (() => {
+              const authorLink = articleAuthorDetails
+                .find(
+                  'a[href*="https://medium.com/@"], a[href*="https://archive.ph/o/"][href*="medium.com"]',
+                )
+                .first();
+              const authorPhotoElement = sectionElement
+                .find('img[data-testid="authorPhoto"]')
+                .first();
+
+              if (authorLink.length > 0) {
+                const href = authorLink.attr("href");
+                if (href) {
+                  const match = href.match(
+                    /https?:\/\/(?:[\w-]+\.)*medium\.com(?:\/[@\w-]+)?/,
+                  );
+
+                  return match ? match[0] : null;
+                }
+              } else if (authorPhotoElement.length > 0) {
+                return authorPhotoElement.attr("src") || null;
+              }
+              return null;
+            })(),
+            authorImageURL: (() => {
+              const imgElement = sectionElement.find(
+                'div[style*="box-sizing:border-box;display:block;position:relative"] img',
+              );
+              const archiveImgElement = sectionElement.find(
+                "img[old-src][new-cursrc]",
+              );
+              if (archiveImgElement.length > 0) {
+                return (
+                  archiveImgElement.attr("old-src") ||
+                  archiveImgElement.attr("new-cursrc") ||
+                  null
+                );
+              }
+              if (imgElement.length > 0) {
+                return (
+                  imgElement.attr("old-src") || imgElement.attr("src") || null
+                );
+              }
+              return null;
+            })(),
+          },
+          publicationInformation: {
+            readTime: (() => {
+              const readTimeElement = sectionElement.find(
+                'span[style*="box-sizing:border-box;"]:contains("min read"):not(:contains("Published in")):not(:contains("·"))',
+              );
+              if (readTimeElement.length > 0) {
+                const readTimeText = readTimeElement.text().trim();
+                return readTimeText.startsWith("~")
+                  ? readTimeText.substring(1)
+                  : readTimeText;
+              }
+              return null;
+            })(),
+            publishDate: (() => {
+              const dateSelectors = [
+                'span[style*="box-sizing:border-box;"]:not(:contains("min read")):not(:contains("Published in"))',
+                'div[style*="box-sizing:border-box;"]:not(:contains("min read")):not(:contains("Published in"))',
+                'div[style*="box-sizing:border-box;display:flex;flex-basis:auto;flex-grow:1;flex-shrink:0;"]',
+                "#text",
+              ];
+              const articleAuthorDetails = sectionElement
+                .find(
+                  'div[style="box-sizing:border-box;display:block;margin-left:12px;width:100%;"]',
+                )
+                .first();
+
+              let dateElement;
+              for (const selector of dateSelectors) {
+                dateElement = articleAuthorDetails
+                  .find(selector)
+                  .filter((_, el) => {
+                    const text = $(el).text();
+                    return (
+                      /\b(Jan|Feb|Mar|Apr|May|Jun|Jul|Aug|Sep|Oct|Nov|Dec)\b/.test(
+                        text,
+                      ) ||
+                      /\b(\d+)\s+(day|days|week|month|year)s?\s+ago\b/.test(
+                        text,
+                      )
+                    );
+                  });
+                if (dateElement.length > 0) break;
+              }
+
+              let dateText = "";
+              if (dateElement && dateElement.length > 0) {
+                dateText = dateElement.text().trim();
+              }
+
+              if (dateText) {
+                const match = dateText.match(/^([^(]+)/);
+                if (match) {
+                  const cleanedDate = match[1].trim();
+                  const relativeMatch = cleanedDate.match(
+                    /(\d+)\s+(day|days|week|weeks|month|months|year|years)s?\s+ago/,
+                  );
+                  if (relativeMatch) {
+                    const amount = parseInt(relativeMatch[1]);
+                    const unit = relativeMatch[2];
+                    const now = new Date();
+                    let date;
+                    switch (unit) {
+                      case "day":
+                        date = new Date(now.setDate(now.getDate() - amount));
+                        break;
+                      case "week":
+                        date = new Date(
+                          now.setDate(now.getDate() - amount * 7),
+                        );
+                        break;
+                      case "month":
+                        date = new Date(now.setMonth(now.getMonth() - amount));
+                        break;
+                      case "year":
+                        date = new Date(
+                          now.setFullYear(now.getFullYear() - amount),
+                        );
+                        break;
+                    }
+                    return date
+                      ? date.toLocaleString("en-US", {
+                          month: "short",
+                          day: "numeric",
+                          year: "numeric",
+                        })
+                      : new Date().toLocaleString("en-US", {
+                          month: "short",
+                          day: "numeric",
+                          year: "numeric",
+                        });
+                  }
+                  return cleanedDate;
+                }
+              }
+              return null;
+            })(),
+            publicationName: (() => {
+              const publishedInElement = sectionElement.find(
+                'div[style*="color:rgb(107, 107, 107);font-family:sohne, \\"Helvetica Neue\\", Helvetica, Arial, sans-serif;font-size:14px;font-weight:400;box-sizing:border-box;display:flex;line-height:20px;white-space:pre-wrap;"] a',
+              );
+              const publicationName = publishedInElement
+                .find("div")
+                .text()
+                .trim();
+
+              return publicationName || null;
+            })(),
+          },
+        };
+        break;
       case "webcache":
       case "medium":
       case "original":
