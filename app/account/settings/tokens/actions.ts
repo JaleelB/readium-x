@@ -75,3 +75,75 @@ export const saveApiKeyAction = authenticatedAction
 
     revalidatePath(input.path);
   });
+
+export const convertTextToSpeechAction = authenticatedAction
+  .createServerAction()
+  .input(
+    z.object({
+      userId: z.number(),
+      text: z.string(),
+      model: z.string(),
+      voice: z.string(),
+    }),
+  )
+  .handler(async ({ input }) => {
+    await rateLimitByIp({ key: "text-to-speech", limit: 10, window: 60000 });
+
+    const authenticatedUser = await getUser(input.userId);
+    if (!authenticatedUser) {
+      throw new Error("User not found");
+    }
+
+    const user = await db
+      .select({ openaiApiKey: users.openaiApiKey })
+      .from(users)
+      .where(eq(users.email, authenticatedUser.email as string))
+      .then((rows) => rows[0]);
+
+    if (!user?.openaiApiKey) {
+      throw new Error("OpenAI API key not found");
+    }
+
+    const decryptedApiKey = decrypt(user.openaiApiKey);
+
+    const openai = new OpenAI({
+      apiKey: decryptedApiKey,
+    });
+
+    const mp3 = await openai.audio.speech.create({
+      model: input.model,
+      voice: input.voice.toLowerCase() as APIVoiceOptions,
+      input: input.text,
+    });
+
+    const buffer = Buffer.from(await mp3.arrayBuffer());
+    const audioBuffer = buffer.toString("base64");
+
+    return { audioBuffer };
+  });
+
+export const getApiKeyStatusAction = authenticatedAction
+  .createServerAction()
+  .input(
+    z.object({
+      path: z.string(),
+      userId: z.number(),
+    }),
+  )
+  .handler(async ({ input }) => {
+    await rateLimitByIp({ key: "get-api-key", limit: 10, window: 60000 });
+
+    const authenticatedUser = await getUser(input.userId);
+    if (!authenticatedUser) {
+      throw new Error("User not found");
+    }
+
+    const user = await db
+      .select({ openaiApiKey: users.openaiApiKey })
+      .from(users)
+      .where(eq(users.email, authenticatedUser.email as string))
+      .then((rows) => rows[0]);
+
+    revalidatePath(input.path);
+    return { hasKey: !!user?.openaiApiKey };
+  });
