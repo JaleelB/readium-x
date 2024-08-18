@@ -8,8 +8,10 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { Input } from "@/components/ui/input";
 import { toast } from "sonner";
 import { useServerAction } from "zsa-react";
-import { saveApiKeyAction } from "./actions";
+import { saveApiKeyAction, getApiKeyStatusAction } from "./actions";
 import { LoaderButton } from "@/components/loader-button";
+import { useEffect, useState } from "react";
+import { usePathname } from "next/navigation";
 
 const FormSchema = z
   .object({
@@ -22,15 +24,25 @@ const FormSchema = z
     message: "API key is required",
   });
 
-export default function TokensForm({ userId }: { userId: number }) {
+export default function TokensForm({
+  userId,
+  initialMaskedKey,
+}: {
+  userId: number;
+  initialMaskedKey: string | null;
+}) {
+  const [isChanged, setIsChanged] = useState(false);
+
+  const pathname = usePathname();
+
   const form = useForm<z.infer<typeof FormSchema>>({
     resolver: zodResolver(FormSchema),
     defaultValues: {
-      apiKey: "",
+      apiKey: initialMaskedKey || "",
     },
   });
 
-  const { execute, isPending, error, reset } = useServerAction(
+  const { execute: saveKey, isPending: isSaving } = useServerAction(
     saveApiKeyAction,
     {
       onError({ err }) {
@@ -46,13 +58,31 @@ export default function TokensForm({ userId }: { userId: number }) {
     },
   );
 
+  useEffect(() => {
+    const subscription = form.watch((value, { name, type }) => {
+      if (name === "apiKey") {
+        setIsChanged(
+          value.apiKey !== undefined &&
+            value.apiKey !== initialMaskedKey &&
+            value.apiKey.length > 0,
+        );
+      }
+    });
+    return () => subscription.unsubscribe();
+  }, [form, form.watch, initialMaskedKey]);
+
   function onSubmit(values: z.infer<typeof FormSchema>) {
     toast.loading("Saving API key...");
     const { apiKey } = values;
 
-    execute({
+    if (apiKey.includes("*")) {
+      toast.error("Please enter a new API key");
+      return;
+    }
+
+    saveKey({
       apiKey,
-      path: "/account/settings/tokens",
+      path: pathname,
       userId: userId,
     });
   }
@@ -87,6 +117,20 @@ export default function TokensForm({ userId }: { userId: number }) {
                         id="openai-api-key"
                         type="text"
                         placeholder="Enter your OpenAI API key"
+                        onChange={(e) => {
+                          const newValue = e.target.value;
+                          if (
+                            newValue.startsWith("sk-") &&
+                            !newValue.includes("*")
+                          ) {
+                            field.onChange(newValue);
+                          } else if (
+                            !initialMaskedKey ||
+                            newValue !== initialMaskedKey
+                          ) {
+                            field.onChange(newValue);
+                          }
+                        }}
                       />
                     </FormControl>
                   </FormItem>
@@ -107,7 +151,8 @@ export default function TokensForm({ userId }: { userId: number }) {
             <LoaderButton
               className="inline-flex h-9 items-center justify-center bg-primary px-4 py-2 text-sm font-medium text-primary-foreground transition-colors hover:bg-primary/90 focus-visible:outline-none disabled:pointer-events-none disabled:opacity-50"
               type="submit"
-              isLoading={isPending}
+              isLoading={isSaving}
+              disabled={!isChanged}
             >
               Save API Key
             </LoaderButton>

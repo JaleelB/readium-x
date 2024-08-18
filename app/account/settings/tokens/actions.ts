@@ -144,6 +144,12 @@ export const getApiKeyStatusAction = authenticatedAction
       .where(eq(users.email, authenticatedUser.email as string))
       .then((rows) => rows[0]);
 
+    let maskedKey = null;
+    if (user?.openaiApiKey) {
+      const decryptedKey = decrypt(user.openaiApiKey);
+      maskedKey = `sk-${"*".repeat(decryptedKey.length - 6)}${decryptedKey.slice(-4)}`;
+    }
+
     revalidatePath(input.path);
-    return { hasKey: !!user?.openaiApiKey };
+    return { maskedKey };
   });
