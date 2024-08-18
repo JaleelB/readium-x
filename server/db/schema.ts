@@ -8,6 +8,7 @@ export const users = sqliteTable("user", {
   id: integer("id", { mode: "number" }).primaryKey({ autoIncrement: true }),
   email: text("email").unique(),
   emailVerified: integer("email_verified", { mode: "timestamp" }),
+  openaiApiKey: text("openai_api_key"), // Added this line
 });
 
 export const accounts = sqliteTable("accounts", {

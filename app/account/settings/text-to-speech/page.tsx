@@ -24,11 +24,21 @@ import { useTTS } from "@/hooks/use-tts";
 
 type ApiOptions = "browser" & "openai";
 
+export type VoiceOptions =
+  | "Onyx"
+  | "Alloy"
+  | "Echo"
+  | "Fable"
+  | "Nova"
+  | "Shimmer";
+
+type ModelOptions = "tts" | "tts-hd";
+
 type OpenAIOptions = {
   api: "openai";
   settings: {
-    voice: "Onyx" | "Alloy" | "Echo" | "Fable" | "Nova" | "Shimmer";
-    model: "tts" | "tts-hd";
+    voice: VoiceOptions;
+    model: ModelOptions;
     speed: number;
   };
 };
