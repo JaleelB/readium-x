@@ -1,10 +1,12 @@
 import SiteHeader from "@/components/site-header";
 
-interface ArticleLayoutProps {
+interface BookmarksLayoutProps {
   children: React.ReactNode;
 }
 
-export default async function ArticleLayout({ children }: ArticleLayoutProps) {
+export default async function BookmarksLayout({
+  children,
+}: BookmarksLayoutProps) {
   return (
     <>
       <SiteHeader />

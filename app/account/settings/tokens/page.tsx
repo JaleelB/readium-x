@@ -42,11 +42,10 @@ export default async function TokensPage() {
             different integrations.
           </Balancer>
         </div>
-        {/* <TokensForm userId={user?.id as number} /> */}
         <SuspenseIf
           condition={!!data?.maskedKey}
           fallback={
-            <div className="flex h-[450px] flex-col space-y-4 rounded-lg bg-muted p-6" />
+            <div className="flex h-[250px] flex-col space-y-4 rounded-lg bg-muted p-6" />
           }
         >
           <TokensFormWrapper userId={user?.id as number} />

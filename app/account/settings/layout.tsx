@@ -34,7 +34,7 @@ export default function PersonalSettingsLayout({
     <>
       <SiteHeader />
       <div className="flex min-h-screen flex-1 flex-col">
-        <div className="container relative flex flex-1 px-4 sm:px-8 md:py-10">
+        <div className="relative flex flex-1 px-4 py-8 sm:px-8">
           <SettingsLayout tabs={tabs}>{children}</SettingsLayout>
           <svg
             aria-hidden="true"

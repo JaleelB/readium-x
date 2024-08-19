@@ -14,13 +14,16 @@ import {
 } from "@/components/ui/select";
 import { TooltipSlider } from "@/components/tooltip-slider";
 import { Input } from "@/components/ui/input";
-import { Button } from "@/components/ui/button";
 import {
   fetchFromLocalStorage,
   setLocalStorageItem,
   updateLocalStorageGroup,
 } from "@/lib/utils";
 import { useTTS } from "@/hooks/use-tts";
+import { TTS } from "@/components/tts-button";
+import { useAuth } from "@/hooks/use-auth";
+import { usePathname } from "next/navigation";
+import { revalidatePath } from "next/cache";
 
 type ApiOptions = "browser" & "openai";
 
@@ -32,7 +35,7 @@ export type VoiceOptions =
   | "Nova"
   | "Shimmer";
 
-type ModelOptions = "tts" | "tts-hd";
+type ModelOptions = "tts-1" | "tts-1-hd";
 
 type OpenAIOptions = {
   api: "openai";
@@ -52,9 +55,12 @@ type BrowserOptions = {
   };
 };
 
-type TTSSettings = BrowserOptions | OpenAIOptions;
+export type TTSSettings = BrowserOptions | OpenAIOptions;
 
 export default function TextToSpeechPage() {
+  const { user } = useAuth();
+  const pathname = usePathname();
+
   const [mounted, setMounted] = useState(false);
   const [ttsSettings, setTTSSettings] = useState<TTSSettings>({
     api: "browser",
@@ -71,10 +77,8 @@ export default function TextToSpeechPage() {
   const {
     voices,
     groupedVoices,
-    selectedVoice,
     setSelectedVoice,
     isLoading,
-    playAudio,
     updateRate,
     updatePitch,
   } = useTTS();
@@ -91,7 +95,7 @@ export default function TextToSpeechPage() {
 
       const defaultSettings = {
         browser: { voice: "Samantha", rate: 1, pitch: 1 },
-        openai: { voice: "Alloy", model: "tts", speed: 1 },
+        openai: { voice: "Alloy", model: "tts-1", speed: 1 },
       };
 
       const settings =
@@ -142,7 +146,7 @@ export default function TextToSpeechPage() {
 
     const defaultSettings = {
       browser: { voice: "Samantha", rate: 1, pitch: 1 },
-      openai: { voice: "Alloy", model: "tts", speed: 1 },
+      openai: { voice: "Alloy", model: "tts-1", speed: 1 },
     };
 
     // Ensure settings exist for the selected API
@@ -258,6 +262,7 @@ export default function TextToSpeechPage() {
                                   voice: newVoice.name,
                                 },
                               });
+                              revalidatePath(pathname);
                             }
                           }}
                           disabled={isLoading}
@@ -372,32 +377,6 @@ export default function TextToSpeechPage() {
               )}
               {ttsSettings.api === "openai" && (
                 <div className="flex flex-col space-y-6 border-b-[1px] py-4 pb-8">
-                  <div className="flex flex-col gap-3 border-b-[1px] pb-8">
-                    <div className="flex flex-col space-y-1">
-                      <Label
-                        className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
-                        htmlFor="openai-api-key"
-                      >
-                        OpenAI API Key
-                      </Label>
-                      <Balancer
-                        as="p"
-                        className="text-sm text-muted-foreground"
-                      >
-                        Enter your OpenAI API key to use the OpenAI Text to
-                        Speech API.
-                      </Balancer>
-                    </div>
-                    <div className="flex justify-between">
-                      <Input
-                        id="openai-api-key"
-                        type="text"
-                        placeholder="Enter your OpenAI API key"
-                        className="md:w-3/4"
-                      />
-                      <Button>Save API Key</Button>
-                    </div>
-                  </div>
                   <div className="flex flex-col gap-1">
                     <div className="flex flex-col gap-3 md:flex-row md:justify-between">
                       <div className="flex flex-col space-y-0.5">
@@ -482,7 +461,7 @@ export default function TextToSpeechPage() {
                               ...ttsSettings,
                               settings: {
                                 ...ttsSettings.settings,
-                                model: value as "tts" | "tts-hd",
+                                model: value as "tts-1" | "tts-1-hd",
                               },
                             });
                           }}
@@ -491,13 +470,13 @@ export default function TextToSpeechPage() {
                             <SelectValue placeholder="Select a model" />
                           </SelectTrigger>
                           <SelectContent className="z-[300]">
-                            {["tts", "tts-hd"].map((model) => (
+                            {["tts-1", "tts-1-hd"].map((model) => (
                               <SelectItem
                                 key={model}
                                 value={model}
                                 className="uppercase"
                               >
-                                {model === "tts" ? "TTS" : "TTS HD"}
+                                {model === "tts-1" ? "TTS-1" : "TTS-1-HD"}
                               </SelectItem>
                             ))}
                           </SelectContent>
@@ -584,12 +563,13 @@ export default function TextToSpeechPage() {
                   value={testText}
                   onChange={(e) => setTestText(e.target.value)}
                 />
-                <Button
+                {/* <Button
                   className="rounded-lg"
                   onClick={() => playAudio(testText)}
                 >
                   Play Test Audio
-                </Button>
+                </Button> */}
+                <TTS text={testText} userId={user?.id} useIcon={false} />
               </div>
             </div>
           </div>

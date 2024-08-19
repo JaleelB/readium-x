@@ -84,6 +84,7 @@ export const convertTextToSpeechAction = authenticatedAction
       text: z.string(),
       model: z.string(),
       voice: z.string(),
+      speed: z.number(),
     }),
   )
   .handler(async ({ input }) => {
@@ -114,6 +115,7 @@ export const convertTextToSpeechAction = authenticatedAction
       model: input.model,
       voice: input.voice.toLowerCase() as APIVoiceOptions,
       input: input.text,
+      speed: input.speed,
     });
 
     const buffer = Buffer.from(await mp3.arrayBuffer());

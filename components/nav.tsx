@@ -58,27 +58,33 @@ export default function Nav({
   return (
     <header
       ref={headerRef}
-      className={`${isScrolled && pathname.includes("article") ? "fixed border-b border-border bg-background" : "relative"} inset-0 z-[500] flex h-[64px] w-full items-center justify-between px-4 md:px-8`}
+      className={`${isScrolled && pathname.includes("article") ? "fixed border-b border-border bg-background" : "relative"} inset-0 z-[500] h-[64px] w-full`}
     >
-      <Link href="/" className={`flex items-center`}>
-        <Icons.logo />
-        <h4 className="ml-2 font-heading text-xl">{siteConfig.short_name}</h4>
-      </Link>
-
-      <div className={`flex h-full w-1/2 items-center justify-end gap-2`}>
-        {!user && (
-          <Link
-            href="/signin"
-            className={cn(
-              buttonVariants({ variant: "outline", size: "sm" }),
-              "h-9 rounded-full dark:border-white/20",
-            )}
-          >
-            <Icons.user className="mr-2 h-4 w-4" />
-            <span>Sign in</span>
+      <div className="container relative flex h-full w-full flex-1 px-4 sm:px-8">
+        <div className="mx-auto flex h-full w-full max-w-screen-xl flex-1 items-center justify-between lg:px-20 xl:px-[60px]">
+          <Link href="/" className={`flex items-center`}>
+            <Icons.logo />
+            <h4 className="ml-2 font-heading text-xl">
+              {siteConfig.short_name}
+            </h4>
           </Link>
-        )}
-        <OptionsMenu user={user} profile={profile} />
+
+          <div className={`flex h-full w-1/2 items-center justify-end gap-2`}>
+            {!user && (
+              <Link
+                href="/signin"
+                className={cn(
+                  buttonVariants({ variant: "outline", size: "sm" }),
+                  "h-9 rounded-full dark:border-white/20",
+                )}
+              >
+                <Icons.user className="mr-2 h-4 w-4" />
+                <span>Sign in</span>
+              </Link>
+            )}
+            <OptionsMenu user={user} profile={profile} />
+          </div>
+        </div>
       </div>
     </header>
   );
