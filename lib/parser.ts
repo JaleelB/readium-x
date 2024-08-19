@@ -148,6 +148,12 @@ export class MediumArticleProcessor {
         } else if (el.type === "tag") {
           const tagName = el.tagName.toLowerCase();
 
+          // omitting code and pre elements from the text
+          if (tagName === "pre" || tagName === "code") {
+            extractedText += "[Code snippet omitted]\n\n";
+            return;
+          }
+
           if (
             ["p", "h1", "h2", "h3", "h4", "blockquote", "figcaption"].includes(
               tagName,
