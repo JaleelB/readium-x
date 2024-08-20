@@ -16,6 +16,7 @@ export const useTTS = () => {
   const [isLoading, setIsLoading] = useState(true);
   const [isPlaying, setIsPlaying] = useState(false);
   const [isPaused, setIsPaused] = useState(false);
+  const [isCompleted, setIsCompleted] = useState(false);
   const [rate, setRate] = useState(1);
   const [pitch, setPitch] = useState(1);
   const audioContextRef = useRef<AudioContext | null>(null);
@@ -69,6 +70,15 @@ export const useTTS = () => {
     };
   }, []);
 
+  const resetWebTTS = useCallback(() => {
+    if (typeof window !== "undefined" && window.speechSynthesis) {
+      window.speechSynthesis.cancel();
+    }
+    setIsPlaying(false);
+    setIsPaused(false);
+    setIsCompleted(false);
+  }, []);
+
   const playAudio = useCallback(
     (articleText: string) => {
       if (tts && selectedVoice && speechSynthesis) {
@@ -78,9 +88,17 @@ export const useTTS = () => {
           utterance.voice = selectedVoice;
           utterance.rate = rate;
           utterance.pitch = pitch;
+
+          // Add event listener for the 'end' event
+          utterance.onend = () => {
+            setIsPlaying(false);
+            setIsCompleted(true);
+          };
+
           speechSynthesis.speak(utterance);
           setIsPlaying(true);
           setIsPaused(false);
+          setIsCompleted(false);
           currentTextRef.current = articleText;
         } catch (error) {
           toast.error("An error occurred while reading the article");
@@ -111,18 +129,26 @@ export const useTTS = () => {
       speechSynthesis.cancel();
       setIsPlaying(false);
       setIsPaused(false);
+      setIsCompleted(false);
       currentTextRef.current = null;
     }
   }, [speechSynthesis]);
 
   const togglePlayPause = useCallback(
     (articleText: string) => {
-      if (!isPlaying) {
-        playAudio(articleText);
-      } else if (isPaused) {
-        resumeAudio();
+      if (isPlaying) {
+        if (isPaused) {
+          resumeAudio();
+          setIsPaused(false);
+        } else {
+          pauseAudio();
+          setIsPaused(true);
+        }
       } else {
-        pauseAudio();
+        playAudio(articleText);
+        setIsPlaying(true);
+        setIsPaused(false);
+        setIsCompleted(false);
       }
     },
     [isPlaying, isPaused, playAudio, resumeAudio, pauseAudio],
@@ -157,6 +183,7 @@ export const useTTS = () => {
     isLoading,
     isPlaying,
     isPaused,
+    isCompleted,
     playAudio,
     pauseAudio,
     resumeAudio,
@@ -166,5 +193,6 @@ export const useTTS = () => {
     pitch,
     updateRate,
     updatePitch,
+    resetWebTTS,
   };
 };

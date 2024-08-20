@@ -71,12 +71,6 @@ export const TTS = ({
   const ttsSettings = useTTSSettings();
   const audioRef = useRef<HTMLAudioElement | null>(null);
 
-  useEffect(() => {
-    console.log("isWebTTSPlaying", isWebTTSPlaying);
-    console.log("isWebTTSPaused", isWebTTSPaused);
-    console.log("isWebTTSCompleted", isWebTTSCompleted);
-  }, [isWebTTSPlaying, isWebTTSPaused, isWebTTSCompleted]);
-
   const { execute, isPending } = useServerAction(convertTextToSpeechAction, {
     onSuccess: ({ data }) => {
       // Create a Blob from the base64 string
