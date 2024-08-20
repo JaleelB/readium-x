@@ -1,19 +1,15 @@
 import { Input } from "@/components/ui/input";
-import { User } from "lucia";
 import Balancer from "react-wrap-balancer";
-import { getUserProfileAction } from "../actions";
 import Image from "next/image";
+import { Profile } from "@/server/db/schema";
 
-export default async function UserAvatar({ user }: { user: User }) {
-  const [data, err] = await getUserProfileAction({
-    userId: user.id,
-    path: "/account/settings",
-  });
-
-  if (err) {
-    return null;
-  }
-
+export default function UserAvatar({
+  id,
+  profile,
+}: {
+  id: number;
+  profile: Profile;
+}) {
   return (
     <div className="rounded-lg border bg-background text-card-foreground">
       <div className="flex items-center justify-between pr-6">
@@ -30,9 +26,9 @@ export default async function UserAvatar({ user }: { user: User }) {
           </Balancer>
         </div>
         <span className="relative flex h-16 w-16 shrink-0 cursor-pointer items-center justify-center overflow-hidden rounded-full bg-accent">
-          {data?.image ? (
+          {profile?.image ? (
             <Image
-              src={data.image}
+              src={profile.image}
               alt="User Avatar"
               width={64}
               height={64}
@@ -41,7 +37,7 @@ export default async function UserAvatar({ user }: { user: User }) {
           ) : (
             <span className="flex h-full w-full items-center justify-center rounded-full bg-[#ffb92e] text-white">
               <Balancer className="text-lg">
-                {data?.displayName?.[0] || "U"}
+                {profile?.displayName?.[0] || "U"}
               </Balancer>
             </span>
           )}

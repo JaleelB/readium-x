@@ -23,11 +23,10 @@ import {
 import { Balancer } from "react-wrap-balancer";
 import { toast } from "sonner";
 import { deleteUserAction } from "../actions";
-import { User } from "lucia";
 
-export default function DeleteAccount({ user }: { user: User }) {
+export default function DeleteAccount({ id }: { id: number }) {
   const { setShowDeleteAccountModal, DeleteAccountModal } =
-    useDeleteAccountModal(user.id);
+    useDeleteAccountModal(id);
 
   return (
     <div className="rounded-lg border border-destructive bg-background">
