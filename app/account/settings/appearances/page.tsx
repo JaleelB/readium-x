@@ -32,14 +32,15 @@ const themes = [
 ];
 
 export default function AppearancesPage() {
-  // const [mounted, setMounted] = useState(false);
+  const [mounted, setMounted] = useState(false);
   const { setTheme, theme: currentTheme } = useTheme();
 
-  // useEffect(() => {
-  //   setMounted(true);
-  // }, []);
+  useEffect(() => {
+    setMounted(true);
+  }, []);
 
-  // if (!mounted) return <ThemeSkeleton />;
+  // prevent hydration error/mismatch
+  if (!mounted) return <ThemeSkeleton />;
 
   const isActiveTheme = themes.find((theme) => theme.value === currentTheme);
 
@@ -98,6 +99,7 @@ export default function AppearancesPage() {
                       src={`/${theme.value}-mode.png`}
                       alt={theme.name}
                       fill
+                      loading="lazy"
                       style={{
                         background: `linear-gradient(rgb(0, 0, 0), rgb(0, 0, 0)) content-box exclude, linear-gradient(rgb(0, 0, 0), rgb(0, 0, 0))`,
                       }}
