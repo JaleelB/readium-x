@@ -39,8 +39,8 @@ export default async function UserAvatar({ user }: { user: User }) {
               className="h-full w-full object-cover"
             />
           ) : (
-            <span className="flex h-full w-full items-center justify-center rounded-full bg-accent">
-              <Balancer className="text-md">
+            <span className="flex h-full w-full items-center justify-center rounded-full bg-[#ffb92e] text-white">
+              <Balancer className="text-lg">
                 {data?.displayName?.[0] || "U"}
               </Balancer>
             </span>

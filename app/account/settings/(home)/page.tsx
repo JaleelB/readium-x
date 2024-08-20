@@ -1,5 +1,5 @@
 import Balancer from "react-wrap-balancer";
-import { UserName, UserAvatar, DeleteAccount } from "./general";
+import { UserName, UserAvatar, DeleteAccount } from ".";
 import { getCurrentUser } from "@/lib/session";
 import { redirect } from "next/navigation";
 

@@ -32,14 +32,14 @@ const themes = [
 ];
 
 export default function AppearancesPage() {
-  const [mounted, setMounted] = useState(false);
+  // const [mounted, setMounted] = useState(false);
   const { setTheme, theme: currentTheme } = useTheme();
 
-  useEffect(() => {
-    setMounted(true);
-  }, []);
+  // useEffect(() => {
+  //   setMounted(true);
+  // }, []);
 
-  if (!mounted) return <ThemeSkeleton />;
+  // if (!mounted) return <ThemeSkeleton />;
 
   const isActiveTheme = themes.find((theme) => theme.value === currentTheme);
 
