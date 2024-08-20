@@ -92,3 +92,29 @@ export function formatDate(dateStr: string | null): string {
     return dateStr;
   }
 }
+
+/**
+ * Concatenates multiple ArrayBuffers into a single ArrayBuffer.
+ *
+ * @param arrays An array of ArrayBuffers to concatenate.
+ * @returns A new ArrayBuffer containing the concatenated data.
+ */
+export function concatArrayBuffers(arrays: ArrayBuffer[]): ArrayBuffer {
+  // Calculate the total length of all ArrayBuffers
+  const totalLength = arrays.reduce((acc, value) => acc + value.byteLength, 0);
+
+  // Create a new ArrayBuffer with the total length
+  const result = new ArrayBuffer(totalLength);
+
+  // Create a Uint8Array view of the new ArrayBuffer
+  const view = new Uint8Array(result);
+
+  // Copy the data from each input ArrayBuffer into the new ArrayBuffer
+  let offset = 0;
+  for (const array of arrays) {
+    view.set(new Uint8Array(array), offset);
+    offset += array.byteLength;
+  }
+
+  return result;
+}

@@ -33,7 +33,7 @@ import {
   updateReadingHistoryProgressAction,
 } from "@/app/history/history";
 import { debounce } from "lodash";
-import { ReadArticleButton } from "@/components/tts-button";
+import { TTS } from "@/components/tts-button";
 
 export function Article({
   content,
@@ -242,7 +242,11 @@ export function Article({
               </div>
             </div>
             <div className="flex items-center gap-3">
-              <ReadArticleButton articleText={content?.textContent as string} />
+              <TTS
+                text={content?.textContent as string}
+                userId={user.id}
+                useIcon
+              />
               <Button
                 variant="outline"
                 size="icon"
