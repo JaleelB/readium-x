@@ -3,10 +3,52 @@
 import { Button } from "@/components/ui/button";
 import { useTTS } from "@/hooks/use-tts";
 import { Icons } from "./icons";
-import { useRef } from "react";
+import { useEffect, useRef, useState } from "react";
 import { useServerAction } from "zsa-react";
 import { convertTextToSpeechAction } from "@/app/account/settings/tokens/actions";
 import { toast } from "sonner";
+import { TTSSettings } from "@/app/account/settings/text-to-speech/page";
+
+const useTTSSettings = () => {
+  const [settings, setSettings] = useState(() => {
+    if (typeof window !== "undefined") {
+      return JSON.parse(
+        localStorage.getItem("readiumx-text-to-speech-settings") ||
+          `{"api":"browser","settings":{"voice":"Samantha","rate":1,"pitch":1}}`,
+      );
+    }
+    return {
+      api: "browser",
+      settings: { voice: "Samantha", rate: 1, pitch: 1 },
+    };
+  });
+
+  useEffect(() => {
+    const handleStorageChange = (event: CustomEvent<TTSSettings>) => {
+      const settings = event.detail;
+      const api = settings.api;
+      const apiSettings = settings[api as keyof TTSSettings];
+      const newSettings = {
+        api,
+        settings: apiSettings,
+      };
+
+      setSettings(newSettings);
+    };
+
+    window.addEventListener(
+      "ttsSettingsChanged",
+      handleStorageChange as EventListener,
+    );
+    return () =>
+      window.removeEventListener(
+        "ttsSettingsChanged",
+        handleStorageChange as EventListener,
+      );
+  }, []);
+
+  return settings;
+};
 
 export const TTS = ({
   text,
@@ -17,8 +59,23 @@ export const TTS = ({
   userId?: number;
   useIcon?: boolean;
 }) => {
-  const { isPlaying, togglePlayPause, isPaused } = useTTS();
+  const {
+    isPlaying: isWebTTSPlaying,
+    togglePlayPause: toggleWebTTS,
+    isPaused: isWebTTSPaused,
+    isCompleted: isWebTTSCompleted,
+  } = useTTS();
+  const [isOpenAIPlaying, setIsOpenAIPlaying] = useState(false);
+  const [isOpenAIPaused, setIsOpenAIPaused] = useState(false);
+  const [isOpenAICompleted, setIsOpenAICompleted] = useState(false);
+  const ttsSettings = useTTSSettings();
   const audioRef = useRef<HTMLAudioElement | null>(null);
+
+  useEffect(() => {
+    console.log("isWebTTSPlaying", isWebTTSPlaying);
+    console.log("isWebTTSPaused", isWebTTSPaused);
+    console.log("isWebTTSCompleted", isWebTTSCompleted);
+  }, [isWebTTSPlaying, isWebTTSPaused, isWebTTSCompleted]);
 
   const { execute, isPending } = useServerAction(convertTextToSpeechAction, {
     onSuccess: ({ data }) => {
@@ -38,6 +95,9 @@ export const TTS = ({
       if (audioRef.current) {
         audioRef.current.src = url;
         audioRef.current.play();
+        setIsOpenAIPlaying(true);
+        setIsOpenAIPaused(false);
+        setIsOpenAICompleted(false);
       }
     },
     onError: ({ err }) => {
@@ -48,24 +108,22 @@ export const TTS = ({
     },
   });
 
-  const handleClick = async () => {
-    const storedSettings = JSON.parse(
-      localStorage.getItem("readiumx-text-to-speech-settings") || "{}",
-    );
-    const api = storedSettings.api || "browser";
-    const settings = storedSettings[api] || {
-      voice: "",
-      rate: 0,
-      pitch: 0,
-    };
-
-    console.log("Current TTS Settings:", { api, settings });
-
-    if (api === "openai") {
-      if (isPlaying) {
-        togglePlayPause(text);
+  const toggleOpenAIPlayPause = () => {
+    if (audioRef.current) {
+      if (isOpenAIPlaying) {
+        if (isOpenAIPaused) {
+          audioRef.current.play();
+          setIsOpenAIPaused(false);
+        } else {
+          audioRef.current.pause();
+          setIsOpenAIPaused(true);
+        }
       } else {
-        if (!userId || userId === undefined) {
+        if (isOpenAICompleted) {
+          setIsOpenAICompleted(false);
+          audioRef.current.currentTime = 0;
+        }
+        if (!userId) {
           toast.error("User ID is required");
           return;
         }
@@ -73,20 +131,49 @@ export const TTS = ({
         execute({
           userId: userId,
           text: text,
-          model: (settings.model || "tts-1").toLowerCase(),
-          voice: (settings.voice || "alloy").toLowerCase(),
-          speed: parseFloat(settings.speed) || 1,
+          model:
+            ttsSettings.settings &&
+            ttsSettings.api === "openai" &&
+            "model" in ttsSettings.settings
+              ? (ttsSettings.settings.model || "tts-1").toLowerCase()
+              : "tts-1",
+          voice:
+            ttsSettings.settings &&
+            ttsSettings.api === "openai" &&
+            "voice" in ttsSettings.settings
+              ? (ttsSettings.settings.voice || "alloy").toLowerCase()
+              : "alloy",
+          speed:
+            ttsSettings.settings &&
+            ttsSettings.api === "openai" &&
+            "speed" in ttsSettings.settings
+              ? Number(ttsSettings.settings.speed) || 1
+              : 1,
         });
       }
-    } else {
-      togglePlayPause(text);
     }
   };
 
-  const renderButtonContent = () => {
+  useEffect(() => {
+    const audio = audioRef.current;
+    if (audio) {
+      audio.onended = () => {
+        setIsOpenAIPlaying(false);
+        setIsOpenAIPaused(false);
+        setIsOpenAICompleted(true);
+      };
+    }
+    return () => {
+      if (audio) {
+        audio.onended = null;
+      }
+    };
+  }, []);
+
+  const renderOpenAIButtonContent = () => {
     if (useIcon) {
-      if (isPlaying) {
-        return isPaused ? (
+      if (isOpenAIPlaying) {
+        return isOpenAIPaused ? (
           <Icons.play className="h-4 w-4" />
         ) : (
           <Icons.pause className="h-4 w-4" />
@@ -97,8 +184,8 @@ export const TTS = ({
         return <Icons.play className="h-4 w-4" />;
       }
     } else {
-      if (isPlaying) {
-        return isPaused ? (
+      if (isOpenAIPlaying) {
+        return isOpenAIPaused ? (
           <div className="flex items-center justify-center gap-1">
             <Icons.play className="h-4 w-4" />
             <span>Resume Audio</span>
@@ -120,7 +207,7 @@ export const TTS = ({
         return (
           <div className="flex items-center justify-center gap-1">
             <Icons.play className="h-4 w-4" />
-            <span>Play Audio</span>
+            <span>{isOpenAICompleted ? "Play Again" : "Play Audio"}</span>
           </div>
         );
       }
@@ -130,19 +217,63 @@ export const TTS = ({
   return (
     <>
       <audio ref={audioRef} style={{ display: "none" }} />
-      <Button
-        onClick={async () => await handleClick()}
-        variant={useIcon ? "outline" : "default"}
-        size={useIcon ? "icon" : "default"}
-        className={
-          useIcon
-            ? "h-10 w-10 rounded-full"
-            : "rounded-full focus:outline-none focus:ring-2 focus:ring-primary focus:ring-offset-2"
-        }
-        disabled={isPending}
-      >
-        {renderButtonContent()}
-      </Button>
+      {/* button for browser tts */}
+      {ttsSettings.api === "browser" && (
+        <Button
+          onClick={() => toggleWebTTS(text)}
+          variant={useIcon ? "outline" : "default"}
+          size={useIcon ? "icon" : "default"}
+          className={
+            useIcon
+              ? "h-10 w-10 rounded-full"
+              : "rounded-full focus:outline-none focus:ring-2 focus:ring-primary focus:ring-offset-2"
+          }
+        >
+          {useIcon ? (
+            isWebTTSPlaying ? (
+              isWebTTSPaused ? (
+                <Icons.play className="h-4 w-4" />
+              ) : (
+                <Icons.pause className="h-4 w-4" />
+              )
+            ) : (
+              <Icons.play className="h-4 w-4" />
+            )
+          ) : isWebTTSPlaying ? (
+            isWebTTSPaused ? (
+              <div className="flex items-center justify-center gap-1">
+                <Icons.play className="h-4 w-4" />
+                <span>Resume Audio</span>
+              </div>
+            ) : (
+              <div className="flex items-center justify-center gap-1">
+                <Icons.pause className="h-4 w-4" />
+                <span>Pause Audio</span>
+              </div>
+            )
+          ) : (
+            <div className="flex items-center justify-center gap-1">
+              <Icons.play className="h-4 w-4" />
+              <span>Play Audio</span>
+            </div>
+          )}
+        </Button>
+      )}
+      {ttsSettings.api === "openai" && (
+        <Button
+          onClick={toggleOpenAIPlayPause}
+          variant={useIcon ? "outline" : "default"}
+          size={useIcon ? "icon" : "default"}
+          className={
+            useIcon
+              ? "h-10 w-10 rounded-full"
+              : "rounded-full focus:outline-none focus:ring-2 focus:ring-primary focus:ring-offset-2"
+          }
+          disabled={isPending}
+        >
+          {renderOpenAIButtonContent()}
+        </Button>
+      )}
     </>
   );
 };

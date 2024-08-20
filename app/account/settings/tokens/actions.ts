@@ -11,6 +11,7 @@ import { VoiceOptions } from "../text-to-speech/page";
 import { authenticatedAction } from "@/lib/safe-action";
 import { z } from "zod";
 import { revalidatePath } from "next/cache";
+import { concatArrayBuffers } from "@/lib/utils";
 
 type APIVoiceOptions = Lowercase<VoiceOptions>;
 
@@ -111,15 +112,45 @@ export const convertTextToSpeechAction = authenticatedAction
       apiKey: decryptedApiKey,
     });
 
-    const mp3 = await openai.audio.speech.create({
-      model: input.model,
-      voice: input.voice.toLowerCase() as APIVoiceOptions,
-      input: input.text,
-      speed: input.speed,
-    });
+    const splitTextIntoChunks = (text: string, maxLength: number): string[] => {
+      const chunks: string[] = [];
+      let currentChunk = "";
 
-    const buffer = Buffer.from(await mp3.arrayBuffer());
-    const audioBuffer = buffer.toString("base64");
+      text.split(/\s+/).forEach((word) => {
+        if ((currentChunk + " " + word).length <= maxLength) {
+          currentChunk += (currentChunk ? " " : "") + word;
+        } else {
+          chunks.push(currentChunk);
+          currentChunk = word;
+        }
+      });
+
+      if (currentChunk) {
+        chunks.push(currentChunk);
+      }
+
+      return chunks;
+    };
+
+    // Split the input text into chunks
+    const textChunks = splitTextIntoChunks(input.text, 4000); // Using 4000 to leave some buffer
+
+    // Process each chunk
+    const audioChunks: ArrayBuffer[] = [];
+    for (const chunk of textChunks) {
+      const mp3 = await openai.audio.speech.create({
+        model: input.model,
+        voice: input.voice.toLowerCase() as APIVoiceOptions,
+        input: chunk,
+        speed: input.speed,
+      });
+
+      audioChunks.push(await mp3.arrayBuffer());
+    }
+
+    // Combine all audio chunks
+    const combinedBuffer = concatArrayBuffers(audioChunks);
+    const audioBuffer = Buffer.from(combinedBuffer).toString("base64");
 
     return { audioBuffer };
   });

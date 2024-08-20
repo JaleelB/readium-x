@@ -23,7 +23,6 @@ import { useTTS } from "@/hooks/use-tts";
 import { TTS } from "@/components/tts-button";
 import { useAuth } from "@/hooks/use-auth";
 import { usePathname } from "next/navigation";
-import { revalidatePath } from "next/cache";
 
 type ApiOptions = "browser" & "openai";
 
@@ -57,10 +56,13 @@ type BrowserOptions = {
 
 export type TTSSettings = BrowserOptions | OpenAIOptions;
 
+const dispatchTTSSettingsChanged = (settings: TTSSettings) => {
+  const event = new CustomEvent("ttsSettingsChanged", { detail: settings });
+  window.dispatchEvent(event);
+};
+
 export default function TextToSpeechPage() {
   const { user } = useAuth();
-  const pathname = usePathname();
-
   const [mounted, setMounted] = useState(false);
   const [ttsSettings, setTTSSettings] = useState<TTSSettings>({
     api: "browser",
@@ -112,6 +114,7 @@ export default function TextToSpeechPage() {
         "readiumx-text-to-speech-settings",
         JSON.stringify(updatedSettings),
       );
+      dispatchTTSSettingsChanged(updatedSettings);
       setTTSSettings({ api, settings });
     };
 
@@ -137,6 +140,7 @@ export default function TextToSpeechPage() {
         "readiumx-text-to-speech-settings",
         JSON.stringify(updatedSettings),
       );
+      dispatchTTSSettingsChanged(updatedSettings);
     }
   }, [mounted, ttsSettings.api, ttsSettings.settings]);
 
@@ -163,6 +167,7 @@ export default function TextToSpeechPage() {
       "readiumx-text-to-speech-settings",
       JSON.stringify(updatedSettings),
     );
+    dispatchTTSSettingsChanged(updatedSettings);
 
     setTTSSettings({
       api: value,
@@ -170,7 +175,7 @@ export default function TextToSpeechPage() {
     });
   };
 
-  if (!mounted) return <TextToSpeechSkeleton />;
+  if (!mounted || !user) return <TextToSpeechSkeleton />;
 
   return (
     <div className="h-full w-full flex-1 pb-8">
@@ -262,7 +267,6 @@ export default function TextToSpeechPage() {
                                   voice: newVoice.name,
                                 },
                               });
-                              revalidatePath(pathname);
                             }
                           }}
                           disabled={isLoading}
