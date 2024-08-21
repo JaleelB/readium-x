@@ -7,7 +7,7 @@ import { useEffect, useRef, useState } from "react";
 import { useServerAction } from "zsa-react";
 import { convertTextToSpeechAction } from "@/app/account/settings/tokens/actions";
 import { toast } from "sonner";
-import { TTSSettings } from "@/app/account/settings/text-to-speech/page";
+import { TTSSettings } from "@/app/account/settings/text-to-speech/tts-settings-form";
 
 const useTTSSettings = () => {
   const [settings, setSettings] = useState(() => {

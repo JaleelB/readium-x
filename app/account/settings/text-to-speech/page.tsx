@@ -22,7 +22,8 @@ import {
 import { useTTS } from "@/hooks/use-tts";
 import { TTS } from "@/components/tts-button";
 import { useAuth } from "@/hooks/use-auth";
-import { usePathname } from "next/navigation";
+import { Button } from "@/components/ui/button";
+import { Icons } from "@/components/icons";
 
 type ApiOptions = "browser" & "openai";
 
@@ -56,6 +57,7 @@ type BrowserOptions = {
 
 export type TTSSettings = BrowserOptions | OpenAIOptions;
 
+// trigger a custom event to notify other components that the TTS settings have changed in localStorage
 const dispatchTTSSettingsChanged = (settings: TTSSettings) => {
   const event = new CustomEvent("ttsSettingsChanged", { detail: settings });
   window.dispatchEvent(event);
@@ -175,7 +177,7 @@ export default function TextToSpeechPage() {
     });
   };
 
-  if (!mounted || !user) return <TextToSpeechSkeleton />;
+  if (!mounted || !user || !voices) return <TextToSpeechSkeleton />;
 
   return (
     <div className="h-full w-full flex-1 pb-8">
@@ -567,12 +569,6 @@ export default function TextToSpeechPage() {
                   value={testText}
                   onChange={(e) => setTestText(e.target.value)}
                 />
-                {/* <Button
-                  className="rounded-lg"
-                  onClick={() => playAudio(testText)}
-                >
-                  Play Test Audio
-                </Button> */}
                 <TTS text={testText} userId={user?.id} useIcon={false} />
               </div>
             </div>
@@ -596,7 +592,120 @@ function TextToSpeechSkeleton() {
             saved automatically.
           </Balancer>
         </div>
-        <div className="flex h-[450px] flex-col space-y-4 rounded-lg bg-muted p-6" />
+        <div className="rounded-lg border bg-card p-6">
+          <div className="flex flex-col space-y-4">
+            <div>
+              <Balancer as="h2" className="mb-4 font-medium">
+                Voice Settings
+              </Balancer>
+              <div className="mb-4 flex flex-col gap-4 border-b-[1px] pb-4 md:flex-row md:items-center md:justify-between">
+                <div className="flex flex-col space-y-0.5">
+                  <Label
+                    className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
+                    htmlFor="match-switch"
+                  >
+                    Speech API
+                  </Label>
+                  <Balancer as="p" className="text-sm text-muted-foreground">
+                    Select the speech API to use.
+                  </Balancer>
+                </div>
+                <div className="h-10 w-full animate-pulse bg-muted md:max-w-[300px]" />
+              </div>
+              <div className="flex flex-col space-y-6 py-4">
+                <div className="flex flex-col gap-1 border-b-[1px] pb-4">
+                  <div className="flex flex-row items-center justify-between">
+                    <div className="flex flex-col space-y-0.5">
+                      <Label
+                        htmlFor="browser-voice-select"
+                        className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
+                      >
+                        Voice
+                      </Label>
+                      <Balancer
+                        as="p"
+                        className="text-sm text-muted-foreground"
+                      >
+                        Select a voice for your text to speech.
+                      </Balancer>
+                    </div>
+                    <div className="h-10 w-full animate-pulse bg-muted md:max-w-[300px]" />
+                  </div>
+                  <Balancer as="p" className="text-xs">
+                    Note: some voices have different character limits.
+                  </Balancer>
+                </div>
+                <div className="flex flex-row items-center justify-between border-b-[1px] pb-4">
+                  <div className="flex flex-col space-y-0.5">
+                    <Label
+                      className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
+                      htmlFor="browser-rate-slider"
+                    >
+                      Rate
+                    </Label>
+                    <Balancer as="p" className="text-sm text-muted-foreground">
+                      Select the rate of speech to use.
+                    </Balancer>
+                  </div>
+                  <div className="flex w-full max-w-[300px] items-center gap-2">
+                    <span className="text-xs text-muted-foreground">
+                      <span className="font-medium">0</span>
+                    </span>
+                    <div className="h-1.5 w-full animate-pulse rounded-full bg-muted" />
+                    <span className="text-xs text-muted-foreground">
+                      <span className="font-medium">2</span>
+                    </span>
+                  </div>
+                </div>
+                <div className="flex flex-row items-center justify-between border-b-[1px] pb-4">
+                  <div className="flex flex-col space-y-0.5">
+                    <Label
+                      className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
+                      htmlFor="browser-pitch-slider"
+                    >
+                      Pitch
+                    </Label>
+                    <Balancer as="p" className="text-sm text-muted-foreground">
+                      Select the pitch of the voice.
+                    </Balancer>
+                  </div>
+                  <div className="flex w-full max-w-[300px] items-center gap-2">
+                    <span className="text-xs text-muted-foreground">
+                      <span className="font-medium">0</span>
+                    </span>
+                    <div className="h-1.5 w-full animate-pulse rounded-full bg-muted" />
+                    <span className="text-xs text-muted-foreground">
+                      <span className="font-medium">2</span>
+                    </span>
+                  </div>
+                </div>
+              </div>
+            </div>
+            <div className="pt-3">
+              <Balancer as="h2" className="mb-4 font-medium">
+                Playback Settings
+              </Balancer>
+              <div className="mb-4 flex flex-col items-start gap-4 border-b-[1px] pb-8">
+                <div className="flex flex-col space-y-0.5">
+                  <Label
+                    className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
+                    htmlFor="test-audio-input"
+                  >
+                    Test audio
+                  </Label>
+                  <Balancer as="p" className="text-sm text-muted-foreground">
+                    Enter text to test the text to speech settings.
+                  </Balancer>
+                </div>
+                <div className="h-10 w-full animate-pulse rounded-md bg-muted" />
+                <Button disabled className="gap-1 rounded-full">
+                  <Icons.play className="h-4 w-4" />
+                  Play Audio
+                </Button>
+              </div>
+            </div>
+          </div>
+        </div>
       </main>
     </div>
   );

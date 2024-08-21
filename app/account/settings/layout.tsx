@@ -10,7 +10,7 @@ export default function PersonalSettingsLayout({
   const tabs: Tab[] = [
     {
       name: "General",
-      segment: null,
+      segment: "",
     },
     {
       name: "Appearance",
@@ -18,7 +18,7 @@ export default function PersonalSettingsLayout({
     },
     {
       name: "API Keys",
-      segment: "tokens", // look at cursor ai openai api keys settings for inspiration
+      segment: "tokens",
     },
     // {
     //   name: "Keyboard Shortcuts",
@@ -33,12 +33,12 @@ export default function PersonalSettingsLayout({
   return (
     <>
       <SiteHeader />
-      <div className="flex min-h-screen flex-1 flex-col">
+      <div className="flex flex-1 flex-col">
         <div className="relative flex flex-1 px-4 py-8 sm:px-8">
           <SettingsLayout tabs={tabs}>{children}</SettingsLayout>
           <svg
             aria-hidden="true"
-            className="pointer-events-none absolute inset-0 inset-x-0 inset-y-[0%] h-[100%] w-full skew-y-[20deg] fill-gray-400/30 stroke-gray-400/30 [mask-image:radial-gradient(800px_circle_at_center,white,transparent)]"
+            className="pointer-events-none absolute inset-0 inset-x-0 inset-y-[0%] h-[80%] w-full skew-y-[20deg] fill-gray-400/30 stroke-gray-400/30 [mask-image:radial-gradient(800px_circle_at_center,white,transparent)]"
           >
             <defs>
               <pattern
