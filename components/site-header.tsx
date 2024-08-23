@@ -4,6 +4,7 @@ import { getUser } from "@/data-access/users";
 import Nav from "./nav";
 import { Profile, User } from "@/server/db/schema";
 import { getUserProfileUseCase } from "@/use-cases/users";
+import { redirect } from "next/navigation";
 
 export type UserInfo =
   | { id: number; email: string | null; emailVerified: Date | null }
@@ -11,17 +12,19 @@ export type UserInfo =
   | undefined;
 
 async function SiteHeader() {
-  let userSession = await getCurrentUser();
-  let user: User | undefined = undefined;
-  let profile: Profile | undefined = undefined;
+  const userSession = await getCurrentUser();
 
   if (!userSession) {
-    user = undefined;
+    redirect("/signin");
   }
 
-  if (userSession) {
-    user = await getUser(userSession.id);
-    profile = await getUserProfileUseCase(userSession.id);
+  const [user, profile] = await Promise.all([
+    getUser(userSession.id),
+    getUserProfileUseCase(userSession.id),
+  ]);
+
+  if (!user || !profile) {
+    redirect("/signin");
   }
 
   return <Nav user={user} profile={profile as Profile} />;
