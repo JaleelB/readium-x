@@ -141,7 +141,7 @@ jobs:
           run_install: false
 
       - name: Install packages
-        run: pnpm install --frozen-lockfile
+        run: pnpm install
 
       - name: Install Railway
         run: pnpm add -g @railway/cli
