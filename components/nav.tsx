@@ -16,7 +16,7 @@ export default function Nav({
   profile,
 }: {
   user: User | undefined;
-  profile: Profile;
+  profile: Profile | undefined;
 }) {
   const headerRef = useRef<HTMLHeadingElement>(null);
   const lastScrollY = useRef(0);

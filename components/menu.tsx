@@ -29,7 +29,7 @@ export function OptionsMenu({
   profile,
 }: {
   user: UserInfo;
-  profile: Profile;
+  profile: Profile | undefined;
 }) {
   const [open, setOpen] = useState(false);
   const { setTheme } = useTheme();
@@ -37,14 +37,29 @@ export function OptionsMenu({
   return (
     <DropdownMenu open={open} onOpenChange={(isOpen) => setOpen(isOpen)}>
       <DropdownMenuTrigger asChild>
-        <div className="flex items-center gap-1">
-          <Avatar className="h-8 w-8 cursor-pointer">
-            <AvatarImage src={profile.image as string} />
-            <AvatarFallback className="bg-[#ffb92e] text-white">
-              {profile.displayName?.charAt(0).toUpperCase()}
-            </AvatarFallback>
-          </Avatar>
-        </div>
+        {!profile ? (
+          <Button
+            variant="outline"
+            size="sm"
+            className={cn("rounded-full dark:border-white/20")}
+          >
+            <Icons.menu className="mr-2 h-4 w-4" />
+            <Icons.chevronDown
+              className={`h-4 w-4 text-muted-foreground transition duration-200 ${
+                open ? "rotate-180 transform" : ""
+              }`}
+            />
+          </Button>
+        ) : (
+          <div className="flex items-center gap-1">
+            <Avatar className="h-8 w-8 cursor-pointer">
+              <AvatarImage src={profile.image as string} />
+              <AvatarFallback className="bg-[#ffb92e] text-white">
+                {profile.displayName?.charAt(0).toUpperCase()}
+              </AvatarFallback>
+            </Avatar>
+          </div>
+        )}
       </DropdownMenuTrigger>
       <DropdownMenuContent className="z-[550] w-60">
         <DropdownMenuLabel className="p-1 px-0">
@@ -56,7 +71,7 @@ export function OptionsMenu({
               </DropdownMenuItem>
             </Link>
           )}
-          {user && (
+          {user && profile && (
             <DropdownMenuItem className="flex flex-col items-start py-0.5">
               <span className="truncate text-sm capitalize">
                 {profile.displayName}

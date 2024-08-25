@@ -14,20 +14,17 @@ export type UserInfo =
 async function SiteHeader() {
   const userSession = await getCurrentUser();
 
-  if (!userSession) {
-    redirect("/signin");
-  }
-
   const [user, profile] = await Promise.all([
-    getUser(userSession.id),
-    getUserProfileUseCase(userSession.id),
+    userSession ? getUser(userSession.id) : Promise.resolve(undefined),
+    userSession
+      ? getUserProfileUseCase(userSession.id)
+      : Promise.resolve(undefined),
   ]);
 
-  if (!user || !profile) {
-    redirect("/signin");
-  }
+  // If there's no user or profile, they will be undefined
+  // The Nav component should handle these cases appropriately
 
-  return <Nav user={user} profile={profile as Profile} />;
+  return <Nav user={user} profile={profile} />;
 }
 
 export default SiteHeader;
