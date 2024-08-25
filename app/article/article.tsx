@@ -86,6 +86,7 @@ export function Article({
   const [isBookmarked, setIsBookmarked] = useState<boolean>(false);
   const [bookmarkId, setBookmarkId] = useState<number | null>(null);
   const [initialProgress, setInitialProgress] = useState<number>(0);
+  const [showScrollTop, setShowScrollTop] = useState(false);
 
   const getArticleProgressFromLocalStorage = () => {
     const progressObj = fetchFromLocalStorage("readiumx-article-progress");
@@ -196,6 +197,19 @@ export function Article({
       document.removeEventListener("visibilitychange", handleVisibilityChange);
     };
   }, [progress, readingHistoryId, saveProgress, updateLocalStorage, user.id]);
+
+  useEffect(() => {
+    const handleScroll = () => {
+      setShowScrollTop(window.scrollY > 300);
+    };
+
+    window.addEventListener("scroll", handleScroll);
+    return () => window.removeEventListener("scroll", handleScroll);
+  }, []);
+
+  const scrollToTop = () => {
+    window.scrollTo({ top: 0, behavior: "smooth" });
+  };
 
   return (
     <article className="w-full">
@@ -314,6 +328,33 @@ export function Article({
           {safeHTMLContent && <ArticleViewer content={safeHTMLContent} />}
         </article>
       </section>
+      {showScrollTop && (
+        <Button
+          variant="outline"
+          size="icon"
+          className="fixed bottom-8 left-1/2 z-50 -translate-x-1/2 rounded-full shadow-md transition-opacity duration-300 hover:bg-primary hover:text-primary-foreground"
+          onClick={scrollToTop}
+        >
+          <svg
+            xmlns="http://www.w3.org/2000/svg"
+            width="24"
+            height="24"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            strokeWidth="2"
+            strokeLinecap="round"
+            strokeLinejoin="round"
+            className="lucide lucide-a-arrow-up h-5 w-5"
+          >
+            <path d="M3.5 13h6"></path>
+            <path d="m2 16 4.5-9 4.5 9"></path>
+            <path d="M18 16V7"></path>
+            <path d="m14 11 4-4 4 4"></path>
+          </svg>
+          <span className="sr-only">Scroll to top</span>
+        </Button>
+      )}
     </article>
   );
 }
