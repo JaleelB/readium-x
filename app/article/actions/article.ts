@@ -37,7 +37,7 @@ export async function scrapeArticleContent(
 
     const urlWithoutPaywall = await getUrlWithoutPaywall(url);
     if (urlWithoutPaywall instanceof Error) {
-      throw new Error("Unable to get URL without paywall");
+      throw new Error("Unable to fetch paywalled article");
     }
 
     const response = await fetch(urlWithoutPaywall.url, {

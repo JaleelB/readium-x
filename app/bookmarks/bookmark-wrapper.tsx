@@ -17,8 +17,25 @@ export type Bookmark = z.infer<typeof bookmarkSchema>;
 
 function BookmarkSkeleton() {
   return (
-    <>
-      <div className="grid w-full grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
+    <div className="mx-auto flex w-full max-w-screen-2xl flex-1 flex-col gap-12 lg:px-20">
+      <div className="flex flex-col justify-between gap-4 md:flex-row lg:items-center lg:gap-0">
+        <div className="flex flex-col gap-1">
+          <Balancer as="h1" className="font-heading text-3xl font-bold">
+            Bookmarks
+          </Balancer>
+        </div>
+        <div className="mr-1 flex flex-col items-center gap-2 md:flex-row md:justify-end">
+          <div className="w-full md:w-56 lg:w-64" />
+          <div className="flex w-full gap-2 md:w-fit">
+            <div className="w-full md:w-[130px]" />
+            <div className="w-full md:w-[94px]" />
+          </div>
+        </div>
+      </div>
+      <div className="relative grid h-fit w-full grid-cols-1 gap-3 sm:grid-cols-2 xl:grid-cols-3">
+        <div className="h-[200px] w-full animate-pulse rounded-lg bg-muted"></div>
+        <div className="h-[200px] w-full animate-pulse rounded-lg bg-muted"></div>
+        <div className="h-[200px] w-full animate-pulse rounded-lg bg-muted"></div>
         <div className="h-[200px] w-full animate-pulse rounded-lg bg-muted"></div>
         <div className="h-[200px] w-full animate-pulse rounded-lg bg-muted"></div>
         <div className="h-[200px] w-full animate-pulse rounded-lg bg-muted"></div>
@@ -28,7 +45,7 @@ function BookmarkSkeleton() {
           <span className="mr-1 text-muted">New</span>
         </div>
       </div>
-    </>
+    </div>
   );
 }
 
