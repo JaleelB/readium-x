@@ -98,8 +98,10 @@ export default function AppearancesPage() {
                     <Image
                       src={`/${theme.value}-mode.png`}
                       alt={theme.name}
+                      priority
                       fill
-                      loading="lazy"
+                      placeholder="blur"
+                      blurDataURL={`/${theme.value}-mode.png`}
                       style={{
                         background: `linear-gradient(rgb(0, 0, 0), rgb(0, 0, 0)) content-box exclude, linear-gradient(rgb(0, 0, 0), rgb(0, 0, 0))`,
                       }}

@@ -21,6 +21,7 @@ export function ErrorCard({
       <Image
         src="https://illustrations.popsy.co/white/abstract-art-4.svg"
         alt="Error"
+        priority
         className="mx-auto"
         width={300}
         height={200}

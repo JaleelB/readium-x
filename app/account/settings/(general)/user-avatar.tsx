@@ -29,6 +29,7 @@ export default function UserAvatar({
           {profile?.image ? (
             <Image
               src={profile.image}
+              priority
               alt="User Avatar"
               width={64}
               height={64}

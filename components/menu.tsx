@@ -108,12 +108,14 @@ export function OptionsMenu({
             <span>Home</span>
           </DropdownMenuItem>
         </Link>
-        <Link href="/account/settings">
-          <DropdownMenuItem>
-            <Icons.settings className="mr-2 h-4 w-4" />
-            <span>Preferences</span>
-          </DropdownMenuItem>
-        </Link>
+        {user && (
+          <Link href="/account/settings">
+            <DropdownMenuItem>
+              <Icons.settings className="mr-2 h-4 w-4" />
+              <span>Preferences</span>
+            </DropdownMenuItem>
+          </Link>
+        )}
         <DropdownMenuSeparator />
         <DropdownMenuGroup className={cn("z-[550]")}>
           <DropdownMenuSub>
