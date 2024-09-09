@@ -62,7 +62,7 @@ export default function UrlForm({
 
     const id = uuidv4();
     Cookies.set(id, data.url, {
-      expires: 1 / 288, // Cookie expires in 5 minutes (1/288 of a day)
+      expires: 1, // Cookie expires in 1 day
       secure: true,
       path: "/",
       sameSite: "strict", // Cookie is sent only when the request is coming from the same origin

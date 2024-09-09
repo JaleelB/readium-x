@@ -355,7 +355,7 @@ function BookmarkCard({
                     className="h-9 rounded-md px-2"
                     onClick={() => {
                       Cookies.set(articleId, bookmark.articleUrl, {
-                        expires: 1 / 288, // Cookie expires in 5 minutes (1/288 of a day)
+                        expires: 1, // Cookie expires in a day
                         secure: true,
                         path: "/",
                         sameSite: "strict", // Cookie is sent only when the request is coming from the same origin
