@@ -58,7 +58,7 @@ export default function Nav({
   return (
     <header
       ref={headerRef}
-      className={`${isScrolled && pathname.includes("article") ? "fixed border-b border-border bg-background" : "relative"} inset-0 z-[500] h-[64px] w-full`}
+      className={`${isScrolled && pathname.includes("article") ? "fixed border-b border-border bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60" : "relative"} inset-0 z-[500] h-[64px] w-full`}
     >
       <div className="container relative flex h-full w-full flex-1 px-4 sm:px-8">
         <div className="mx-auto flex h-full w-full max-w-screen-xl flex-1 items-center justify-between lg:px-20 xl:px-[60px]">
