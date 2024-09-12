@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import {
   Languages,
@@ -9,45 +9,84 @@ import {
   TextSelect,
   Volume2,
   Settings,
-  ChevronRight,
   ChevronLeft,
   X,
+  Loader2,
 } from "lucide-react";
-import { Button } from "./ui/button";
+import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
+import { LanguageSelector } from "./article-toolbar-options";
 
 interface ToolbarFeature {
   icon: React.JSX.Element;
   label: string;
-  content?: string;
+  content?: React.ReactNode;
 }
 
-const toolbarFeatures = [
-  {
-    icon: <Languages className="h-4 w-4 stroke-[2px]" />,
-    label: "Translate",
-  },
-  {
-    icon: <TextSelect className="h-4 w-4 stroke-[2px]" />,
-    label: "Summarize",
-  },
-  {
-    icon: <Volume2 className="h-4 w-4 stroke-[2px]" />,
-    label: "Text to Speech",
-  },
-  { icon: <Share2 className="h-4 w-4 stroke-[2px]" />, label: "Share" },
-  {
-    icon: <ZoomIn className="h-4 w-4 stroke-[2px]" />,
-    label: "Magnify",
-  },
-];
+interface DynamicToolbarProps {
+  selectedLanguage: string;
+  onLanguageChange: (language: string) => Promise<void>;
+  isTranslating: boolean;
+}
 
-export function DynamicToolbar() {
+export function DynamicToolbar({
+  selectedLanguage,
+  onLanguageChange,
+  isTranslating,
+}: DynamicToolbarProps) {
   const [toolbarState, setToolbarState] = useState("initial");
   const [selectedFeature, setSelectedFeature] = useState<null | ToolbarFeature>(
     null,
   );
   const [isAnimating, setIsAnimating] = useState(false);
+
+  // Force re-render when selectedLanguage changes
+  useEffect(() => {
+    setSelectedFeature((prev) =>
+      prev?.label === "Translate" ? { ...prev } : prev,
+    );
+  }, [selectedLanguage]);
+
+  const toolbarFeatures: ToolbarFeature[] = [
+    {
+      icon: <Languages className="h-4 w-4 stroke-[2px]" />,
+      label: "Translate",
+      content: (
+        <LanguageSelector
+          key={selectedLanguage} // Force re-render when language changes
+          selectedLanguage={selectedLanguage}
+          onLanguageChange={onLanguageChange}
+          isTranslating={isTranslating}
+        />
+      ),
+    },
+    {
+      icon: <TextSelect className="h-4 w-4 stroke-[2px]" />,
+      label: "Summarize",
+      content: (
+        <p className="text-sm">Summarization options will appear here.</p>
+      ),
+    },
+    {
+      icon: <Volume2 className="h-4 w-4 stroke-[2px]" />,
+      label: "Text to Speech",
+      content: (
+        <p className="text-sm">Text-to-speech options will appear here.</p>
+      ),
+    },
+    {
+      icon: <Share2 className="h-4 w-4 stroke-[2px]" />,
+      label: "Share",
+      content: <p className="text-sm">Sharing options will appear here.</p>,
+    },
+    {
+      icon: <ZoomIn className="h-4 w-4 stroke-[2px]" />,
+      label: "Magnify",
+      content: (
+        <p className="text-sm">Magnification options will appear here.</p>
+      ),
+    },
+  ];
 
   const setToolbarStateWithAnimation = (
     newState: string,
@@ -138,9 +177,15 @@ export function DynamicToolbar() {
     exit: { opacity: 0, y: 20, transition: { duration: 0.2 } },
   };
 
+  // for the text to speech feature, based on which language is selected and the tts method chosen (web vs openai api)
+  // we need to call the appropriate tts api and pass the text to be spoken to it
+
   return (
     <motion.div
-      className="dark fixed bottom-4 left-1/2 -translate-x-1/2 transform overflow-hidden"
+      className={cn(
+        "dark fixed bottom-6 left-1/2 z-50 -translate-x-1/2 transform overflow-hidden",
+        isTranslating && "pointer-events-none",
+      )}
       initial="initial"
       animate={toolbarState}
       variants={backgroundVariants}
@@ -165,7 +210,7 @@ export function DynamicToolbar() {
           {toolbarState === "final" && selectedFeature && (
             <motion.div
               key="final"
-              className="absolute bottom-12 left-0 right-0 overflow-hidden border-t border-accent bg-[#141414] dark:bg-[#191919]"
+              className="absolute bottom-12 left-0 right-0 flex flex-col overflow-hidden border-t border-accent bg-[#141414] dark:bg-[#191919]"
               variants={finalStateVariants}
               initial="initial"
               animate="animate"
@@ -183,6 +228,7 @@ export function DynamicToolbar() {
                   onClick={() => setToolbarStateWithAnimation("intermediate")}
                   className="mr-1 h-6 w-6 rounded-full bg-transparent p-1 focus:bg-accent focus:outline-none focus:ring-2"
                   aria-label="Close feature panel"
+                  disabled={isTranslating}
                 >
                   <X className="h-4 w-4" />
                 </Button>
@@ -196,14 +242,8 @@ export function DynamicToolbar() {
                   animate="animate"
                   exit="exit"
                 >
-                  <span className="px-2 py-1.5 text-xs text-accent-foreground opacity-50">
-                    {selectedFeature.label} Options
-                  </span>
-                  <motion.div
-                    className="mt-2 rounded-md bg-accent/20 p-4"
-                    variants={itemVariants}
-                  >
-                    <p className="text-sm">{selectedFeature.content}</p>
+                  <motion.div variants={itemVariants}>
+                    {selectedFeature.content}
                   </motion.div>
                 </motion.div>
               </AnimatePresence>
@@ -217,6 +257,7 @@ export function DynamicToolbar() {
                 ? "rounded-b-2xl border-t border-accent"
                 : ""
             } ${toolbarState === "initial" ? "" : "px-2"} `,
+            isTranslating && "opacity-50",
           )}
           variants={contentVariants}
           initial="initial"
@@ -233,8 +274,13 @@ export function DynamicToolbar() {
                 initial={{ opacity: 1 }}
                 exit={{ opacity: 0 }}
                 transition={{ duration: 0.1 }}
+                disabled={isTranslating}
               >
-                <Settings className="h-[18px] w-[18px]" />
+                {isTranslating ? (
+                  <Loader2 className="h-[18px] w-[18px] animate-spin" />
+                ) : (
+                  <Settings className="h-[18px] w-[18px]" />
+                )}
               </motion.button>
             ) : (
               <motion.div
@@ -251,13 +297,16 @@ export function DynamicToolbar() {
                     onClick={() =>
                       setToolbarStateWithAnimation("final", feature)
                     }
-                    className={`rounded-full p-2 text-white focus:bg-accent focus:outline-none ${
-                      selectedFeature === feature ? "bg-accent" : ""
-                    }`}
+                    className={cn(
+                      "rounded-full p-2 text-white focus:bg-accent focus:outline-none",
+                      selectedFeature === feature && "bg-accent",
+                      isTranslating && "cursor-not-allowed opacity-50",
+                    )}
                     variants={itemVariants}
                     whileHover={{ scale: 1.1 }}
                     whileTap={{ scale: 0.95 }}
                     aria-label={feature.label}
+                    disabled={isTranslating}
                   >
                     {feature.icon}
                   </motion.button>
@@ -268,6 +317,7 @@ export function DynamicToolbar() {
                   className="flex h-8 w-8 items-center justify-center rounded-full focus:outline-none focus:ring-2 focus:ring-ring"
                   aria-label="Collapse toolbar"
                   variants={itemVariants}
+                  disabled={isTranslating}
                 >
                   <ChevronLeft className="h-4 w-4" />
                 </motion.button>

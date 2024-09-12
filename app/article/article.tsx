@@ -1,5 +1,6 @@
 "use client";
 
+import { useState, useEffect, useCallback } from "react";
 import { ArticleDetails } from "@/app/article/actions/article";
 import {
   Avatar,
@@ -27,13 +28,16 @@ import { generateRandomName } from "@/lib/names";
 import { toast } from "sonner";
 import { usePathname } from "next/navigation";
 import { useReadingProgress } from "@/hooks/use-reading-progress";
-import { useCallback, useEffect, useState } from "react";
+import { debounce } from "lodash";
+import { TTS } from "@/components/tts-button";
+
+import { translateArticleAction } from "./actions/translate";
+import { DynamicToolbar } from "@/components/article-toolbar";
 import {
   getReadingHistoryProgressAction,
   updateReadingHistoryProgressAction,
 } from "@/app/history/history";
-import { debounce } from "lodash";
-import { TTS } from "@/components/tts-button";
+import { useServerAction } from "zsa-react";
 
 export function Article({
   content,
@@ -87,6 +91,13 @@ export function Article({
   const [bookmarkId, setBookmarkId] = useState<number | null>(null);
   const [initialProgress, setInitialProgress] = useState<number>(0);
   const [showScrollTop, setShowScrollTop] = useState(false);
+  const [translatedContent, setTranslatedContent] = useState<string | null>(
+    null,
+  );
+  const [selectedLanguage, setSelectedLanguage] = useState<string>("en");
+
+  const { execute: executeTranslation, isPending: isTranslating } =
+    useServerAction(translateArticleAction, {});
 
   const getArticleProgressFromLocalStorage = () => {
     const progressObj = fetchFromLocalStorage("readiumx-article-progress");
@@ -211,6 +222,37 @@ export function Article({
     window.scrollTo({ top: 0, behavior: "smooth" });
   };
 
+  const handleTranslate = async (targetLanguage: string) => {
+    if (targetLanguage === "en") {
+      setTranslatedContent(null);
+      setSelectedLanguage("en");
+      return;
+    }
+
+    toast.promise(
+      executeTranslation({
+        userId: user.id,
+        content: content.htmlContent,
+        targetLanguage,
+      }),
+      {
+        loading: "Translating article...",
+        success: ([result]) => {
+          if (result) {
+            setTranslatedContent(result.translatedContent);
+            setSelectedLanguage(targetLanguage); // Update the selected language here
+            return "Article translated successfully";
+          }
+          return "Translation completed";
+        },
+        error: (error) => {
+          console.error("Translation error:", error);
+          return "An error occurred during translation";
+        },
+      },
+    );
+  };
+
   return (
     <article className="w-full">
       <div
@@ -309,7 +351,6 @@ export function Article({
                     }
 
                     toast.success("Bookmark removed");
-                    // window.location.reload();
                   }
                 }}
               >
@@ -325,14 +366,18 @@ export function Article({
           >
             {content?.title}
           </Balancer>
-          {safeHTMLContent && <ArticleViewer content={safeHTMLContent} />}
+
+          <ArticleViewer
+            content={safeHTMLContent}
+            translatedContent={translatedContent}
+          />
         </article>
       </section>
       {showScrollTop && (
         <Button
           variant="outline"
           size="icon"
-          className="fixed bottom-8 left-1/2 z-50 -translate-x-1/2 rounded-full shadow-md transition-opacity duration-300 hover:bg-primary hover:text-primary-foreground"
+          className="fixed bottom-6 left-6 z-50 rounded-full border border-input p-1.5 shadow-md transition-opacity duration-300 dark:bg-[#191919]"
           onClick={scrollToTop}
         >
           <svg
@@ -355,6 +400,11 @@ export function Article({
           <span className="sr-only">Scroll to top</span>
         </Button>
       )}
+      <DynamicToolbar
+        selectedLanguage={selectedLanguage}
+        onLanguageChange={handleTranslate}
+        isTranslating={isTranslating}
+      />
     </article>
   );
 }
