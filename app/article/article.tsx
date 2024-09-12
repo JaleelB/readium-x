@@ -30,6 +30,7 @@ import { usePathname } from "next/navigation";
 import { useReadingProgress } from "@/hooks/use-reading-progress";
 import { debounce } from "lodash";
 import { TTS } from "@/components/tts-button";
+import { useLocalStorage } from "@/hooks/use-local-storage";
 
 import { translateArticleAction } from "./actions/translate";
 import { DynamicToolbar } from "@/components/article-toolbar";
@@ -95,6 +96,10 @@ export function Article({
     null,
   );
   const [selectedLanguage, setSelectedLanguage] = useState<string>("en");
+
+  const [translatedContents, setTranslatedContents] = useLocalStorage<
+    Record<string, string>
+  >(`readiumx-translated-contents-${readingHistoryId}`, {});
 
   const { execute: executeTranslation, isPending: isTranslating } =
     useServerAction(translateArticleAction, {});
@@ -229,6 +234,12 @@ export function Article({
       return;
     }
 
+    if (translatedContents[targetLanguage]) {
+      setTranslatedContent(translatedContents[targetLanguage]);
+      setSelectedLanguage(targetLanguage);
+      return;
+    }
+
     toast.promise(
       executeTranslation({
         userId: user.id,
@@ -239,8 +250,13 @@ export function Article({
         loading: "Translating article...",
         success: ([result]) => {
           if (result) {
-            setTranslatedContent(result.translatedContent);
-            setSelectedLanguage(targetLanguage); // Update the selected language here
+            const newTranslatedContent = result.translatedContent;
+            setTranslatedContent(newTranslatedContent);
+            setSelectedLanguage(targetLanguage);
+            setTranslatedContents((prev) => ({
+              ...prev,
+              [targetLanguage]: newTranslatedContent,
+            }));
             return "Article translated successfully";
           }
           return "Translation completed";

@@ -1,11 +1,11 @@
 "use client";
 
-import { useZoom } from "@/hooks/use-zoom";
 import { useEditor, EditorContent } from "@tiptap/react";
 import StarterKit from "@tiptap/starter-kit";
 import Document from "@tiptap/extension-document";
 import Text from "@tiptap/extension-text";
-import { MagnificationController } from "../../components/magnification-controller";
+import TextStyle from "@tiptap/extension-text-style";
+import FontFamily from "@tiptap/extension-font-family";
 import {
   CustomHeading,
   CustomBlockquote,
@@ -22,6 +22,8 @@ import {
   CustomLI,
   CustomOL,
 } from "@/lib/tiptap-extensions";
+import { useEffect } from "react";
+import { useZoom } from "@/hooks/use-zoom";
 
 function literalTemplate(
   strings: TemplateStringsArray,
@@ -38,12 +40,18 @@ function forceReflow(element: HTMLElement) {
   element.offsetHeight; // Reading offsetHeight to force reflow
 }
 
-export function ArticleViewer({ content }: { content: string }) {
+export function ArticleViewer({
+  content,
+  translatedContent,
+}: {
+  content: string;
+  translatedContent: string | null;
+}) {
   const staticHTMLContent = literalTemplate`${content}`;
 
   const editor = useEditor({
     content: staticHTMLContent,
-    editable: false, // Make it non-editable initially
+    editable: false,
     extensions: [
       StarterKit.configure({
         heading: false,
@@ -53,6 +61,10 @@ export function ArticleViewer({ content }: { content: string }) {
         blockquote: false,
         listItem: false,
         paragraph: false,
+      }),
+      TextStyle,
+      FontFamily.configure({
+        types: ["textStyle"],
       }),
       Document,
       Text,
@@ -86,6 +98,16 @@ export function ArticleViewer({ content }: { content: string }) {
     },
   });
 
+  useEffect(() => {
+    if (editor && translatedContent !== null) {
+      console.log("translatedContent", translatedContent);
+      editor.commands.setContent(translatedContent);
+    } else if (editor) {
+      console.log("staticHTMLContent", staticHTMLContent);
+      editor.commands.setContent(staticHTMLContent);
+    }
+  }, [editor, translatedContent, staticHTMLContent]);
+
   const { zoom, zoomIn, zoomOut, resetZoom } = useZoom();
 
   return (
@@ -93,12 +115,6 @@ export function ArticleViewer({ content }: { content: string }) {
       <EditorContent
         editor={editor}
         style={{ zoom: zoom, transition: "zoom 0.2s" }}
-      />
-      <MagnificationController
-        zoom={zoom}
-        zoomIn={zoomIn}
-        zoomOut={zoomOut}
-        resetZoom={resetZoom}
       />
     </div>
   );
