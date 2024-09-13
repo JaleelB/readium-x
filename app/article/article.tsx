@@ -97,9 +97,9 @@ export function Article({
   );
   const [selectedLanguage, setSelectedLanguage] = useState<string>("en");
 
-  const [translatedContents, setTranslatedContents] = useLocalStorage<
-    Record<string, string>
-  >(`readiumx-translated-contents-${readingHistoryId}`, {});
+  const [allTranslations, setAllTranslations] = useLocalStorage<
+    Record<number, Record<string, string>>
+  >("readiumx-article-translations", {});
 
   const { execute: executeTranslation, isPending: isTranslating } =
     useServerAction(translateArticleAction, {});
@@ -234,8 +234,8 @@ export function Article({
       return;
     }
 
-    if (translatedContents[targetLanguage]) {
-      setTranslatedContent(translatedContents[targetLanguage]);
+    if (allTranslations[readingHistoryId]?.[targetLanguage]) {
+      setTranslatedContent(allTranslations[readingHistoryId][targetLanguage]);
       setSelectedLanguage(targetLanguage);
       return;
     }
@@ -253,9 +253,12 @@ export function Article({
             const newTranslatedContent = result.translatedContent;
             setTranslatedContent(newTranslatedContent);
             setSelectedLanguage(targetLanguage);
-            setTranslatedContents((prev) => ({
+            setAllTranslations((prev) => ({
               ...prev,
-              [targetLanguage]: newTranslatedContent,
+              [readingHistoryId]: {
+                ...prev[readingHistoryId],
+                [targetLanguage]: newTranslatedContent,
+              },
             }));
             return "Article translated successfully";
           }
