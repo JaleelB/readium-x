@@ -10,6 +10,8 @@ import {
   CommandList,
 } from "@/components/ui/command";
 import { Check } from "lucide-react";
+import { Button } from "@/components/ui/button";
+import { Loader2 } from "lucide-react";
 
 const languages = [
   { value: "en", label: "English" },
@@ -42,12 +44,6 @@ export function LanguageSelector({
   useEffect(() => {
     setLocalSelectedLanguage(selectedLanguage);
   }, [selectedLanguage]);
-
-  useEffect(() => {
-    console.log("Selected Language:", selectedLanguage);
-    console.log("Local Selected Language:", localSelectedLanguage);
-    console.log("Is Translating:", isTranslating);
-  }, [selectedLanguage, localSelectedLanguage, isTranslating]);
 
   const handleLanguageSelect = async (language: string) => {
     if (!isTranslating && !isPending && language !== localSelectedLanguage) {
@@ -93,5 +89,60 @@ export function LanguageSelector({
         </CommandGroup>
       </CommandList>
     </Command>
+  );
+}
+
+interface SummaryOptionProps {
+  onSummarize: () => Promise<void>;
+  isSummarizing: boolean;
+  summary: string | null;
+}
+
+export function SummaryOption({
+  onSummarize,
+  isSummarizing,
+  summary,
+}: SummaryOptionProps) {
+  const handleSummarizeClick = async () => {
+    if (!summary && !isSummarizing) {
+      await onSummarize();
+    }
+  };
+
+  return (
+    <div className="flex flex-col gap-1 px-2 pb-2">
+      <div className="max-h-[200px] overflow-y-auto">
+        {!summary && !isSummarizing && (
+          <>
+            <h3 className="font-medium">Article Summary</h3>
+            <p className="mb-4 text-sm text-muted-foreground">
+              Click the button below to generate a summary.
+            </p>
+          </>
+        )}
+        {isSummarizing && (
+          <p className="mb-4 text-sm text-muted-foreground">
+            Generating summary...
+          </p>
+        )}
+        {summary && <p className="mb-10 mt-2 text-sm">{summary}</p>}
+      </div>
+      {!summary && (
+        <Button
+          onClick={handleSummarizeClick}
+          disabled={isSummarizing}
+          className="mt-2 w-full"
+        >
+          {isSummarizing ? (
+            <>
+              <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+              Generating...
+            </>
+          ) : (
+            "Generate Summary"
+          )}
+        </Button>
+      )}
+    </div>
   );
 }

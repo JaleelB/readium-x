@@ -15,7 +15,7 @@ import {
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
-import { LanguageSelector } from "./article-toolbar-options";
+import { LanguageSelector, SummaryOption } from "./article-toolbar-options";
 
 interface ToolbarFeature {
   icon: React.JSX.Element;
@@ -27,12 +27,18 @@ interface DynamicToolbarProps {
   selectedLanguage: string;
   onLanguageChange: (language: string) => Promise<void>;
   isTranslating: boolean;
+  onSummarize: () => Promise<void>;
+  isSummarizing: boolean;
+  summary: string | null;
 }
 
 export function DynamicToolbar({
   selectedLanguage,
   onLanguageChange,
   isTranslating,
+  onSummarize,
+  isSummarizing,
+  summary,
 }: DynamicToolbarProps) {
   const [toolbarState, setToolbarState] = useState("initial");
   const [selectedFeature, setSelectedFeature] = useState<null | ToolbarFeature>(
@@ -50,7 +56,7 @@ export function DynamicToolbar({
   const toolbarFeatures: ToolbarFeature[] = [
     {
       icon: <Languages className="h-4 w-4 stroke-[2px]" />,
-      label: "Translate",
+      label: "Translate Article",
       content: (
         <LanguageSelector
           key={selectedLanguage} // Force re-render when language changes
@@ -64,7 +70,12 @@ export function DynamicToolbar({
       icon: <TextSelect className="h-4 w-4 stroke-[2px]" />,
       label: "Summarize",
       content: (
-        <p className="text-sm">Summarization options will appear here.</p>
+        <SummaryOption
+          key={summary ? "summary-exists" : "no-summary"} // Add this line
+          onSummarize={onSummarize}
+          isSummarizing={isSummarizing}
+          summary={summary}
+        />
       ),
     },
     {

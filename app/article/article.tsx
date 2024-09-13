@@ -39,6 +39,7 @@ import {
   updateReadingHistoryProgressAction,
 } from "@/app/history/history";
 import { useServerAction } from "zsa-react";
+import { summarizeArticleAction } from "./actions/summarize";
 
 export function Article({
   content,
@@ -272,6 +273,44 @@ export function Article({
     );
   };
 
+  const [allSummaries, setAllSummaries] = useLocalStorage<
+    Record<number, string>
+  >("readiumx-article-summaries", {});
+
+  const { execute: executeSummarize, isPending: isSummarizing } =
+    useServerAction(summarizeArticleAction, {});
+
+  const handleSummarize = async () => {
+    if (allSummaries[readingHistoryId]) {
+      // Summary already exists, no need to generate again
+      return;
+    }
+
+    toast.promise(
+      executeSummarize({
+        userId: user.id,
+        content: content.textContent,
+      }),
+      {
+        loading: "Generating summary...",
+        success: ([result]) => {
+          if (result) {
+            setAllSummaries((prev) => ({
+              ...prev,
+              [readingHistoryId]: result.summary,
+            }));
+            return "Summary generated successfully";
+          }
+          return "Summary generation completed";
+        },
+        error: (error) => {
+          console.error("Summary generation error:", error);
+          return "An error occurred during summary generation";
+        },
+      },
+    );
+  };
+
   return (
     <article className="w-full">
       <div
@@ -423,6 +462,9 @@ export function Article({
         selectedLanguage={selectedLanguage}
         onLanguageChange={handleTranslate}
         isTranslating={isTranslating}
+        onSummarize={handleSummarize}
+        isSummarizing={isSummarizing}
+        summary={allSummaries[readingHistoryId] || null}
       />
     </article>
   );
