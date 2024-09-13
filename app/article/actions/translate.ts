@@ -55,10 +55,14 @@ export const translateArticleAction = authenticatedAction
         const response = await openai.chat.completions.create({
           model: "gpt-3.5-turbo",
           messages: [
-            { role: "system", content: "You are a professional translator." },
+            {
+              role: "system",
+              content:
+                "You are a professional translator. Translate the given text accurately while preserving its original meaning. Do not add or remove any content.",
+            },
             {
               role: "user",
-              content: `Translate the following text to ${input.targetLanguage}. Preserve HTML tags and structure. Only translate the inner text/ text children within the different tags (deeply nested tags included.) Ensure that the translation is accurate and conveys the same meaning as the original text:\n\n${chunk}`,
+              content: `Translate the following text to ${input.targetLanguage}:\n\n${chunk}`,
             },
           ],
         });
