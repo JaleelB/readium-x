@@ -12,12 +12,17 @@ import {
   ChevronLeft,
   X,
   Loader2,
+  FilePenLine,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
-import { LanguageSelector, SummaryOption } from "./article-toolbar-options";
+import {
+  LanguageSelector,
+  SummaryOption,
+  ZoomOption,
+} from "./article-toolbar-options";
 
-interface ToolbarFeature {
+export interface ToolbarFeature {
   icon: React.JSX.Element;
   label: string;
   content?: React.ReactNode;
@@ -30,6 +35,10 @@ interface DynamicToolbarProps {
   onSummarize: () => Promise<void>;
   isSummarizing: boolean;
   summary: string | null;
+  zoom: number;
+  zoomIn: () => void;
+  zoomOut: () => void;
+  resetZoom: () => void;
 }
 
 export function DynamicToolbar({
@@ -39,6 +48,10 @@ export function DynamicToolbar({
   onSummarize,
   isSummarizing,
   summary,
+  zoom,
+  zoomIn,
+  zoomOut,
+  resetZoom,
 }: DynamicToolbarProps) {
   const [toolbarState, setToolbarState] = useState("initial");
   const [selectedFeature, setSelectedFeature] = useState<null | ToolbarFeature>(
@@ -52,6 +65,13 @@ export function DynamicToolbar({
       prev?.label === "Translate" ? { ...prev } : prev,
     );
   }, [selectedLanguage]);
+
+  // Force re-render when summary changes
+  useEffect(() => {
+    setSelectedFeature((prev) =>
+      prev?.label === "Summarize" ? { ...prev } : prev,
+    );
+  }, [summary]);
 
   const toolbarFeatures: ToolbarFeature[] = [
     {
@@ -71,7 +91,7 @@ export function DynamicToolbar({
       label: "Summarize",
       content: (
         <SummaryOption
-          key={summary ? "summary-exists" : "no-summary"} // Add this line
+          key={summary ? `summary-${Date.now()}` : "no-summary"}
           onSummarize={onSummarize}
           isSummarizing={isSummarizing}
           summary={summary}
@@ -79,11 +99,9 @@ export function DynamicToolbar({
       ),
     },
     {
-      icon: <Volume2 className="h-4 w-4 stroke-[2px]" />,
-      label: "Text to Speech",
-      content: (
-        <p className="text-sm">Text-to-speech options will appear here.</p>
-      ),
+      icon: <FilePenLine className="h-4 w-4 stroke-[2px]" />,
+      label: "Edit Article",
+      content: <p className="text-sm">Edit options will appear here.</p>,
     },
     {
       icon: <Share2 className="h-4 w-4 stroke-[2px]" />,
@@ -94,7 +112,12 @@ export function DynamicToolbar({
       icon: <ZoomIn className="h-4 w-4 stroke-[2px]" />,
       label: "Magnify",
       content: (
-        <p className="text-sm">Magnification options will appear here.</p>
+        <ZoomOption
+          zoom={zoom}
+          zoomIn={zoomIn}
+          zoomOut={zoomOut}
+          resetZoom={resetZoom}
+        />
       ),
     },
   ];

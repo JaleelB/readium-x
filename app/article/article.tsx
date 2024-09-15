@@ -40,6 +40,7 @@ import {
 } from "@/app/history/history";
 import { useServerAction } from "zsa-react";
 import { summarizeArticleAction } from "./actions/summarize";
+import { useZoom } from "@/hooks/use-zoom";
 
 export function Article({
   content,
@@ -93,11 +94,12 @@ export function Article({
   const [bookmarkId, setBookmarkId] = useState<number | null>(null);
   const [initialProgress, setInitialProgress] = useState<number>(0);
   const [showScrollTop, setShowScrollTop] = useState(false);
+
+  // Translation
   const [translatedContent, setTranslatedContent] = useState<string | null>(
     null,
   );
   const [selectedLanguage, setSelectedLanguage] = useState<string>("en");
-
   const [allTranslations, setAllTranslations] = useLocalStorage<
     Record<number, Record<string, string>>
   >("readiumx-article-translations", {});
@@ -105,6 +107,7 @@ export function Article({
   const { execute: executeTranslation, isPending: isTranslating } =
     useServerAction(translateArticleAction, {});
 
+  // Reading Progress
   const getArticleProgressFromLocalStorage = () => {
     const progressObj = fetchFromLocalStorage("readiumx-article-progress");
     return progressObj;
@@ -276,13 +279,15 @@ export function Article({
   const [allSummaries, setAllSummaries] = useLocalStorage<
     Record<number, string>
   >("readiumx-article-summaries", {});
-
+  const [currentArticleSummary, setCurrentArticleSummary] = useState<
+    string | null
+  >(allSummaries[readingHistoryId] || null);
   const { execute: executeSummarize, isPending: isSummarizing } =
-    useServerAction(summarizeArticleAction, {});
+    useServerAction(summarizeArticleAction);
 
   const handleSummarize = async () => {
     if (allSummaries[readingHistoryId]) {
-      // Summary already exists, no need to generate again
+      setCurrentArticleSummary(allSummaries[readingHistoryId]);
       return;
     }
 
@@ -295,9 +300,11 @@ export function Article({
         loading: "Generating summary...",
         success: ([result]) => {
           if (result) {
+            const newSummary = result.summary;
+            setCurrentArticleSummary(newSummary);
             setAllSummaries((prev) => ({
               ...prev,
-              [readingHistoryId]: result.summary,
+              [readingHistoryId]: newSummary,
             }));
             return "Summary generated successfully";
           }
@@ -310,6 +317,8 @@ export function Article({
       },
     );
   };
+
+  const { zoom, zoomIn, zoomOut, resetZoom } = useZoom();
 
   return (
     <article className="w-full">
@@ -428,6 +437,7 @@ export function Article({
           <ArticleViewer
             content={safeHTMLContent}
             translatedContent={translatedContent}
+            zoom={zoom}
           />
         </article>
       </section>
@@ -464,7 +474,11 @@ export function Article({
         isTranslating={isTranslating}
         onSummarize={handleSummarize}
         isSummarizing={isSummarizing}
-        summary={allSummaries[readingHistoryId] || null}
+        summary={currentArticleSummary}
+        zoom={zoom}
+        zoomIn={zoomIn}
+        zoomOut={zoomOut}
+        resetZoom={resetZoom}
       />
     </article>
   );
