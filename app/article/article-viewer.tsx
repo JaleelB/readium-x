@@ -23,6 +23,7 @@ import {
   CustomOL,
 } from "@/lib/tiptap-extensions";
 import { useEffect } from "react";
+import { useZoom } from "@/stores/article-store";
 
 function literalTemplate(
   strings: TemplateStringsArray,
@@ -42,12 +43,12 @@ function forceReflow(element: HTMLElement) {
 export function ArticleViewer({
   content,
   translatedContent,
-  zoom,
 }: {
   content: string;
   translatedContent: string | null;
-  zoom: number;
 }) {
+  const zoom = useZoom();
+
   const staticHTMLContent = literalTemplate`${content}`;
 
   const editor = useEditor({
@@ -111,7 +112,13 @@ export function ArticleViewer({
     <div className="prose dark:prose-dark">
       <EditorContent
         editor={editor}
-        style={{ zoom: zoom, transition: "zoom 0.2s" }}
+        style={{
+          width: `${100 / zoom}%`,
+          height: `${100 / zoom}%`,
+          transform: `scale(${zoom})`,
+          transformOrigin: "top left",
+          transition: "all 0.2s",
+        }}
       />
     </div>
   );
