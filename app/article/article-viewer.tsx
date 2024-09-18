@@ -36,6 +36,8 @@ import {
 } from "@/stores/article-store";
 import { useZoom } from "@/stores/article-store";
 import { FloatingBubbleMenu } from "@/components/bubble-menu";
+import TextAlign from "@tiptap/extension-text-align";
+import Color from "@tiptap/extension-color";
 
 function literalTemplate(
   strings: TemplateStringsArray,
@@ -61,7 +63,6 @@ export function ArticleViewer({
 }) {
   const zoom = useZoom();
   const isEditable = useIsEditable();
-  const isReadingMode = useIsReadingMode();
   const setEditor = useSetEditor();
 
   const staticHTMLContent = literalTemplate`${content}`;
@@ -109,10 +110,34 @@ export function ArticleViewer({
       Strike,
       Subscript,
       Superscript,
+      FontFamily,
+      TextAlign.configure({
+        types: ["heading", "paragraph"],
+      }),
+      Color,
     ],
     editorProps: {
       attributes: {
         class: "prose dark:prose-dark",
+      },
+      handleKeyDown: (view, event) => {
+        // Prevent deletion of content
+        if (
+          event.key === "Backspace" ||
+          event.key === "Delete" ||
+          (event.ctrlKey && event.key === "x") ||
+          (event.metaKey && event.key === "x")
+        ) {
+          return true; // Prevents the default behavior
+        }
+      },
+      handlePaste: (view, event, slice) => {
+        // Prevent pasting content
+        return true; // Prevents the default paste behavior
+      },
+      handleDrop: (view, event, slice, moved) => {
+        // Prevent dropping content
+        return true; // Prevents the default drop behavior
       },
     },
     onUpdate: ({ editor }) => {
