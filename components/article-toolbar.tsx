@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useCallback } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import {
   Languages,
@@ -20,6 +20,7 @@ import {
   LanguageSelector,
   SummaryOption,
   ZoomOption,
+  EditOption,
 } from "./article-toolbar-options";
 
 export interface ToolbarFeature {
@@ -34,11 +35,6 @@ interface DynamicToolbarProps {
   isTranslating: boolean;
   onSummarize: () => Promise<void>;
   isSummarizing: boolean;
-  summary: string | null;
-  zoom: number;
-  zoomIn: () => void;
-  zoomOut: () => void;
-  resetZoom: () => void;
 }
 
 export function DynamicToolbar({
@@ -47,31 +43,11 @@ export function DynamicToolbar({
   isTranslating,
   onSummarize,
   isSummarizing,
-  summary,
-  zoom,
-  zoomIn,
-  zoomOut,
-  resetZoom,
 }: DynamicToolbarProps) {
   const [toolbarState, setToolbarState] = useState("initial");
   const [selectedFeature, setSelectedFeature] = useState<null | ToolbarFeature>(
     null,
   );
-  const [isAnimating, setIsAnimating] = useState(false);
-
-  // Force re-render when selectedLanguage changes
-  useEffect(() => {
-    setSelectedFeature((prev) =>
-      prev?.label === "Translate" ? { ...prev } : prev,
-    );
-  }, [selectedLanguage]);
-
-  // Force re-render when summary changes
-  useEffect(() => {
-    setSelectedFeature((prev) =>
-      prev?.label === "Summarize" ? { ...prev } : prev,
-    );
-  }, [summary]);
 
   const toolbarFeatures: ToolbarFeature[] = [
     {
@@ -88,20 +64,18 @@ export function DynamicToolbar({
     },
     {
       icon: <TextSelect className="h-4 w-4 stroke-[2px]" />,
-      label: "Summarize",
+      label: "TLDR",
       content: (
         <SummaryOption
-          key={summary ? `summary-${Date.now()}` : "no-summary"}
           onSummarize={onSummarize}
           isSummarizing={isSummarizing}
-          summary={summary}
         />
       ),
     },
     {
       icon: <FilePenLine className="h-4 w-4 stroke-[2px]" />,
       label: "Edit Article",
-      content: <p className="text-sm">Edit options will appear here.</p>,
+      content: <EditOption />,
     },
     {
       icon: <Share2 className="h-4 w-4 stroke-[2px]" />,
@@ -111,34 +85,22 @@ export function DynamicToolbar({
     {
       icon: <ZoomIn className="h-4 w-4 stroke-[2px]" />,
       label: "Magnify",
-      content: (
-        <ZoomOption
-          zoom={zoom}
-          zoomIn={zoomIn}
-          zoomOut={zoomOut}
-          resetZoom={resetZoom}
-        />
-      ),
+      content: <ZoomOption />,
     },
   ];
 
-  const setToolbarStateWithAnimation = (
-    newState: string,
-    feature: ToolbarFeature | null = null,
-  ) => {
-    setIsAnimating(true);
-    if (newState === "final" && feature === selectedFeature) {
-      setToolbarState("intermediate");
-      setSelectedFeature(null);
-    } else {
-      setToolbarState(newState);
-      setSelectedFeature(feature);
-    }
-  };
-
-  const handleAnimationComplete = () => {
-    setIsAnimating(false);
-  };
+  const setToolbarStateWithAnimation = useCallback(
+    (newState: string, feature: ToolbarFeature | null = null) => {
+      if (newState === "final" && feature === selectedFeature) {
+        setToolbarState("intermediate");
+        setSelectedFeature(null);
+      } else {
+        setToolbarState(newState);
+        setSelectedFeature(feature);
+      }
+    },
+    [selectedFeature],
+  );
 
   const backgroundVariants = {
     initial: {
@@ -217,14 +179,13 @@ export function DynamicToolbar({
   return (
     <motion.div
       className={cn(
-        "dark fixed bottom-6 left-1/2 z-50 -translate-x-1/2 transform overflow-hidden",
+        "dark fixed bottom-6 left-1/2 z-[500] -translate-x-1/2 transform overflow-hidden",
         isTranslating && "pointer-events-none",
       )}
       initial="initial"
       animate={toolbarState}
       variants={backgroundVariants}
       transition={{ duration: 0.3, ease: "easeInOut" }}
-      onAnimationComplete={handleAnimationComplete}
     >
       <motion.div
         className="dark absolute inset-0 bg-[#141414] shadow-lg shadow-black/40 dark:bg-[#191919]"

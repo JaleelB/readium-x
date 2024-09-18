@@ -9,7 +9,6 @@ import {
   Italic,
   Underline,
   Strikethrough,
-  Link,
 } from "lucide-react";
 import { Toggle } from "@/components/ui/toggle";
 import { Editor } from "@tiptap/react";
@@ -30,7 +29,7 @@ const colorPalette = [
 
 type Mode = "text" | "highlight";
 
-const TextMode = () => (
+const TextMode = ({ editor }: { editor: Editor | null }) => (
   <motion.div
     initial={{ opacity: 0 }}
     animate={{ opacity: 1 }}
@@ -38,20 +37,37 @@ const TextMode = () => (
     transition={{ duration: 0.2 }}
     className="flex items-center space-x-1"
   >
-    <Toggle aria-label="Toggle bold" className="h-8 w-8 p-0">
+    <Toggle
+      aria-label="Toggle bold"
+      className="h-8 w-8 p-0"
+      pressed={editor?.isActive("bold")}
+      onPressedChange={() => editor?.chain().focus().toggleBold().run()}
+    >
       <Bold className="h-4 w-4" />
     </Toggle>
-    <Toggle aria-label="Toggle italic" className="h-8 w-8 p-0">
+    <Toggle
+      aria-label="Toggle italic"
+      className="h-8 w-8 p-0"
+      pressed={editor?.isActive("italic")}
+      onPressedChange={() => editor?.chain().focus().toggleItalic().run()}
+    >
       <Italic className="h-4 w-4" />
     </Toggle>
-    <Toggle aria-label="Toggle underline" className="h-8 w-8 p-0">
+    <Toggle
+      aria-label="Toggle underline"
+      className="h-8 w-8 p-0"
+      pressed={editor?.isActive("underline")}
+      onPressedChange={() => editor?.chain().focus().toggleUnderline().run()}
+    >
       <Underline className="h-4 w-4" />
     </Toggle>
-    <Toggle aria-label="Toggle strikethrough" className="h-8 w-8 p-0">
+    <Toggle
+      aria-label="Toggle strikethrough"
+      className="h-8 w-8 p-0"
+      pressed={editor?.isActive("strike")}
+      onPressedChange={() => editor?.chain().focus().toggleStrike().run()}
+    >
       <Strikethrough className="h-4 w-4" />
-    </Toggle>
-    <Toggle aria-label="Toggle link" className="h-8 w-8 p-0">
-      <Link className="h-4 w-4" />
     </Toggle>
   </motion.div>
 );
@@ -132,7 +148,7 @@ export function FloatingBubbleMenu() {
         ></div>
         <AnimatePresence mode="wait">
           {mode === "text" ? (
-            <TextMode key="text-mode" />
+            <TextMode key="text-mode" editor={editor} />
           ) : (
             <HighlightMode
               key="highlight-mode"
