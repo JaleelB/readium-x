@@ -109,9 +109,6 @@ export function ArticleViewer({
       Strike,
       Subscript,
       Superscript,
-      // BubbleMenu.configure({
-      //   element: document.querySelector(".bubble-menu") as HTMLElement,
-      // }),
     ],
     editorProps: {
       attributes: {
@@ -150,8 +147,15 @@ export function ArticleViewer({
         appearance: "none",
       }}
     >
-      {editor && isEditable && (
-        <BubbleMenu editor={editor} tippyOptions={{ duration: 100 }}>
+      {editor && (
+        <BubbleMenu
+          editor={editor}
+          tippyOptions={{ duration: 100 }}
+          shouldShow={({ editor }) => {
+            // Only show the bubble menu when the editor is editable
+            return editor.isEditable && !editor.state.selection.empty;
+          }}
+        >
           <FloatingBubbleMenu />
         </BubbleMenu>
       )}

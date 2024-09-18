@@ -40,7 +40,14 @@ import {
 } from "@/app/history/history";
 import { useServerAction } from "zsa-react";
 import { summarizeArticleAction } from "./actions/summarize";
-import { useZoom } from "@/hooks/use-zoom";
+import {
+  useTranslatedContent,
+  useSelectedLanguage,
+  useSetSummary,
+  useSetTranslatedContent,
+  useSetSelectedLanguage,
+  // useSetReadingHistoryId,
+} from "@/stores/article-store";
 
 export function Article({
   content,
@@ -57,6 +64,12 @@ export function Article({
   url: string;
   readingHistoryId: number;
 }) {
+  const translatedContent = useTranslatedContent();
+  const selectedLanguage = useSelectedLanguage();
+  const setSummary = useSetSummary();
+  const setTranslatedContent = useSetTranslatedContent();
+  const setSelectedLanguage = useSetSelectedLanguage();
+
   const safeHTMLContent = DOMPurify.sanitize(content?.htmlContent || "", {
     USE_PROFILES: { html: true },
     ALLOWED_ATTR: [
@@ -96,16 +109,27 @@ export function Article({
   const [showScrollTop, setShowScrollTop] = useState(false);
 
   // Translation
-  const [translatedContent, setTranslatedContent] = useState<string | null>(
-    null,
-  );
-  const [selectedLanguage, setSelectedLanguage] = useState<string>("en");
   const [allTranslations, setAllTranslations] = useLocalStorage<
     Record<number, Record<string, string>>
   >("readiumx-article-translations", {});
 
   const { execute: executeTranslation, isPending: isTranslating } =
     useServerAction(translateArticleAction, {});
+
+  // Summaries
+  const [allSummaries, setAllSummaries] = useLocalStorage<
+    Record<number, string>
+  >("readiumx-article-summaries", {});
+
+  const { execute: executeSummarize, isPending: isSummarizing } =
+    useServerAction(summarizeArticleAction);
+
+  useEffect(() => {
+    if (allSummaries[readingHistoryId]) {
+      const storedSummary = allSummaries[readingHistoryId];
+      setSummary(storedSummary); // setting summary in the store on initial render
+    }
+  }, [allSummaries, readingHistoryId, setSummary]);
 
   // Reading Progress
   const getArticleProgressFromLocalStorage = () => {
@@ -227,10 +251,6 @@ export function Article({
     return () => window.removeEventListener("scroll", handleScroll);
   }, []);
 
-  const scrollToTop = () => {
-    window.scrollTo({ top: 0, behavior: "smooth" });
-  };
-
   const handleTranslate = async (targetLanguage: string) => {
     if (targetLanguage === "en") {
       setTranslatedContent(null);
@@ -276,18 +296,16 @@ export function Article({
     );
   };
 
-  const [allSummaries, setAllSummaries] = useLocalStorage<
-    Record<number, string>
-  >("readiumx-article-summaries", {});
-  const [currentArticleSummary, setCurrentArticleSummary] = useState<
-    string | null
-  >(allSummaries[readingHistoryId] || null);
-  const { execute: executeSummarize, isPending: isSummarizing } =
-    useServerAction(summarizeArticleAction);
+  // const [allSummaries, setAllSummaries] = useLocalStorage<
+  //   Record<number, string>
+  // >("readiumx-article-summaries", {});
+
+  // const { execute: executeSummarize, isPending: isSummarizing } =
+  //   useServerAction(summarizeArticleAction);
 
   const handleSummarize = async () => {
     if (allSummaries[readingHistoryId]) {
-      setCurrentArticleSummary(allSummaries[readingHistoryId]);
+      setSummary(allSummaries[readingHistoryId]);
       return;
     }
 
@@ -301,7 +319,7 @@ export function Article({
         success: ([result]) => {
           if (result) {
             const newSummary = result.summary;
-            setCurrentArticleSummary(newSummary);
+            setSummary(newSummary);
             setAllSummaries((prev) => ({
               ...prev,
               [readingHistoryId]: newSummary,
@@ -317,8 +335,6 @@ export function Article({
       },
     );
   };
-
-  const { zoom, zoomIn, zoomOut, resetZoom } = useZoom();
 
   return (
     <article className="w-full">
@@ -437,7 +453,6 @@ export function Article({
           <ArticleViewer
             content={safeHTMLContent}
             translatedContent={translatedContent}
-            zoom={zoom}
           />
         </article>
       </section>
@@ -446,7 +461,9 @@ export function Article({
           variant="outline"
           size="icon"
           className="fixed bottom-6 left-6 z-50 rounded-full border border-input p-1.5 shadow-md transition-opacity duration-300 dark:bg-[#191919]"
-          onClick={scrollToTop}
+          onClick={() => {
+            window.scrollTo({ top: 0, behavior: "smooth" });
+          }}
         >
           <svg
             xmlns="http://www.w3.org/2000/svg"
@@ -474,11 +491,6 @@ export function Article({
         isTranslating={isTranslating}
         onSummarize={handleSummarize}
         isSummarizing={isSummarizing}
-        summary={currentArticleSummary}
-        zoom={zoom}
-        zoomIn={zoomIn}
-        zoomOut={zoomOut}
-        resetZoom={resetZoom}
       />
     </article>
   );
