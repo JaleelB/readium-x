@@ -38,6 +38,7 @@ import { useZoom } from "@/stores/article-store";
 import { FloatingBubbleMenu } from "@/components/bubble-menu";
 import TextAlign from "@tiptap/extension-text-align";
 import Color from "@tiptap/extension-color";
+import { cn } from "@/lib/utils"; // Make sure you have this utility function
 
 function literalTemplate(
   strings: TemplateStringsArray,
@@ -118,7 +119,10 @@ export function ArticleViewer({
     ],
     editorProps: {
       attributes: {
-        class: "prose dark:prose-dark",
+        class: cn(
+          "prose dark:prose-dark",
+          "focus:outline-none", // Remove focus outline
+        ),
       },
       handleKeyDown: (view, event) => {
         // Prevent deletion of content
@@ -167,7 +171,10 @@ export function ArticleViewer({
 
   return (
     <div
-      className="prose dark:prose-dark"
+      className={cn(
+        "prose dark:prose-dark relative",
+        isEditable && "rounded-lg bg-muted/20 p-2",
+      )}
       style={{
         appearance: "none",
       }}
@@ -186,6 +193,7 @@ export function ArticleViewer({
       )}
       <EditorContent
         editor={editor}
+        className={cn(isEditable && "bg-muted/50")}
         style={{
           width: `${100 / zoom}%`,
           height: `${100 / zoom}%`,

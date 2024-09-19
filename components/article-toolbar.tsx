@@ -124,7 +124,7 @@ export function DynamicToolbar({
       },
     },
     final: {
-      width: "320px",
+      width: "350px",
       height: "270px",
       borderRadius: "16px",
       transition: {

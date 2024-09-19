@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect, useTransition } from "react";
+import { useState, useEffect, useTransition, useMemo } from "react";
 import {
   Command,
   CommandEmpty,
@@ -9,10 +9,45 @@ import {
   CommandItem,
   CommandList,
 } from "@/components/ui/command";
-import { Check } from "lucide-react";
+import { Check, Save } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Loader2 } from "lucide-react";
 import { Minus, Plus, RotateCcw } from "lucide-react";
+import { useSummary, useZoom, useZoomActions } from "@/stores/article-store";
+
+import {
+  useIsEditable,
+  useToggleEditable,
+  useIsReadingMode,
+  useToggleReadingMode,
+  useEditor,
+} from "@/stores/article-store";
+import { Switch } from "@/components/ui/switch";
+import {
+  Popover,
+  PopoverTrigger,
+  PopoverContent,
+} from "@/components/ui/popover";
+import {
+  Select,
+  SelectTrigger,
+  SelectValue,
+  SelectContent,
+  SelectItem,
+} from "@/components/ui/select";
+import {
+  Bold,
+  Italic,
+  Underline,
+  Strikethrough,
+  AlignLeft,
+  AlignCenter,
+  AlignRight,
+  Subscript,
+  Superscript,
+  Eraser,
+} from "lucide-react";
+import { toast } from "sonner";
 
 const languages = [
   { value: "en", label: "English" },
@@ -96,15 +131,14 @@ export function LanguageSelector({
 interface SummaryOptionProps {
   onSummarize: () => Promise<void>;
   isSummarizing: boolean;
-  summary: string | null;
 }
 
 export function SummaryOption({
   onSummarize,
   isSummarizing,
-  summary,
 }: SummaryOptionProps) {
   const [isPending, startTransition] = useTransition();
+  const summary = useSummary();
 
   const handleSummarizeClick = () => {
     if (!isSummarizing && !isPending && !summary) {
@@ -154,19 +188,15 @@ export function SummaryOption({
   );
 }
 
-interface ZoomOptionProps {
-  zoom: number;
-  zoomIn: () => void;
-  zoomOut: () => void;
-  resetZoom: () => void;
-}
+export function ZoomOption() {
+  const zoom = useZoom();
+  const zoomActions = useZoomActions();
 
-export function ZoomOption({
-  zoom,
-  zoomIn,
-  zoomOut,
-  resetZoom,
-}: ZoomOptionProps) {
+  const { zoomIn, zoomOut, resetZoom } = useMemo(
+    () => zoomActions,
+    [zoomActions],
+  );
+
   return (
     <div className="flex flex-col gap-2 px-2 pb-2">
       <div className="py-2 text-center text-5xl">
@@ -190,6 +220,127 @@ export function ZoomOption({
         <RotateCcw className="h-4 w-4" />
         Reset Zoom
       </Button>
+    </div>
+  );
+}
+
+const fontFamilies = [
+  { value: "Arial", label: "Arial" },
+  { value: "Helvetica", label: "Helvetica" },
+  { value: "Times New Roman", label: "Times New Roman" },
+  { value: "Courier", label: "Courier" },
+  { value: "Verdana", label: "Verdana" },
+  { value: "Georgia", label: "Georgia" },
+];
+
+export function EditOption() {
+  const isEditable = useIsEditable();
+  const toggleEditable = useToggleEditable();
+  const editor = useEditor();
+
+  useEffect(() => {
+    if (isEditable) {
+      toast.info("Editing mode enabled");
+    }
+  }, [isEditable]);
+
+  const handleToggleEditable = () => {
+    const wasEditable = isEditable;
+    toggleEditable();
+    if (wasEditable) {
+      toast.info("Editing mode disabled.");
+    }
+  };
+
+  const setFontFamily = (font: string) => {
+    if (editor) {
+      editor.commands.selectAll();
+      editor.chain().focus().setFontFamily(font).run();
+      editor.commands.setTextSelection({ from: 0, to: 0 });
+    }
+  };
+
+  const clearFormatting = () => {
+    if (editor) {
+      editor
+        .chain()
+        .focus()
+        .unsetAllMarks()
+        .unsetFontFamily()
+        .unsetTextAlign()
+        .setTextSelection(editor.state.doc.content.size)
+        .run();
+
+      // Manually clear formatting for specific node types
+      editor.state.doc.descendants((node, pos) => {
+        if (node.type.name === "paragraph" || node.type.name === "heading") {
+          editor
+            .chain()
+            .focus()
+            .setNodeSelection(pos)
+            .unsetAllMarks()
+            .unsetFontFamily()
+            .unsetTextAlign()
+            .run();
+        }
+      });
+    }
+  };
+
+  const saveChanges = () => {
+    if (editor) {
+      const content = editor.getHTML();
+      console.log("Saving changes:", content);
+      toast.success("Changes saved successfully");
+    }
+  };
+
+  return (
+    <div className="flex flex-col gap-2 px-2 pb-2">
+      <div className="flex items-center justify-between">
+        <span className="text-sm font-medium">Enable Editing</span>
+        <Switch checked={isEditable} onCheckedChange={handleToggleEditable} />
+      </div>
+      {isEditable && (
+        <div className="flex max-h-[250px] flex-col justify-between gap-4 overflow-y-auto border-t border-accent pt-2">
+          <div className="flex items-center justify-between">
+            <span className="text-sm font-medium">Font Family</span>
+            <Select onValueChange={setFontFamily}>
+              <SelectTrigger
+                className="w-[150px]"
+                defaultValue={fontFamilies[0]?.value || "Arial"}
+              >
+                <SelectValue placeholder="Font Family" />
+              </SelectTrigger>
+              <SelectContent
+                align="end"
+                className="dark z-[1000] max-h-[100px] overflow-y-auto"
+              >
+                {fontFamilies.map((font) => (
+                  <SelectItem key={font.value} value={font.value}>
+                    {font.label}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+          </div>
+          <div className="flex gap-2">
+            <Button
+              size="sm"
+              className="w-full"
+              variant="destructive"
+              onClick={clearFormatting}
+            >
+              <Eraser className="mr-2 h-4 w-4" />
+              Clear Formatting
+            </Button>
+            <Button size="sm" className="w-full" onClick={saveChanges}>
+              <Save className="mr-2 h-4 w-4" />
+              Save Changes
+            </Button>
+          </div>
+        </div>
+      )}
     </div>
   );
 }
