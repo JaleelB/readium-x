@@ -48,6 +48,7 @@ import {
   Eraser,
 } from "lucide-react";
 import { toast } from "sonner";
+import { useLocalStorage } from "@/hooks/use-local-storage";
 
 const languages = [
   { value: "en", label: "English" },
@@ -233,65 +234,96 @@ const fontFamilies = [
   { value: "Georgia", label: "Georgia" },
 ];
 
-export function EditOption() {
+export function EditOption({ readingHistoryId }: { readingHistoryId: number }) {
   const isEditable = useIsEditable();
   const toggleEditable = useToggleEditable();
   const editor = useEditor();
 
+  const [editedContent, setEditedContent] = useLocalStorage<
+    Record<number, string>
+  >("readiumx-edited-articles", {});
+
   useEffect(() => {
-    if (isEditable) {
-      toast.info("Editing mode enabled");
+    if (isEditable && editor && editedContent[readingHistoryId]) {
+      editor.commands.setContent(editedContent[readingHistoryId]);
     }
-  }, [isEditable]);
+  }, [isEditable, editor, editedContent, readingHistoryId]);
+
+  const preserveScrollPosition = (callback: () => void) => {
+    if (editor) {
+      const scrollPosition = window.scrollY;
+      callback();
+      window.scrollTo(0, scrollPosition);
+    }
+  };
 
   const handleToggleEditable = () => {
     const wasEditable = isEditable;
     toggleEditable();
     if (wasEditable) {
       toast.info("Editing mode disabled.");
+    } else {
+      toast.info("Editing mode enabled");
     }
   };
 
   const setFontFamily = (font: string) => {
-    if (editor) {
-      editor.commands.selectAll();
-      editor.chain().focus().setFontFamily(font).run();
-      editor.commands.setTextSelection({ from: 0, to: 0 });
-    }
+    preserveScrollPosition(() => {
+      if (editor) {
+        editor.chain().focus().selectAll().setFontFamily(font).run();
+      }
+    });
   };
 
   const clearFormatting = () => {
-    if (editor) {
-      editor
-        .chain()
-        .focus()
-        .unsetAllMarks()
-        .unsetFontFamily()
-        .unsetTextAlign()
-        .setTextSelection(editor.state.doc.content.size)
-        .run();
+    preserveScrollPosition(() => {
+      if (editor) {
+        editor
+          .chain()
+          .focus()
+          .selectAll()
+          .unsetAllMarks()
+          .unsetFontFamily()
+          .unsetTextAlign()
+          .setTextSelection(editor.state.doc.content.size)
+          .run();
 
-      // Manually clear formatting for specific node types
-      editor.state.doc.descendants((node, pos) => {
-        if (node.type.name === "paragraph" || node.type.name === "heading") {
-          editor
-            .chain()
-            .focus()
-            .setNodeSelection(pos)
-            .unsetAllMarks()
-            .unsetFontFamily()
-            .unsetTextAlign()
-            .run();
-        }
-      });
-    }
+        // Manually clear formatting for specific node types
+        editor.state.doc.descendants((node, pos) => {
+          if (node.type.name === "paragraph" || node.type.name === "heading") {
+            editor
+              .chain()
+              .focus()
+              .setNodeSelection(pos)
+              .unsetAllMarks()
+              .unsetFontFamily()
+              .unsetTextAlign()
+              .run();
+          }
+        });
+
+        // Get the updated content and store it in local storage
+        const updatedContent = editor.getHTML();
+        setEditedContent((prev) => ({
+          ...prev,
+          [readingHistoryId]: updatedContent,
+        }));
+      }
+    });
+    toast.success("Formatting cleared and changes saved");
   };
 
   const saveChanges = () => {
-    if (editor) {
-      const content = editor.getHTML();
-      console.log("Saving changes:", content);
+    const mainContentDiv = document.querySelector(".main-content");
+    if (mainContentDiv) {
+      const content = mainContentDiv.outerHTML;
+      setEditedContent((prev) => ({
+        ...prev,
+        [readingHistoryId]: content,
+      }));
       toast.success("Changes saved successfully");
+    } else {
+      toast.error("Could not find content to save");
     }
   };
 
@@ -331,11 +363,9 @@ export function EditOption() {
               variant="destructive"
               onClick={clearFormatting}
             >
-              <Eraser className="mr-2 h-4 w-4" />
               Clear Formatting
             </Button>
             <Button size="sm" className="w-full" onClick={saveChanges}>
-              <Save className="mr-2 h-4 w-4" />
               Save Changes
             </Button>
           </div>

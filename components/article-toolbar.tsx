@@ -35,6 +35,7 @@ interface DynamicToolbarProps {
   isTranslating: boolean;
   onSummarize: () => Promise<void>;
   isSummarizing: boolean;
+  readingHistoryId: number;
 }
 
 export function DynamicToolbar({
@@ -43,6 +44,7 @@ export function DynamicToolbar({
   isTranslating,
   onSummarize,
   isSummarizing,
+  readingHistoryId,
 }: DynamicToolbarProps) {
   const [toolbarState, setToolbarState] = useState("initial");
   const [selectedFeature, setSelectedFeature] = useState<null | ToolbarFeature>(
@@ -75,13 +77,13 @@ export function DynamicToolbar({
     {
       icon: <FilePenLine className="h-4 w-4 stroke-[2px]" />,
       label: "Edit Article",
-      content: <EditOption />,
+      content: <EditOption readingHistoryId={readingHistoryId} />,
     },
-    {
-      icon: <Share2 className="h-4 w-4 stroke-[2px]" />,
-      label: "Share",
-      content: <p className="text-sm">Sharing options will appear here.</p>,
-    },
+    // {
+    //   icon: <Share2 className="h-4 w-4 stroke-[2px]" />,
+    //   label: "Share",
+    //   content: <p className="text-sm">Sharing options will appear here.</p>,
+    // },
     {
       icon: <ZoomIn className="h-4 w-4 stroke-[2px]" />,
       label: "Magnify",
@@ -114,7 +116,7 @@ export function DynamicToolbar({
       },
     },
     intermediate: {
-      width: "270px",
+      width: "240px",
       height: "48px",
       borderRadius: "16px",
       transition: {
@@ -124,7 +126,7 @@ export function DynamicToolbar({
       },
     },
     final: {
-      width: "350px",
+      width: "320px",
       height: "270px",
       borderRadius: "16px",
       transition: {

@@ -453,6 +453,7 @@ export function Article({
           <ArticleViewer
             content={safeHTMLContent}
             translatedContent={translatedContent}
+            readingHistoryId={readingHistoryId}
           />
         </article>
       </section>
@@ -491,6 +492,7 @@ export function Article({
         isTranslating={isTranslating}
         onSummarize={handleSummarize}
         isSummarizing={isSummarizing}
+        readingHistoryId={readingHistoryId}
       />
     </article>
   );

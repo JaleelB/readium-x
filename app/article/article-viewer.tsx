@@ -39,6 +39,7 @@ import { FloatingBubbleMenu } from "@/components/bubble-menu";
 import TextAlign from "@tiptap/extension-text-align";
 import Color from "@tiptap/extension-color";
 import { cn } from "@/lib/utils"; // Make sure you have this utility function
+import { useLocalStorage } from "@/hooks/use-local-storage";
 
 function literalTemplate(
   strings: TemplateStringsArray,
@@ -58,15 +59,22 @@ function forceReflow(element: HTMLElement) {
 export function ArticleViewer({
   content,
   translatedContent,
+  readingHistoryId,
 }: {
   content: string;
   translatedContent: string | null;
+  readingHistoryId: number;
 }) {
   const zoom = useZoom();
   const isEditable = useIsEditable();
   const setEditor = useSetEditor();
 
-  const staticHTMLContent = literalTemplate`${content}`;
+  const [editedContent] = useLocalStorage<Record<number, string>>(
+    "readiumx-edited-articles",
+    {},
+  );
+
+  const staticHTMLContent = literalTemplate`${editedContent[readingHistoryId] || content}`;
 
   const editor = useEditor({
     content: staticHTMLContent || translatedContent,
