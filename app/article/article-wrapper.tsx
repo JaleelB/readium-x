@@ -124,7 +124,7 @@ export async function ArticleWrapper({
   let article: ArticleDetails | { error: string } | null = null;
 
   // if browser is requesting html it means it's the first page load
-  if (headers().get("accept")?.includes("text/html")) {
+  if ((await headers()).get("accept")?.includes("text/html")) {
     // article = await getCachedArticle(url);
     article = await scrapeArticleContent(url);
     if ("error" in article) {

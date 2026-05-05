@@ -9,7 +9,7 @@ import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { AvatarImage } from "@radix-ui/react-avatar";
 import Link from "next/link";
 import Cookies from "js-cookie";
-import { cn, formatDate, getLocalStorageItem } from "@/lib/utils";
+import { cn, formatDate } from "@/lib/utils";
 import { v4 as uuidv4 } from "uuid";
 import {
   AlertDialog,
@@ -36,6 +36,7 @@ import {
   DropdownMenuSeparator,
   DropdownMenuGroup,
 } from "@/components/ui/dropdown-menu";
+import { useLocalStorage } from "@/hooks/use-local-storage";
 
 export type Layout = "grid" | "rows";
 export type OrderBy = "date" | "readTime" | "title";
@@ -69,21 +70,30 @@ export default function BookmarksList({
   const searchParams = useSearchParams();
   const searchTerm = searchParams.get("search") || "";
 
-  const [layout, setLayout] = useState<"grid" | "rows">("grid");
-  const [orderBy, setOrderBy] = useState<OrderBy>("date");
+  // const [layout, setLayout] = useState<"grid" | "rows">("grid");
+  // const [orderBy, setOrderBy] = useState<OrderBy>("date");
 
-  useEffect(() => {
-    setLayout(getLocalStorageItem("layout", "grid") as Layout);
-    setOrderBy(getLocalStorageItem("orderBy", "date") as OrderBy);
-  }, []);
+  // useEffect(() => {
+  //   setLayout(getLocalStorageItem("layout", "grid") as Layout);
+  //   setOrderBy(getLocalStorageItem("orderBy", "date") as OrderBy);
+  // }, []);
 
-  useEffect(() => {
-    localStorage.setItem("layout", layout);
-  }, [layout]);
+  // useEffect(() => {
+  //   localStorage.setItem("layout", layout);
+  // }, [layout]);
 
-  useEffect(() => {
-    localStorage.setItem("orderBy", orderBy);
-  }, [orderBy]);
+  // useEffect(() => {
+  //   localStorage.setItem("orderBy", orderBy);
+  // }, [orderBy]);
+
+  const [layout, setLayout] = useLocalStorage<Layout>(
+    "readiumx-bookmarks-layout",
+    "grid",
+  );
+  const [orderBy, setOrderBy] = useLocalStorage<OrderBy>(
+    "readiumx-bookmarks-order-by",
+    "date",
+  );
 
   const sortedAndFilteredBookmarks = useMemo(() => {
     let filtered = bookmarks;

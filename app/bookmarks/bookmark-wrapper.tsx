@@ -109,7 +109,7 @@ export async function BookmarkWrapper({ user }: { user: User }) {
   let bookmarks: Bookmark[] | null = null;
 
   // if browser is requesting html it means it's the first page load
-  if (headers().get("accept")?.includes("text/html")) {
+  if ((await headers()).get("accept")?.includes("text/html")) {
     bookmarks = await getBookmarksUseCase(user.id);
   }
 

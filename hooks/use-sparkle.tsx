@@ -11,7 +11,7 @@ export function useSparkle<T extends HTMLElement>({
   color = "#ffffffb3",
   sparkleCount = 40,
   sparkleSize = 1.5,
-}: UseSparkleProps): RefObject<T> {
+}: UseSparkleProps): RefObject<T | null> {
   const sparkleContainerRef = useRef<T>(null);
 
   useEffect(() => {

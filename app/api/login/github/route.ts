@@ -8,7 +8,7 @@ export async function GET(): Promise<Response> {
     scopes: ["user:email"],
   });
 
-  cookies().set("github_oauth_state", state, {
+  (await cookies()).set("github_oauth_state", state, {
     path: "/",
     secure: process.env.NODE_ENV === "production",
     httpOnly: true,

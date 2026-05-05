@@ -1,4 +1,5 @@
-"use client";
+"use client";;
+import { use } from "react";
 
 import { z } from "zod";
 
@@ -36,11 +37,12 @@ const registrationSchema = z
     path: ["passwordConfirmation"],
   });
 
-export default function ResetPasswordPage({
-  searchParams,
-}: {
-  searchParams: { token: string };
-}) {
+export default function ResetPasswordPage(
+  props: {
+    searchParams: Promise<{ token: string }>;
+  }
+) {
+  const searchParams = use(props.searchParams);
   const form = useForm<z.infer<typeof registrationSchema>>({
     resolver: zodResolver(registrationSchema),
     defaultValues: {

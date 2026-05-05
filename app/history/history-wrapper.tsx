@@ -276,7 +276,7 @@ export default async function HistoryWrapper({ user }: { user: User }) {
   let historyLog = null;
 
   // if browser is requesting html it means it's the first page load
-  if (headers().get("accept")?.includes("text/html")) {
+  if ((await headers()).get("accept")?.includes("text/html")) {
     historyLog = await getBookmarksUseCase(user.id);
   }
 
