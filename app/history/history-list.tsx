@@ -32,7 +32,7 @@ export type ReadingHistory = {
   authorProfileURL: string | null;
   readTime: string;
   id: number;
-  userId: number;
+  userId: string;
   createdAt: Date;
   updatedAt: Date | null;
   articleUrl: string;

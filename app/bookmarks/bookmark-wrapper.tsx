@@ -9,7 +9,7 @@ import Image from "next/image";
 import { cn } from "@/lib/utils";
 import { getBookmarksAction } from "./bookmark";
 import { ErrorCard } from "@/components/error-card";
-import { User } from "lucia";
+import { User } from "@/server/db/schema";
 import { BookmarkButton } from "./components/bookmark-button";
 import Balancer from "react-wrap-balancer";
 

@@ -2,12 +2,11 @@ import React from "react";
 import { getCurrentUser } from "@/lib/session";
 import { getUser } from "@/data-access/users";
 import Nav from "./nav";
-import { Profile, User } from "@/server/db/schema";
+import { Profile } from "@/server/db/schema";
 import { getUserProfileUseCase } from "@/use-cases/users";
-import { redirect } from "next/navigation";
 
 export type UserInfo =
-  | { id: number; email: string | null; emailVerified: Date | null }
+  | { id: string; email: string | null }
   | null
   | undefined;
 

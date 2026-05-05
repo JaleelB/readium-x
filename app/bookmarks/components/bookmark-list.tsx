@@ -62,7 +62,7 @@ export default function BookmarksList({
   userId,
 }: {
   bookmarks: Bookmark[];
-  userId: number;
+  userId: string;
 }) {
   const id = uuidv4();
   const router = useRouter();
@@ -215,7 +215,7 @@ function BookmarkCard({
   layout,
 }: {
   bookmark: Bookmark;
-  userId: number;
+  userId: string;
   articleId: string;
   pathname: string;
   layout: Layout;

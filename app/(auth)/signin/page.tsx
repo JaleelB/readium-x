@@ -12,9 +12,7 @@ import {
   FormLabel,
   FormMessage,
 } from "@/components/ui/form";
-import { useServerAction } from "zsa-react";
 import Link from "next/link";
-import { signInAction } from "./actions";
 import { LoaderButton } from "@/components/loader-button";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import { Terminal } from "lucide-react";
@@ -24,6 +22,10 @@ import Balancer from "react-wrap-balancer";
 import { SparkleBg } from "@/components/sparkle-bg";
 import { OAuthButton } from "@/components/oauth-button";
 import { toast } from "sonner";
+import { useSignIn } from "@clerk/nextjs";
+import { useRouter } from "next/navigation";
+import { afterLoginUrl } from "@/app-config";
+import { useState } from "react";
 
 const registrationSchema = z.object({
   email: z.string().email(),
@@ -31,14 +33,9 @@ const registrationSchema = z.object({
 });
 
 export default function SignInPage() {
-  const { execute, isPending, error, reset } = useServerAction(signInAction, {
-    onError({ err }) {
-      toast.error(err.message);
-    },
-    onSuccess() {
-      toast.success("You're in! Enjoy your session");
-    },
-  });
+  const { signIn, fetchStatus } = useSignIn();
+  const router = useRouter();
+  const [error, setError] = useState<string | null>(null);
 
   const form = useForm<z.infer<typeof registrationSchema>>({
     resolver: zodResolver(registrationSchema),
@@ -48,8 +45,41 @@ export default function SignInPage() {
     },
   });
 
-  function onSubmit(values: z.infer<typeof registrationSchema>) {
-    execute(values);
+  async function onSubmit(values: z.infer<typeof registrationSchema>) {
+    if (!signIn) {
+      return;
+    }
+
+    setError(null);
+    const { error } = await signIn.password({
+      identifier: values.email,
+      password: values.password,
+    });
+
+    if (error) {
+      const message = error.longMessage ?? error.message;
+      setError(message);
+      toast.error(message);
+      return;
+    }
+
+    if (signIn.status === "complete") {
+      toast.success("You're in! Enjoy your session");
+      await signIn.finalize({
+        navigate: ({ session, decorateUrl }) => {
+          const destination = session.currentTask
+            ? `/signin/tasks/${session.currentTask.key}`
+            : afterLoginUrl;
+          const url = decorateUrl(destination);
+
+          if (url.startsWith("http")) {
+            window.location.href = url;
+          } else {
+            router.push(url);
+          }
+        },
+      });
+    }
   }
 
   return (
@@ -126,7 +156,11 @@ export default function SignInPage() {
               )}
             />
           </div>
-          <LoaderButton isLoading={isPending} className="w-full" type="submit">
+          <LoaderButton
+            isLoading={fetchStatus === "fetching"}
+            className="w-full"
+            type="submit"
+          >
             Sign In
           </LoaderButton>
 
@@ -137,7 +171,7 @@ export default function SignInPage() {
             >
               <Terminal className="h-4 w-4" />
               <AlertTitle>Uhoh, we couldn&apos;t log you in</AlertTitle>
-              <AlertDescription>{error.message}</AlertDescription>
+              <AlertDescription>{error}</AlertDescription>
             </Alert>
           )}
 

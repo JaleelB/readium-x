@@ -6,7 +6,7 @@ import TokensForm from "./tokens-form";
 import { SuspenseIf } from "@/components/suspense-if";
 import { getApiKeyStatusAction } from "./actions";
 
-async function TokensFormWrapper({ userId }: { userId: number }) {
+async function TokensFormWrapper({ userId }: { userId: string }) {
   const [data, err] = await getApiKeyStatusAction({
     path: "/account/settings/tokens",
     userId,
@@ -48,7 +48,7 @@ export default async function TokensPage() {
             <div className="flex h-[250px] flex-col space-y-4 rounded-lg bg-muted p-6" />
           }
         >
-          <TokensFormWrapper userId={user?.id as number} />
+          <TokensFormWrapper userId={user.id} />
         </SuspenseIf>
       </main>
     </div>

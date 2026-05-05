@@ -7,7 +7,7 @@ export default function UserAvatar({
   id,
   profile,
 }: {
-  id: number;
+  id: string;
   profile: Profile;
 }) {
   return (

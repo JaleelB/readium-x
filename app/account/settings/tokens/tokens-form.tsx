@@ -28,7 +28,7 @@ export default function TokensForm({
   userId,
   initialMaskedKey,
 }: {
-  userId: number;
+  userId: string;
   initialMaskedKey: string | null;
 }) {
   const [isChanged, setIsChanged] = useState(false);

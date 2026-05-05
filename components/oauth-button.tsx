@@ -5,6 +5,8 @@ import { cn } from "@/lib/utils";
 import { buttonVariants } from "@/components/ui/button";
 import { LoaderButton } from "./loader-button";
 import { Icons } from "./icons";
+import { useSignIn } from "@clerk/nextjs";
+import { afterLoginUrl } from "@/app-config";
 
 export function OAuthButton({
   provider,
@@ -14,14 +16,23 @@ export function OAuthButton({
   children: React.ReactNode;
 }) {
   const [isLoading, setIsLoading] = useState(false);
+  const { signIn } = useSignIn();
 
   const handleClick = async () => {
+    if (!signIn) {
+      return;
+    }
+
     setIsLoading(true);
     try {
-      const response = await fetch(`/api/login/${provider}`);
-      const data = await response.json();
-      if (data.url) {
-        window.location.href = data.url;
+      const { error } = await signIn.sso({
+        strategy: `oauth_${provider}`,
+        redirectCallbackUrl: "/sso-callback",
+        redirectUrl: afterLoginUrl,
+      });
+
+      if (error) {
+        console.error("OAuth initiation failed", error);
       }
     } catch (error) {
       console.error("OAuth initiation failed", error);
@@ -41,7 +52,7 @@ export function OAuthButton({
         }),
         "w-full",
       )}
-      type="submit"
+      type="button"
     >
       {provider === "google" && !isLoading && (
         <Icons.google className="mr-2 h-4 w-4" />

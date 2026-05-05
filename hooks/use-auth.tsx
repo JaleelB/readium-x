@@ -1,21 +1,17 @@
-import { User } from "lucia";
-import useSWR from "swr";
-
-interface AuthState {
-  isSignedIn: boolean;
-  user: User;
-  sessionId: string | null;
-}
-
-const fetcher = (url: string) => fetch(url).then((res) => res.json());
+import { useUser } from "@clerk/nextjs";
 
 export function useAuth() {
-  const { data, error } = useSWR<AuthState>("/api/auth", fetcher);
+  const { isLoaded, isSignedIn, user } = useUser();
 
   return {
-    isSignedIn: data?.isSignedIn ?? false,
-    isLoaded: !error && !!data,
-    user: data?.user ?? null,
-    sessionId: data?.sessionId ?? null,
+    isSignedIn: isSignedIn ?? false,
+    isLoaded,
+    user: user
+      ? {
+          id: user.id,
+          email: user.primaryEmailAddress?.emailAddress ?? null,
+        }
+      : null,
+    sessionId: null,
   };
 }

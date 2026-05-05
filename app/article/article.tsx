@@ -58,8 +58,7 @@ export function Article({
   content: ArticleDetails;
   user: {
     email: string | null;
-    id: number;
-    emailVerified: Date | null;
+    id: string;
   };
   url: string;
   readingHistoryId: number;

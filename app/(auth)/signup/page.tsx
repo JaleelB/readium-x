@@ -13,8 +13,6 @@ import {
   FormLabel,
   FormMessage,
 } from "@/components/ui/form";
-import { useServerAction } from "zsa-react";
-import { signUpAction } from "./actions";
 import { LoaderButton } from "@/components/loader-button";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import { Terminal } from "lucide-react";
@@ -25,6 +23,10 @@ import Balancer from "react-wrap-balancer";
 import { SparkleBg } from "@/components/sparkle-bg";
 import { OAuthButton } from "@/components/oauth-button";
 import { toast } from "sonner";
+import { useSignUp } from "@clerk/nextjs";
+import { useRouter } from "next/navigation";
+import { afterLoginUrl } from "@/app-config";
+import { useState } from "react";
 
 const registrationSchema = z
   .object({
@@ -38,14 +40,9 @@ const registrationSchema = z
   });
 
 export default function RegisterPage() {
-  const { execute, isPending, error } = useServerAction(signUpAction, {
-    onError({ err }) {
-      toast.error(err.message);
-    },
-    onSuccess() {
-      toast.success("You're in! Enjoy your session");
-    },
-  });
+  const { signUp, fetchStatus } = useSignUp();
+  const router = useRouter();
+  const [error, setError] = useState<string | null>(null);
 
   const form = useForm<z.infer<typeof registrationSchema>>({
     resolver: zodResolver(registrationSchema),
@@ -56,8 +53,41 @@ export default function RegisterPage() {
     },
   });
 
-  function onSubmit(values: z.infer<typeof registrationSchema>) {
-    execute(values);
+  async function onSubmit(values: z.infer<typeof registrationSchema>) {
+    if (!signUp) {
+      return;
+    }
+
+    setError(null);
+    const { error } = await signUp.password({
+      emailAddress: values.email,
+      password: values.password,
+    });
+
+    if (error) {
+      const message = error.longMessage ?? error.message;
+      setError(message);
+      toast.error(message);
+      return;
+    }
+
+    if (signUp.status === "complete") {
+      toast.success("You're in! Enjoy your session");
+      await signUp.finalize({
+        navigate: ({ session, decorateUrl }) => {
+          const destination = session.currentTask
+            ? `/signup/tasks/${session.currentTask.key}`
+            : afterLoginUrl;
+          const url = decorateUrl(destination);
+
+          if (url.startsWith("http")) {
+            window.location.href = url;
+          } else {
+            router.push(url);
+          }
+        },
+      });
+    }
   }
 
   return (
@@ -143,6 +173,7 @@ export default function RegisterPage() {
               )}
             />
           </div>
+          <div id="clerk-captcha" />
 
           {error && (
             <Alert
@@ -151,11 +182,15 @@ export default function RegisterPage() {
             >
               <Terminal className="h-4 w-4" />
               <AlertTitle>Uhoh, we couldn&apos;t log you in</AlertTitle>
-              <AlertDescription>{error.message}</AlertDescription>
+              <AlertDescription>{error}</AlertDescription>
             </Alert>
           )}
 
-          <LoaderButton isLoading={isPending} className="w-full" type="submit">
+          <LoaderButton
+            isLoading={fetchStatus === "fetching"}
+            className="w-full"
+            type="submit"
+          >
             Register
           </LoaderButton>
 

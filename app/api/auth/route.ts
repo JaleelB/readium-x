@@ -1,13 +1,18 @@
-import { validateRequest } from "@/server/auth";
+import { auth, currentUser } from "@clerk/nextjs/server";
 
 export async function GET() {
-  const { session, user } = await validateRequest();
+  const { isAuthenticated, sessionId, userId } = await auth();
 
-  if (user && session) {
+  if (isAuthenticated && userId) {
+    const user = await currentUser();
+
     return Response.json({
       isSignedIn: true,
-      user: user,
-      sessionId: session.id,
+      user: {
+        id: userId,
+        email: user?.primaryEmailAddress?.emailAddress ?? null,
+      },
+      sessionId,
     });
   }
 

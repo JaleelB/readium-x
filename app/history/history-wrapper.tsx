@@ -17,7 +17,7 @@ import {
   TooltipProvider,
   TooltipTrigger,
 } from "@/components/ui/tooltip";
-import { User } from "lucia";
+import { User } from "@/server/db/schema";
 
 export type Bookmark = {
   id: number;

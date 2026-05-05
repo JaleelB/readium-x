@@ -3,9 +3,10 @@ import { db } from "@/server/db/db";
 import { readingHistory } from "@/server/db/schema";
 import { eq } from "drizzle-orm";
 import { z } from "zod";
+import { UserId } from "@/use-cases/types";
 
 export async function createReadingHistoryLog(
-  userId: number,
+  userId: UserId,
   articleDetails: z.infer<typeof readingHistorySchema>,
 ) {
   const existingReadingHistory = await db.query.readingHistory.findFirst({
@@ -39,7 +40,7 @@ export async function createReadingHistoryLog(
   return readingHistoryLog;
 }
 
-export async function getReadingHistory(userId: number) {
+export async function getReadingHistory(userId: UserId) {
   const userReadingHistory = await db
     .select()
     .from(readingHistory)
@@ -50,7 +51,7 @@ export async function getReadingHistory(userId: number) {
 
 export async function getReadingHistoryById(
   readingHistoryId: number,
-  userId: number,
+  userId: UserId,
 ) {
   const readingHistoryLog = await db.query.readingHistory.findFirst({
     where:
@@ -63,7 +64,7 @@ export async function getReadingHistoryById(
 
 export async function updateReadingHistoryProgress(
   readingHistoryId: number,
-  userId: number,
+  userId: UserId,
   progress: string,
 ) {
   const [updatedReadingHistory] = await db
@@ -83,7 +84,7 @@ export async function updateReadingHistoryProgress(
 
 export async function getReadingHistoryProgress(
   readingHistoryId: number,
-  userId: number,
+  userId: UserId,
 ) {
   const readingHistoryLog = await db.query.readingHistory.findFirst({
     where:
@@ -96,7 +97,7 @@ export async function getReadingHistoryProgress(
 
 export async function deleteReadingHistoryById(
   readingHistoryId: number,
-  userId: number,
+  userId: UserId,
 ) {
   await db
     .delete(readingHistory)
@@ -106,6 +107,6 @@ export async function deleteReadingHistoryById(
     );
 }
 
-export async function deleteAllReadingHistory(userId: number) {
+export async function deleteAllReadingHistory(userId: UserId) {
   await db.delete(readingHistory).where(eq(readingHistory.userId, userId));
 }

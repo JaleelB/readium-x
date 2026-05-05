@@ -29,8 +29,7 @@ ReadiumX is an open source tool that provides access to premium Medium articles 
 - [TypeScript](https://www.typescriptlang.org/) – language
 - [Tailwind](https://tailwindcss.com/) – CSS
 - [TursoDB](https://turso.tech/) – database
-- [Lucia Auth](https://lucia-auth.com//) – auth
-- [Resend](https://resend.com/) – emails
+- [Clerk](https://clerk.com/) – auth and auth emails
 - [DrizzleORM](https://orm.drizzle.team/) – ORM
 - [TipTap](https://www.tiptap.dev/) – editor
 - [Shadcn](https://ui.shadcn.com/) – component library

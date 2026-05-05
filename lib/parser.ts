@@ -2,6 +2,10 @@ import * as cheerio from "cheerio";
 import { type ArticleDetails as ArticleMetadata } from "@/app/article/actions/article";
 import { UrlType } from "@/app/article/actions/url";
 
+type CheerioAny = cheerio.Cheerio<any>;
+type CheerioRoot = ReturnType<typeof cheerio.load>;
+type CheerioElement = any;
+
 type ElementsType =
   | "H1"
   | "H2"
@@ -94,7 +98,7 @@ export class MediumArticleProcessor {
     this.textsToRemove.forEach((text) => {
       $("*")
         .contents()
-        .filter(function (this: cheerio.Element) {
+        .filter(function (this: CheerioElement) {
           // Explicitly return a boolean
           return (
             this.type === "text" && !!this.data && this.data.includes(text)
@@ -105,7 +109,7 @@ export class MediumArticleProcessor {
     });
 
     // Recursively remove empty elements
-    const removeEmptyElements = (element: cheerio.Cheerio) => {
+    const removeEmptyElements = (element: CheerioAny) => {
       element.each((index, elem) => {
         const $elem = $(elem);
         if ($elem.children().length > 0) {
@@ -138,7 +142,7 @@ export class MediumArticleProcessor {
     const $ = cheerio.load(html);
     let extractedText = "";
 
-    function processElement(element: cheerio.Cheerio) {
+    function processElement(element: CheerioAny) {
       element.contents().each((_, el) => {
         if (el.type === "text") {
           const text = $(el).text().trim();
@@ -188,9 +192,9 @@ export class MediumArticleProcessor {
   }
 
   private processElement(
-    $: cheerio.Root,
-    element: cheerio.Cheerio,
-    captured: Set<cheerio.Element>,
+    $: CheerioRoot,
+    element: CheerioAny,
+    captured: Set<CheerioElement>,
     elements: ArticleElement[],
     supportedTypes: ElementsType[],
   ): void {
@@ -232,7 +236,7 @@ export class MediumArticleProcessor {
       // If the div contains text or links, convert it to a p tag. this is to grab the text from archive.ph
       if (tagName === "div") {
         const textContent = $child.contents().filter(function (
-          this: cheerio.Element,
+          this: CheerioElement,
         ) {
           return (
             this.type === "text" || (this.type === "tag" && this.name === "a")
@@ -385,7 +389,7 @@ export class MediumArticleProcessor {
       ];
 
       // Initial empty set to keep track of captured elements
-      const capturedElements = new Set<cheerio.Element>();
+      const capturedElements = new Set<CheerioElement>();
       const sectionElement = $("section");
       const sectionHtmlContent = this.stripHTML($.html(sectionElement));
 
@@ -518,8 +522,16 @@ export class MediumArticleProcessor {
             'div[style*="box-sizing:border-box"][style*="display:flex"][style*="justify-content:space-between"]',
           )
           .first();
-        sectionElementClone.find($(articleAuthorDetails.html())).remove();
-        sectionElementClone.find($(actionBar.html())).remove();
+        const articleAuthorHtml = articleAuthorDetails.html();
+        const actionBarHtml = actionBar.html();
+
+        if (articleAuthorHtml) {
+          sectionElementClone.find($(articleAuthorHtml) as any).remove();
+        }
+
+        if (actionBarHtml) {
+          sectionElementClone.find($(actionBarHtml) as any).remove();
+        }
         sectionElementClone.find("h1").first().remove();
         sectionElementClone.find("h2").first().remove();
 

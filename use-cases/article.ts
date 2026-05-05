@@ -8,9 +8,10 @@ import {
   deleteReadingHistoryById,
   deleteAllReadingHistory,
 } from "@/data-access/article";
+import { UserId } from "@/use-cases/types";
 
 export async function createReadingHistoryLogUseCase(
-  userId: number,
+  userId: UserId,
   articleDetails: z.infer<typeof readingHistorySchema>,
 ) {
   const readingHistoryLog = await createReadingHistoryLog(
@@ -21,7 +22,7 @@ export async function createReadingHistoryLogUseCase(
   return readingHistoryLog;
 }
 
-export async function getReadingHistoryUseCase(userId: number) {
+export async function getReadingHistoryUseCase(userId: UserId) {
   const readingHistory = await getReadingHistory(userId);
 
   return readingHistory;
@@ -29,7 +30,7 @@ export async function getReadingHistoryUseCase(userId: number) {
 
 export async function getReadingHistoryProgressUseCase(
   readingHistoryId: number,
-  userId: number,
+  userId: UserId,
 ) {
   const readingHistory = await getReadingHistoryById(readingHistoryId, userId);
 
@@ -38,7 +39,7 @@ export async function getReadingHistoryProgressUseCase(
 
 export async function getReadingHistoryByIdUseCase(
   readingHistoryId: number,
-  userId: number,
+  userId: UserId,
 ) {
   const readingHistoryLog = await getReadingHistoryById(
     readingHistoryId,
@@ -50,7 +51,7 @@ export async function getReadingHistoryByIdUseCase(
 
 export async function updateReadingHistoryProgressUseCase(
   readingHistoryId: number,
-  userId: number,
+  userId: UserId,
   progress: string,
 ) {
   const readingHistoryLog = await updateReadingHistoryProgress(
@@ -64,11 +65,11 @@ export async function updateReadingHistoryProgressUseCase(
 
 export async function deleteReadingHistoryByIdUseCase(
   readingHistoryId: number,
-  userId: number,
+  userId: UserId,
 ) {
   await deleteReadingHistoryById(readingHistoryId, userId);
 }
 
-export async function deleteAllReadingHistoryUseCase(userId: number) {
+export async function deleteAllReadingHistoryUseCase(userId: UserId) {
   await deleteAllReadingHistory(userId);
 }

@@ -18,7 +18,7 @@ export const createReadingHistoryLogAction = authenticatedAction
   .createServerAction()
   .input(
     z.object({
-      userId: z.number(),
+      userId: z.string(),
       articleDetails: z.object({
         title: z.string(),
         authorName: z.string(),
@@ -31,9 +31,9 @@ export const createReadingHistoryLogAction = authenticatedAction
       }),
     }),
   )
-  .handler(async ({ input }) => {
+  .handler(async ({ input, ctx }) => {
     await rateLimitByIp({ key: "create-history-log", limit: 5, window: 30000 });
-    const log = await createReadingHistoryLogUseCase(input.userId, {
+    const log = await createReadingHistoryLogUseCase(ctx.user.id, {
       title: input.articleDetails.title,
       authorName: input.articleDetails.authorName,
       articleUrl: input.articleDetails.articleURL,
@@ -51,25 +51,25 @@ export const getReadingHistoryAction = authenticatedAction
   .createServerAction()
   .input(
     z.object({
-      userId: z.number(),
+      userId: z.string(),
     }),
   )
-  .handler(async ({ input }) => {
-    return await getReadingHistoryUseCase(input.userId);
+  .handler(async ({ ctx }) => {
+    return await getReadingHistoryUseCase(ctx.user.id);
   });
 
 export const getReadingHistoryProgressAction = authenticatedAction
   .createServerAction()
   .input(
     z.object({
-      userId: z.number(),
+      userId: z.string(),
       readingHistoryId: z.number(),
     }),
   )
-  .handler(async ({ input }) => {
+  .handler(async ({ input, ctx }) => {
     const readingHistoryProgress = await getReadingHistoryProgressUseCase(
       input.readingHistoryId,
-      input.userId,
+      ctx.user.id,
     );
     return readingHistoryProgress;
   });
@@ -78,14 +78,14 @@ export const getReadingHistoryByIdAction = authenticatedAction
   .createServerAction()
   .input(
     z.object({
-      userId: z.number(),
+      userId: z.string(),
       readingHistoryId: z.number(),
     }),
   )
-  .handler(async ({ input }) => {
+  .handler(async ({ input, ctx }) => {
     const readingHistory = await getReadingHistoryByIdUseCase(
       input.readingHistoryId,
-      input.userId,
+      ctx.user.id,
     );
     revalidatePath("/history");
     return readingHistory;
@@ -95,12 +95,12 @@ export const updateReadingHistoryProgressAction = authenticatedAction
   .createServerAction()
   .input(
     z.object({
-      userId: z.number(),
+      userId: z.string(),
       readingHistoryId: z.number(),
       progress: z.string(),
     }),
   )
-  .handler(async ({ input }) => {
+  .handler(async ({ input, ctx }) => {
     await rateLimitByIp({
       key: "update-history-progress",
       limit: 5,
@@ -108,7 +108,7 @@ export const updateReadingHistoryProgressAction = authenticatedAction
     });
     await updateReadingHistoryProgressUseCase(
       input.readingHistoryId,
-      input.userId,
+      ctx.user.id,
       input.progress,
     );
   });
@@ -117,12 +117,12 @@ export const deleteReadingHistoryByIdAction = authenticatedAction
   .createServerAction()
   .input(
     z.object({
-      userId: z.number(),
+      userId: z.string(),
       readingHistoryId: z.number(),
     }),
   )
-  .handler(async ({ input }) => {
-    await deleteReadingHistoryByIdUseCase(input.readingHistoryId, input.userId);
+  .handler(async ({ input, ctx }) => {
+    await deleteReadingHistoryByIdUseCase(input.readingHistoryId, ctx.user.id);
     revalidatePath("/history");
   });
 
@@ -130,10 +130,10 @@ export const deleteAllReadingHistoryAction = authenticatedAction
   .createServerAction()
   .input(
     z.object({
-      userId: z.number(),
+      userId: z.string(),
     }),
   )
-  .handler(async ({ input }) => {
-    await deleteAllReadingHistoryUseCase(input.userId);
+  .handler(async ({ ctx }) => {
+    await deleteAllReadingHistoryUseCase(ctx.user.id);
     revalidatePath("/history");
   });

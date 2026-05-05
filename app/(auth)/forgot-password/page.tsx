@@ -15,28 +15,25 @@ import {
 } from "@/components/ui/form";
 import { Terminal } from "lucide-react";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
-import { useServerAction } from "zsa-react";
 import { LoaderButton } from "@/components/loader-button";
-import { resetPasswordAction } from "./actions";
 import Balancer from "react-wrap-balancer";
 import Link from "next/link";
 import { Icons } from "@/components/icons";
 import { SparkleBg } from "@/components/sparkle-bg";
 import { toast } from "sonner";
+import { useSignIn } from "@clerk/nextjs/legacy";
+import { useRouter } from "next/navigation";
+import { useState } from "react";
 
 const registrationSchema = z.object({
   email: z.string().email(),
 });
 
 export default function ForgotPasswordPage() {
-  const { execute, isPending, isSuccess } = useServerAction(
-    resetPasswordAction,
-    {
-      onError({ err }) {
-        toast.error(err.message);
-      },
-    },
-  );
+  const { isLoaded, signIn } = useSignIn();
+  const router = useRouter();
+  const [isPending, setIsPending] = useState(false);
+  const [isSuccess, setIsSuccess] = useState(false);
 
   const form = useForm<z.infer<typeof registrationSchema>>({
     resolver: zodResolver(registrationSchema),
@@ -45,8 +42,28 @@ export default function ForgotPasswordPage() {
     },
   });
 
-  function onSubmit(values: z.infer<typeof registrationSchema>) {
-    execute(values);
+  async function onSubmit(values: z.infer<typeof registrationSchema>) {
+    if (!isLoaded || !signIn) {
+      return;
+    }
+
+    setIsPending(true);
+    try {
+      await signIn.create({
+        strategy: "reset_password_email_code",
+        identifier: values.email,
+      });
+      setIsSuccess(true);
+      router.push(`/reset-password?email=${encodeURIComponent(values.email)}`);
+    } catch (error: any) {
+      const message =
+        error?.errors?.[0]?.longMessage ??
+        error?.errors?.[0]?.message ??
+        "Unable to send reset code";
+      toast.error(message);
+    } finally {
+      setIsPending(false);
+    }
   }
 
   return (

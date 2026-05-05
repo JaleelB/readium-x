@@ -8,6 +8,7 @@ import { siteConfig } from "@/app-config";
 import Script from "next/script";
 import type { Viewport } from "next";
 import { Toaster } from "@/components/ui/sonner";
+import { ClerkProvider } from "@clerk/nextjs";
 
 export const viewport: Viewport = {
   themeColor: [
@@ -90,15 +91,22 @@ export default function RootLayout({
           fontMono.variable,
         )}
       >
-        <ThemeProvider
-          attribute="class"
-          defaultTheme="system"
-          enableSystem
-          disableTransitionOnChange
+        <ClerkProvider
+          dynamic
+          signInUrl="/signin"
+          signUpUrl="/signup"
+          afterSignOutUrl="/signin"
         >
-          {children}
-          <Toaster richColors />
-        </ThemeProvider>
+          <ThemeProvider
+            attribute="class"
+            defaultTheme="system"
+            enableSystem
+            disableTransitionOnChange
+          >
+            {children}
+            <Toaster richColors />
+          </ThemeProvider>
+        </ClerkProvider>
         <Script
           async
           src={process.env.UMAMI_URL}

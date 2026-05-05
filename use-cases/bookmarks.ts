@@ -6,10 +6,11 @@ import {
   updateBookmark,
 } from "@/data-access/bookmarks";
 import { articleSchema } from "@/schemas/article";
+import { UserId } from "@/use-cases/types";
 import { z } from "zod";
 
 export async function createBookmarkUseCase(
-  userId: number,
+  userId: UserId,
   articleDetails: z.infer<typeof articleSchema> & { articleUrl: string },
 ) {
   const bookmark = await createBookark(userId, articleDetails);
@@ -17,14 +18,14 @@ export async function createBookmarkUseCase(
   return bookmark;
 }
 
-export async function getBookmarksUseCase(userId: number) {
+export async function getBookmarksUseCase(userId: UserId) {
   const bookmarks = await getBookmarks(userId);
 
   return bookmarks;
 }
 
 export async function getBookmarkByIdUseCase(
-  userId: number,
+  userId: UserId,
   bookmarkId: number,
 ) {
   const bookmark = await getBookmarkById(userId, bookmarkId);
@@ -33,14 +34,14 @@ export async function getBookmarkByIdUseCase(
 }
 
 export async function deleteBookmarkUseCase(
-  userId: number,
+  userId: UserId,
   bookmarkId: number,
 ) {
   await deleteBookmark(userId, bookmarkId);
 }
 
 export async function updateBookmarkUseCase(
-  userId: number,
+  userId: UserId,
   bookmarkId: number,
   articleDetails: z.infer<typeof articleSchema>,
 ) {

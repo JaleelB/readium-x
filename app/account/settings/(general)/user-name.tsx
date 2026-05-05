@@ -16,7 +16,7 @@ const userNameSchema = z.object({
   displayName: z.string().min(1).max(32),
 });
 
-export default function UserName({ id, name }: { id: number; name: string }) {
+export default function UserName({ id, name }: { id: string; name: string }) {
   const form = useForm<z.infer<typeof userNameSchema>>({
     resolver: zodResolver(userNameSchema),
     defaultValues: {
