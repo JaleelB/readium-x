@@ -135,7 +135,7 @@ export default function ForgotPasswordPage() {
       </Form>
       <Link
         href="/signin"
-        className="flex items-center text-muted-foreground underline"
+        className="z-20 flex items-center text-muted-foreground underline"
       >
         <Icons.arrowLeft className="mr-2 h-4 w-4" />
         Back to sign in
