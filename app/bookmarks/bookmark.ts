@@ -7,10 +7,6 @@ import {
 } from "@/data-access/bookmarks";
 import { rateLimitByIp } from "@/lib/limiter";
 import { authenticatedAction } from "@/lib/safe-action";
-import {
-  getBookmarkByIdUseCase,
-  getBookmarksUseCase,
-} from "@/use-cases/bookmarks";
 import { revalidatePath } from "next/cache";
 import { z } from "zod";
 
@@ -34,7 +30,7 @@ export const createBookmarkAction = authenticatedAction
   )
   .handler(async ({ input, ctx }) => {
     await rateLimitByIp({ key: "create-bookmark", limit: 5, window: 30000 });
-    await createBookark(ctx.user.id, {
+    const bookmark = await createBookark(ctx.user.id, {
       title: input.title,
       htmlContent: input.htmlContent,
       textContent: input.textContent,
@@ -47,40 +43,7 @@ export const createBookmarkAction = authenticatedAction
       articleUrl: input.articleUrl,
     });
     revalidatePath(input.path);
-  });
-
-export const getBookmarksAction = authenticatedAction
-  .createServerAction()
-  .input(z.object({ userId: z.string() }))
-  .handler(async ({ ctx }) => {
-    return await getBookmarksUseCase(ctx.user.id);
-  });
-
-export const getBookmarkAction = authenticatedAction
-  .createServerAction()
-  .input(
-    z.object({
-      userId: z.string(),
-      title: z.string(),
-      publishDate: z.string(),
-    }),
-  )
-  .handler(async ({ input, ctx }) => {
-    const bookmarks = await getBookmarksUseCase(ctx.user.id);
-    const bookmark = bookmarks.find(
-      (bookmark) =>
-        bookmark.title === input.title &&
-        bookmark.publishDate === input.publishDate,
-    );
-
     return bookmark;
-  });
-
-export const getBookmarkByIdAction = authenticatedAction
-  .createServerAction()
-  .input(z.object({ userId: z.string(), bookmarkId: z.number() }))
-  .handler(async ({ input, ctx }) => {
-    return await getBookmarkByIdUseCase(ctx.user.id, input.bookmarkId);
   });
 
 export const deleteBookmarkAction = authenticatedAction
@@ -92,4 +55,5 @@ export const deleteBookmarkAction = authenticatedAction
       await deleteBookmark(ctx.user.id, bookmark.id);
       revalidatePath(input.path);
     }
+    return bookmark;
   });

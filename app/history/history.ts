@@ -2,12 +2,9 @@
 
 import {
   createReadingHistoryLogUseCase,
-  getReadingHistoryUseCase,
-  getReadingHistoryByIdUseCase,
   updateReadingHistoryProgressUseCase,
   deleteReadingHistoryByIdUseCase,
   deleteAllReadingHistoryUseCase,
-  getReadingHistoryProgressUseCase,
 } from "@/use-cases/article";
 import { authenticatedAction } from "@/lib/safe-action";
 import { revalidatePath } from "next/cache";
@@ -45,50 +42,6 @@ export const createReadingHistoryLogAction = authenticatedAction
     });
 
     return log;
-  });
-
-export const getReadingHistoryAction = authenticatedAction
-  .createServerAction()
-  .input(
-    z.object({
-      userId: z.string(),
-    }),
-  )
-  .handler(async ({ ctx }) => {
-    return await getReadingHistoryUseCase(ctx.user.id);
-  });
-
-export const getReadingHistoryProgressAction = authenticatedAction
-  .createServerAction()
-  .input(
-    z.object({
-      userId: z.string(),
-      readingHistoryId: z.number(),
-    }),
-  )
-  .handler(async ({ input, ctx }) => {
-    const readingHistoryProgress = await getReadingHistoryProgressUseCase(
-      input.readingHistoryId,
-      ctx.user.id,
-    );
-    return readingHistoryProgress;
-  });
-
-export const getReadingHistoryByIdAction = authenticatedAction
-  .createServerAction()
-  .input(
-    z.object({
-      userId: z.string(),
-      readingHistoryId: z.number(),
-    }),
-  )
-  .handler(async ({ input, ctx }) => {
-    const readingHistory = await getReadingHistoryByIdUseCase(
-      input.readingHistoryId,
-      ctx.user.id,
-    );
-    revalidatePath("/history");
-    return readingHistory;
   });
 
 export const updateReadingHistoryProgressAction = authenticatedAction
