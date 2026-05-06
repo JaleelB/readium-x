@@ -1,9 +1,9 @@
 import * as cheerio from "cheerio";
-import { type ArticleDetails as ArticleMetadata } from "@/app/article/actions/article";
+import { type ArticleDetails as ArticleMetadata } from "@/lib/article-content";
 import { UrlType } from "@/app/article/actions/url";
 
-type CheerioAny = cheerio.Cheerio<any>;
 type CheerioRoot = ReturnType<typeof cheerio.load>;
+type CheerioAny = ReturnType<CheerioRoot>;
 type CheerioElement = any;
 
 type ElementsType =
@@ -110,7 +110,7 @@ export class MediumArticleProcessor {
 
     // Recursively remove empty elements
     const removeEmptyElements = (element: CheerioAny) => {
-      element.each((index, elem) => {
+      element.each((_index: number, elem: CheerioElement) => {
         const $elem = $(elem);
         if ($elem.children().length > 0) {
           removeEmptyElements($elem.children());
@@ -143,7 +143,7 @@ export class MediumArticleProcessor {
     let extractedText = "";
 
     function processElement(element: CheerioAny) {
-      element.contents().each((_, el) => {
+      element.contents().each((_index: number, el: CheerioElement) => {
         if (el.type === "text") {
           const text = $(el).text().trim();
           if (text) {
@@ -198,7 +198,7 @@ export class MediumArticleProcessor {
     elements: ArticleElement[],
     supportedTypes: ElementsType[],
   ): void {
-    element.children().each((_, child) => {
+    element.children().each((_index: number, child: CheerioElement) => {
       if (child.type !== "tag") return;
 
       const $child = $(child);
@@ -394,7 +394,7 @@ export class MediumArticleProcessor {
       const sectionHtmlContent = this.stripHTML($.html(sectionElement));
 
       // Start processing from the section level
-      $(sectionHtmlContent).each((_, section) => {
+      $(sectionHtmlContent).each((_index: number, section: CheerioElement) => {
         const $section = cheerio.load(section);
         this.processElement(
           $,

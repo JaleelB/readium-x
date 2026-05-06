@@ -68,6 +68,9 @@ importers:
       '@t3-oss/env-nextjs':
         specifier: ^0.10.1
         version: 0.10.1(typescript@6.0.3)(zod@3.25.76)
+      '@tanstack/react-query':
+        specifier: ^5.99.0
+        version: 5.99.0(react@19.2.5)
       '@tiptap/extension-bubble-menu':
         specifier: ^2.6.6
         version: 2.27.2(@tiptap/core@2.27.2(@tiptap/pm@2.27.2))(@tiptap/pm@2.27.2)
@@ -209,6 +212,9 @@ importers:
       zsa-react:
         specifier: ^0.2.1
         version: 0.2.3(react@19.2.5)(zod@3.25.76)
+      zsa-react-query:
+        specifier: ^0.2.1
+        version: 0.2.1(@tanstack/react-query@5.99.0(react@19.2.5))(react@19.2.5)(zod@3.25.76)
       zustand:
         specifier: 5.0.0-rc.2
         version: 5.0.0-rc.2(@types/react@19.2.14)(react@19.2.5)(use-sync-external-store@1.6.0(react@19.2.5))
@@ -2089,6 +2095,14 @@ packages:
 
   '@tanstack/query-core@5.100.9':
     resolution: {integrity: sha512-SJSFw1S8+kQ0+knv/XGfrbocWoAlT7vDKsSImtLx3ZPQmEcR46hkDjLSvynSy25N8Ms4tIEini1FuBd5k7IscQ==}
+
+  '@tanstack/query-core@5.99.0':
+    resolution: {integrity: sha512-3Jv3WQG0BCcH7G+7lf/bP8QyBfJOXeY+T08Rin3GZ1bshvwlbPt7NrDHMEzGdKIOmOzvIQmxjk28YEQX60k7pQ==}
+
+  '@tanstack/react-query@5.99.0':
+    resolution: {integrity: sha512-OY2bCqPemT1LlqJ8Y2CUau4KELnIhhG9Ol3ZndPbdnB095pRbPo1cHuXTndg8iIwtoHTgwZjyaDnQ0xD0mYwAw==}
+    peerDependencies:
+      react: ^18 || ^19
 
   '@tiptap/core@2.27.2':
     resolution: {integrity: sha512-ABL1N6eoxzDzC1bYvkMbvyexHacszsKdVPYqhl5GwHLOvpZcv9VE9QaKwDILTyz5voCA0lGcAAXZp+qnXOk5lQ==}
@@ -4805,6 +4819,13 @@ packages:
   zod@3.25.76:
     resolution: {integrity: sha512-gzUt/qt81nXsFGKIFcC3YnfEAx5NkunCfnDlvuBSSFS02bcXu4Lmea0AFIUwbLWxWPx3d9p8S5QoaujKcNQxcQ==}
 
+  zsa-react-query@0.2.1:
+    resolution: {integrity: sha512-/2IbJFGOneghpNlqd+VdNXNUzxYdPKIyGADcWGFS8gbUIBNyzdkZqcUqHxeU9Qwu9t7I8jbQHGkpV775kbq3Ng==}
+    peerDependencies:
+      '@tanstack/react-query': ^5.0.0
+      react: ^18.0.0 || ^19.0.0
+      zod: ^3.23.5
+
   zsa-react@0.2.3:
     resolution: {integrity: sha512-THCoIIhtEU3jXTrNBM/PBc0PyHCekizSGEc+fg0LGo1NM1J02LFQN7ICR948X25IjtkZdvxUZmT0+M73GG8eEw==}
     peerDependencies:
@@ -6342,6 +6363,13 @@ snapshots:
       typescript: 6.0.3
 
   '@tanstack/query-core@5.100.9': {}
+
+  '@tanstack/query-core@5.99.0': {}
+
+  '@tanstack/react-query@5.99.0(react@19.2.5)':
+    dependencies:
+      '@tanstack/query-core': 5.99.0
+      react: 19.2.5
 
   '@tiptap/core@2.27.2(@tiptap/pm@2.27.2)':
     dependencies:
@@ -9334,6 +9362,13 @@ snapshots:
       zod: 3.25.76
 
   zod@3.25.76: {}
+
+  zsa-react-query@0.2.1(@tanstack/react-query@5.99.0(react@19.2.5))(react@19.2.5)(zod@3.25.76):
+    dependencies:
+      '@tanstack/react-query': 5.99.0(react@19.2.5)
+      react: 19.2.5
+      zod: 3.25.76
+      zsa: 0.5.1(zod@3.25.76)
 
   zsa-react@0.2.3(react@19.2.5)(zod@3.25.76):
     dependencies:

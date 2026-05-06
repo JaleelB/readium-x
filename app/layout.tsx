@@ -9,6 +9,7 @@ import Script from "next/script";
 import type { Viewport } from "next";
 import { Toaster } from "@/components/ui/sonner";
 import { ClerkProvider } from "@clerk/nextjs";
+import { QueryProvider } from "@/components/query-provider";
 
 export const viewport: Viewport = {
   themeColor: [
@@ -103,8 +104,10 @@ export default function RootLayout({
             enableSystem
             disableTransitionOnChange
           >
-            {children}
-            <Toaster richColors />
+            <QueryProvider>
+              {children}
+              <Toaster richColors />
+            </QueryProvider>
           </ThemeProvider>
         </ClerkProvider>
         <Script

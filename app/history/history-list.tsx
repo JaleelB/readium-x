@@ -15,16 +15,15 @@ import {
   TooltipTrigger,
 } from "@/components/ui/tooltip";
 import { Checkbox } from "@/components/ui/checkbox";
-import {
-  deleteAllReadingHistoryAction,
-  deleteReadingHistoryByIdAction,
-} from "./history";
 import { toast } from "sonner";
-import { useServerAction } from "zsa-react";
 import { LoaderButton } from "@/components/loader-button";
 import { Alert, AlertTitle, AlertDescription } from "@/components/ui/alert";
 import { Terminal } from "lucide-react";
 import { SparkleBg } from "@/components/sparkle-bg";
+import {
+  useHistoryDeleteMutations,
+  useHistoryQuery,
+} from "@/hooks/use-history-query";
 
 export type ReadingHistory = {
   authorName: string;
@@ -43,16 +42,17 @@ export type ReadingHistory = {
 
 export function HistoryList({ historyLog }: { historyLog: ReadingHistory[] }) {
   const id = uuidv4();
+  const { data = historyLog } = useHistoryQuery(historyLog);
 
   // Pagination
   const [currentPage, setCurrentPage] = useState(1);
-  const [recordsPerPage, setRecordsPerPage] = useState(8);
+  const recordsPerPage = 8;
 
   const lastRecordIndex = currentPage * recordsPerPage;
   const firstRecordIndex = lastRecordIndex - recordsPerPage;
-  const currentRecords = historyLog.slice(firstRecordIndex, lastRecordIndex);
+  const currentRecords = data.slice(firstRecordIndex, lastRecordIndex);
 
-  const totalPages = Math.ceil(historyLog.length / recordsPerPage);
+  const totalPages = Math.max(1, Math.ceil(data.length / recordsPerPage));
 
   const goToNextPage = () =>
     setCurrentPage((prev) => (prev < totalPages ? prev + 1 : prev));
@@ -63,33 +63,7 @@ export function HistoryList({ historyLog }: { historyLog: ReadingHistory[] }) {
   const [isManaging, setIsManaging] = useState(false);
   const [selectedIds, setSelectedIds] = useState(new Set<number>());
 
-  const {
-    execute: deleteByIdExecute,
-    isPending: isDeleteBYIdPending,
-    error: deleteByIdError,
-    reset: deleteByIdReset,
-  } = useServerAction(deleteReadingHistoryByIdAction, {
-    onError({ err }) {
-      toast.error(err.message);
-    },
-    onSuccess() {
-      toast.success("Successfully deleted reading history log");
-    },
-  });
-
-  const {
-    execute: deleteAllLogsExecute,
-    isPending: isDeleteAllLogsPending,
-    error: deleteAllLogsError,
-    reset: deleteAllLogsReset,
-  } = useServerAction(deleteAllReadingHistoryAction, {
-    onError({ err }) {
-      toast.error(err.message);
-    },
-    onSuccess() {
-      toast.success("Successfully deleted all reading history logs");
-    },
-  });
+  const { deleteById, deleteAll } = useHistoryDeleteMutations();
 
   const toggleManaging = () => setIsManaging(!isManaging);
   const toggleSelection = (id: number) => {
@@ -102,31 +76,43 @@ export function HistoryList({ historyLog }: { historyLog: ReadingHistory[] }) {
     setSelectedIds(newSelectedIds);
   };
   const selectAll = () => {
-    if (selectedIds.size === historyLog.length) {
+    if (selectedIds.size === data.length) {
       setSelectedIds(new Set());
     } else {
-      setSelectedIds(new Set(historyLog.map((item) => item.id)));
+      setSelectedIds(new Set(data.map((item) => item.id)));
     }
   };
   const deleteSelected = async () => {
-    if (selectedIds.size === historyLog.length) {
-      deleteAllLogsExecute({
-        userId: historyLog[0].userId,
-      });
-    } else {
-      // Delete selected
-      for (const id of selectedIds) {
-        deleteByIdExecute({
-          userId: historyLog[0].userId,
-          readingHistoryId: id,
+    try {
+      if (selectedIds.size === data.length) {
+        await deleteAll.mutateAsync({
+          userId: data[0].userId,
         });
+        toast.success("Successfully deleted all reading history logs");
+      } else {
+        await Promise.all(
+          Array.from(selectedIds).map((id) =>
+            deleteById.mutateAsync({
+              userId: data[0].userId,
+              readingHistoryId: id,
+            }),
+          ),
+        );
+        toast.success("Successfully deleted reading history log");
       }
+      setSelectedIds(new Set());
+    } catch (error) {
+      toast.error(
+        error instanceof Error
+          ? error.message
+          : "Failed to delete reading history",
+      );
     }
   };
 
   return (
     <div className="relative mx-auto flex min-h-[450px] w-full max-w-none flex-col rounded-none border-0 bg-background text-card-foreground shadow-2xl backdrop-blur-lg md:shadow-xl lg:min-h-[34rem] lg:max-w-3xl lg:rounded-xl lg:border">
-      {deleteAllLogsError && (
+      {deleteAll.error && (
         <Alert
           variant="destructive"
           className="fixed right-0 top-0 w-full sm:right-8 sm:top-4 sm:w-fit"
@@ -135,10 +121,10 @@ export function HistoryList({ historyLog }: { historyLog: ReadingHistory[] }) {
           <AlertTitle>
             Uhoh, we couldn&apos;t delete all your reading history
           </AlertTitle>
-          <AlertDescription>{deleteAllLogsError.message}</AlertDescription>
+          <AlertDescription>{deleteAll.error.message}</AlertDescription>
         </Alert>
       )}
-      {deleteByIdError && (
+      {deleteById.error && (
         <Alert
           variant="destructive"
           className="fixed right-0 top-0 w-full sm:right-8 sm:top-4 sm:w-fit"
@@ -147,7 +133,7 @@ export function HistoryList({ historyLog }: { historyLog: ReadingHistory[] }) {
           <AlertTitle>
             Uhoh, we couldn&apos;t delete the selected reading history
           </AlertTitle>
-          <AlertDescription>{deleteByIdError.message}</AlertDescription>
+          <AlertDescription>{deleteById.error.message}</AlertDescription>
         </Alert>
       )}
       <div className="flex flex-1 flex-col p-0">
@@ -171,7 +157,7 @@ export function HistoryList({ historyLog }: { historyLog: ReadingHistory[] }) {
                   <LoaderButton
                     className="relative rounded-full"
                     size="sm"
-                    isLoading={isDeleteBYIdPending || isDeleteAllLogsPending}
+                    isLoading={deleteById.isPending || deleteAll.isPending}
                     onClick={deleteSelected}
                     disabled={selectedIds.size === 0}
                   >
