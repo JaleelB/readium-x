@@ -1,6 +1,6 @@
 import { MediumArticleProcessor } from "@/lib/parser";
 import { urlSchema } from "@/schemas/url";
-import { getUrlWithoutPaywall } from "@/app/article/actions/url";
+import { getUrlWithoutPaywall, resolveArchiveUrl } from "@/app/article/actions/url";
 import { rateLimitByIp } from "@/lib/limiter";
 import { getCachedArticle, setCachedArticle } from "@/lib/article-cache";
 
@@ -40,51 +40,81 @@ export async function scrapeArticleContent(
       window: 60000,
     });
 
-    const urlWithoutPaywall = await getUrlWithoutPaywall(urlResult.data);
-    if (urlWithoutPaywall instanceof Error) {
+    const fallbackUrls = await getUrlWithoutPaywall(urlResult.data);
+
+    if (fallbackUrls instanceof Error) {
       throw new Error("Unable to fetch paywalled article");
     }
 
-    const response = await fetch(urlWithoutPaywall.url, {
-      headers: {
-        "User-Agent":
-          "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/58.0.3029.110 Safari/537.36",
-        Accept:
-          "text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,*/*;q=0.8",
-        "Accept-Language": "en-US,en;q=0.5",
-        Connection: "keep-alive",
-      },
-    });
+    let articleDetails: ArticleDetails | null = null;
 
-    if (!response.ok) {
+    for (const service of fallbackUrls) {
+      console.log(`Trying bypass service: ${service.type} - ${service.url}`);
+
+      let fetchUrl = service.url;
+      if (service.type === "archive") {
+        const archiveUrl = await resolveArchiveUrl(service.url);
+        if (!archiveUrl) {
+          console.log("Failed to resolve archive URL, skipping...");
+          continue;
+        }
+        fetchUrl = archiveUrl;
+      }
+
+      try {
+        const response = await fetch(fetchUrl, {
+          headers: {
+            "User-Agent":
+              "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/58.0.3029.110 Safari/537.36",
+            Accept:
+              "text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,*/*;q=0.8",
+            "Accept-Language": "en-US,en;q=0.5",
+            Connection: "keep-alive",
+          },
+        });
+
+        if (!response.ok) {
+          console.log(
+            `Fetch failed with status ${response.status} for ${service.type}`,
+          );
+          continue;
+        }
+
+        const html = await response.text();
+
+        const processor = new MediumArticleProcessor();
+        const articleMetadata = (await processor.extractArticleMetadata(
+          html,
+          service.type,
+        )) as ArticleDetails;
+
+        if (articleMetadata) {
+          articleDetails = {
+            title: articleMetadata.title,
+            htmlContent: articleMetadata.htmlContent,
+            textContent: articleMetadata.textContent,
+            authorInformation: {
+              ...articleMetadata.authorInformation,
+            },
+            publicationInformation: {
+              ...articleMetadata.publicationInformation,
+            },
+          };
+          console.log(`Successfully extracted article via ${service.type}`);
+          break; // Success! Break out of the fallback loop.
+        } else {
+          console.log(`Failed to extract metadata via ${service.type}`);
+        }
+      } catch (err) {
+        console.error(`Error processing ${service.type}:`, err);
+      }
+    }
+
+    if (!articleDetails) {
       throw new Error(
-        `Failed to retrieve the web page. Status code: ${response.status}`,
+        "Unable to locate article content after trying all bypass methods",
       );
     }
-
-    const html = await response.text();
-
-    const processor = new MediumArticleProcessor();
-    const articleMetadata = (await processor.extractArticleMetadata(
-      html,
-      urlWithoutPaywall.type,
-    )) as ArticleDetails;
-
-    if (!articleMetadata) {
-      throw new Error("Unable to locate article content");
-    }
-
-    const articleDetails = {
-      title: articleMetadata.title,
-      htmlContent: articleMetadata.htmlContent,
-      textContent: articleMetadata.textContent,
-      authorInformation: {
-        ...articleMetadata.authorInformation,
-      },
-      publicationInformation: {
-        ...articleMetadata.publicationInformation,
-      },
-    };
 
     await setCachedArticle(urlResult.data, articleDetails);
 
