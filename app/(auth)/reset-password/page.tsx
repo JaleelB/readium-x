@@ -39,11 +39,9 @@ const registrationSchema = z
     path: ["passwordConfirmation"],
   });
 
-export default function ResetPasswordPage(
-  props: {
-    searchParams: Promise<{ email?: string }>;
-  }
-) {
+export default function ResetPasswordPage(props: {
+  searchParams: Promise<{ email?: string }>;
+}) {
   const searchParams = use(props.searchParams);
   const { isLoaded, signIn, setActive } = useSignIn();
   const [isPending, setIsPending] = useState(false);

@@ -23,7 +23,7 @@ jobs:
         name: Install pnpm
         id: pnpm-install
         with:
-          version: 8.6.1
+          version: 9.11.0
           run_install: false
 
       - name: Get pnpm store directory
@@ -60,7 +60,7 @@ jobs:
         name: Install pnpm
         id: pnpm-install
         with:
-          version: 8.6.1
+          version: 9.11.0
           run_install: false
 
       - name: Get pnpm store directory
@@ -79,7 +79,7 @@ jobs:
       - name: Install dependencies
         run: pnpm install
 
-      - run: pnpm format:write
+      - run: pnpm format:check
 
   tsc:
     needs: format
@@ -99,7 +99,7 @@ jobs:
         name: Install pnpm
         id: pnpm-install
         with:
-          version: 8.6.1
+          version: 9.11.0
           run_install: false
 
       - name: Get pnpm store directory
@@ -121,9 +121,10 @@ jobs:
       - run: pnpm typecheck
 
   deploy:
+    if: github.event_name == 'push' && github.ref == 'refs/heads/main'
     needs: tsc
     runs-on: ubuntu-latest
-    name: Deploy
+    name: Deploy to Cloudflare
     steps:
       - name: Checkout
         uses: actions/checkout@v4
@@ -137,16 +138,14 @@ jobs:
         name: Install pnpm
         id: pnpm-install
         with:
-          version: 8.6.1
+          version: 9.11.0
           run_install: false
 
       - name: Install packages
         run: pnpm install
 
-      - name: Install Railway
-        run: pnpm add -g @railway/cli
-
-      - name: Deploy
-        run: railway up --service ${{ secrets.RAILWAY_SERVICE }}
+      - name: Deploy to Cloudflare
+        run: pnpm deploy
         env:
-          RAILWAY_TOKEN: ${{ secrets.RAILWAY_TOKEN }}
+          CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+          CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}

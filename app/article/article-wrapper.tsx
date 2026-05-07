@@ -8,6 +8,7 @@ import { createReadingHistoryLogAction } from "../history/history";
 import { bookmarkSchema } from "@/schemas/article";
 import { getBookmarkByIdUseCase } from "@/use-cases/bookmarks";
 import type { BookmarkStatus } from "@/lib/client-types";
+import { calculateReadTime } from "@/lib/utils";
 
 function mapBookmarkToArticle(bookmark: unknown): ArticleDetails {
   const bookmarkContent = bookmarkSchema.parse(bookmark);
@@ -72,15 +73,24 @@ export async function ArticleWrapper({
     );
   }
 
+  const authorName = content.authorInformation.authorName ?? "Unknown author";
+  const authorImageURL =
+    content.authorInformation.authorImageURL ??
+    "https://illustrations.popsy.co/white/genius.svg";
+  const authorProfileURL = content.authorInformation.authorProfileURL ?? url;
+  const readTime =
+    content.publicationInformation.readTime ??
+    calculateReadTime(content.htmlContent);
+
   const [data, err] = await createReadingHistoryLogAction({
     userId: user.id,
     articleDetails: {
       title: content.title,
-      authorName: content.authorInformation.authorName as string,
+      authorName,
       articleURL: url,
-      authorImageURL: content.authorInformation.authorImageURL as string,
-      authorProfileURL: content.authorInformation.authorProfileURL as string,
-      readTime: content.publicationInformation.readTime as string,
+      authorImageURL,
+      authorProfileURL,
+      readTime,
       accessTime: new Date(),
       progress: "0%",
     },

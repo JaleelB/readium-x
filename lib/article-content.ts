@@ -2,6 +2,7 @@ import { MediumArticleProcessor } from "@/lib/parser";
 import { urlSchema } from "@/schemas/url";
 import { getUrlWithoutPaywall } from "@/app/article/actions/url";
 import { rateLimitByIp } from "@/lib/limiter";
+import { getCachedArticle, setCachedArticle } from "@/lib/article-cache";
 
 export type ArticleDetails = {
   title: string;
@@ -23,17 +24,23 @@ export async function scrapeArticleContent(
   url: string,
 ): Promise<ArticleDetails | { error: string }> {
   try {
-    await rateLimitByIp({
-      key: "scrape-article-content",
-      limit: 10,
-      window: 60000,
-    });
     const urlResult = urlSchema.safeParse(url);
     if (!urlResult.success) {
       throw new Error("Invalid URL");
     }
 
-    const urlWithoutPaywall = await getUrlWithoutPaywall(url);
+    const cachedArticle = await getCachedArticle(urlResult.data);
+    if (cachedArticle) {
+      return cachedArticle;
+    }
+
+    await rateLimitByIp({
+      key: "scrape-article-content",
+      limit: 10,
+      window: 60000,
+    });
+
+    const urlWithoutPaywall = await getUrlWithoutPaywall(urlResult.data);
     if (urlWithoutPaywall instanceof Error) {
       throw new Error("Unable to fetch paywalled article");
     }
@@ -64,10 +71,10 @@ export async function scrapeArticleContent(
     )) as ArticleDetails;
 
     if (!articleMetadata) {
-      throw new Error("Unable to extract article metadata");
+      throw new Error("Unable to locate article content");
     }
 
-    return {
+    const articleDetails = {
       title: articleMetadata.title,
       htmlContent: articleMetadata.htmlContent,
       textContent: articleMetadata.textContent,
@@ -78,6 +85,10 @@ export async function scrapeArticleContent(
         ...articleMetadata.publicationInformation,
       },
     };
+
+    await setCachedArticle(urlResult.data, articleDetails);
+
+    return articleDetails;
   } catch (error) {
     console.error("Scraping failed:", error);
     return {

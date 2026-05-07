@@ -25,7 +25,7 @@ export async function POST(req: NextRequest) {
   let evt;
 
   try {
-    evt = await verifyWebhook(req);
+    evt = await verifyWebhook(req as any);
   } catch (error) {
     console.error("Webhook verification failed:", error);
     return new Response("Verification failed", { status: 400 });

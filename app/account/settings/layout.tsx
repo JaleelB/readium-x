@@ -1,12 +1,19 @@
 import SiteHeader from "@/components/site-header";
 import { ReactNode } from "react";
 import SettingsLayout, { Tab } from "./setting-layout";
+import { getCurrentUser } from "@/lib/session";
+import { redirect } from "next/navigation";
 
-export default function PersonalSettingsLayout({
+export default async function PersonalSettingsLayout({
   children,
 }: {
   children: ReactNode;
 }) {
+  const user = await getCurrentUser();
+  if (!user) {
+    redirect("/signin");
+  }
+
   const tabs: Tab[] = [
     {
       name: "General",

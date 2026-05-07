@@ -361,6 +361,10 @@ export class MediumArticleProcessor {
 
   private async processArticleContent(html: string): Promise<Article> {
     try {
+      if (typeof html !== "string" || !html.trim()) {
+        throw new Error("Unable to locate article content");
+      }
+
       const $ = cheerio.load(html);
       // console.log("Processing article content:", html);
       const elements: ArticleElement[] = [];
@@ -406,13 +410,16 @@ export class MediumArticleProcessor {
       });
 
       const finalHtml = elements.map((el) => el.content).join("");
+      if (!finalHtml.trim()) {
+        throw new Error("Unable to locate article content");
+      }
+
       const wrappedHtml = `<div class="main-content mt-6">${finalHtml}</div>`;
 
       const textContent = this.extractTextContent(wrappedHtml);
 
       return { html: wrappedHtml, text: textContent };
     } catch (error) {
-      console.error("Error scraping article:", error);
       throw error;
     }
   }
@@ -423,6 +430,10 @@ export class MediumArticleProcessor {
   ): Promise<ArticleMetadata | null> {
     const $ = cheerio.load(html);
     const sectionElement = $("article").first();
+    if (!sectionElement.length) {
+      return null;
+    }
+
     const sectionElementClone = sectionElement.clone();
     let metadata: ArticleMetadata;
 
@@ -439,6 +450,7 @@ export class MediumArticleProcessor {
               .trim() || "No title available",
           htmlContent: (() => {
             const mainContentElement = $("div.main-content.mt-8");
+            const mainContentHtml = $.html(mainContentElement) ?? "";
             const previewImage = $(
               'img[alt="Preview image"][loading="eager"][role="presentation"][src^="https://miro.medium.com/"]',
             ).first();
@@ -447,13 +459,13 @@ export class MediumArticleProcessor {
                 "style",
                 "max-height: 65vh; width: auto; margin: auto",
               );
-              return `<div class="main-content mt-6">${previewImage.prop("outerHTML") + $.html(mainContentElement)}</div>`;
+              return `<div class="main-content mt-6">${previewImage.prop("outerHTML") + mainContentHtml}</div>`;
             }
-            return $.html(mainContentElement);
+            return mainContentHtml;
           })(),
           textContent: (() => {
             const mainContentElement = $("div.main-content.mt-8");
-            return this.extractTextContent($.html(mainContentElement));
+            return this.extractTextContent($.html(mainContentElement) ?? "");
           })(),
           authorInformation: {
             authorName:
@@ -553,6 +565,10 @@ export class MediumArticleProcessor {
           )
           .remove();
 
+        const archiveArticle = await this.processArticleContent(
+          sectionElementClone.html() ?? "",
+        );
+
         metadata = {
           title: (() => {
             const specificH1 = sectionElement
@@ -572,18 +588,8 @@ export class MediumArticleProcessor {
 
             return "No title available";
           })(),
-          htmlContent: await (async () => {
-            const article = await this.processArticleContent(
-              sectionElementClone.html() as string,
-            );
-            return article.html;
-          })(),
-          textContent: await (async () => {
-            const article = await this.processArticleContent(
-              sectionElementClone.html() as string,
-            );
-            return article.text;
-          })(),
+          htmlContent: archiveArticle.html,
+          textContent: archiveArticle.text,
           authorInformation: {
             authorName: (() => {
               const authorLink = articleAuthorDetails
@@ -762,26 +768,32 @@ export class MediumArticleProcessor {
       case "medium":
       case "original":
       default:
+        const articleHtml = sectionElement.html();
+        if (!articleHtml?.trim()) {
+          return null;
+        }
+
+        const article = await this.processArticleContent(articleHtml);
+        const authorHref = sectionElement
+          .find('a[data-testid="authorName"]')
+          .attr("href");
+
         metadata = {
           title:
             sectionElement.find('[data-testid="storyTitle"]').text().trim() ||
             sectionElement.find("h1").first().text().trim() ||
             "No title available",
-          htmlContent: (
-            await this.processArticleContent(sectionElement.html() as string)
-          ).html,
-          textContent: (
-            await this.processArticleContent(sectionElement.html() as string)
-          ).text,
+          htmlContent: article.html,
+          textContent: article.text,
           authorInformation: {
             authorName:
               sectionElement
                 .find('a[data-testid="authorName"]')
                 .text()
                 .trim() || null,
-            authorProfileURL:
-              `https://medium.com${sectionElement.find('a[data-testid="authorName"]').attr("href")}` ||
-              null,
+            authorProfileURL: authorHref
+              ? new URL(authorHref, "https://medium.com").toString()
+              : null,
             authorImageURL:
               sectionElement
                 .find('img[data-testid="authorPhoto"]')

@@ -2,7 +2,14 @@ import nextVitals from "eslint-config-next/core-web-vitals";
 
 const config = [
   {
-    ignores: [".next/**", "node_modules/**", "dist/**"],
+    ignores: [
+      ".next/**",
+      ".open-next/**",
+      ".wrangler/**",
+      "node_modules/**",
+      "dist/**",
+      "cloudflare-env.d.ts",
+    ],
   },
   ...nextVitals,
   {

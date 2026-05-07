@@ -17,5 +17,10 @@ export function SparkleBg({
     sparkleSize: sparkleSize || 1.5,
   });
 
-  return <div ref={sparkleContainerRef} className="pointer-events-none absolute h-full w-full" />;
+  return (
+    <div
+      ref={sparkleContainerRef}
+      className="pointer-events-none absolute h-full w-full"
+    />
+  );
 }

@@ -5,10 +5,7 @@ import Nav from "./nav";
 import { Profile } from "@/server/db/schema";
 import { getUserProfileUseCase } from "@/use-cases/users";
 
-export type UserInfo =
-  | { id: string; email: string | null }
-  | null
-  | undefined;
+export type UserInfo = { id: string; email: string | null } | null | undefined;
 
 async function SiteHeader() {
   const userSession = await getCurrentUser();
