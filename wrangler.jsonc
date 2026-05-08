@@ -1,23 +1,24 @@
 {
-	"$schema": "./node_modules/wrangler/config-schema.json",
-	"name": "readium-x",
-	"main": ".open-next/worker.js",
-	"compatibility_date": "2026-05-06",
-	"compatibility_flags": [
-		"nodejs_compat"
-	],
-	"assets": {
-		"directory": ".open-next/assets",
-		"binding": "ASSETS"
-	},
-	"observability": {
-		"enabled": true
-	},
-	"kv_namespaces": [
-		{
-			"binding": "READIUMX_ARTICLE_CACHE",
-			"id": "4ea0e799b5a247f58c6483cbeda822b3",
-			"preview_id": "6d9d163ddb3f492db8190870e1a30cec"
-		}
-	]
+  "$schema": "./node_modules/wrangler/config-schema.json",
+  "name": "readium-x",
+  "main": ".open-next/worker.js",
+  "compatibility_date": "2026-05-06",
+  "compatibility_flags": ["nodejs_compat"],
+  "assets": {
+    "directory": ".open-next/assets",
+    "binding": "ASSETS",
+  },
+  "observability": {
+    "enabled": true,
+  },
+  "secrets": {
+    "required": ["DATABASE_URL", "CLERK_SECRET_KEY", "ENCRYPTION_KEY"],
+  },
+  "kv_namespaces": [
+    {
+      "binding": "READIUMX_ARTICLE_CACHE",
+      "id": "4ea0e799b5a247f58c6483cbeda822b3",
+      "preview_id": "6d9d163ddb3f492db8190870e1a30cec",
+    },
+  ],
 }

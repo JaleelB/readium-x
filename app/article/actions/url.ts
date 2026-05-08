@@ -4,11 +4,7 @@ import { urlSchema } from "@/schemas/url";
 import { z } from "zod";
 import * as cheerio from "cheerio";
 
-export type UrlType =
-  | "medium"
-  | "archive"
-  | "freedium"
-  | "original";
+export type UrlType = "medium" | "archive" | "freedium" | "original";
 
 export interface UrlResult {
   url: string;

@@ -463,7 +463,8 @@ export class MediumArticleProcessor {
       return null;
     }
 
-    const sectionElementClone = sectionElement.length > 0 ? sectionElement.clone() : sectionElement;
+    const sectionElementClone =
+      sectionElement.length > 0 ? sectionElement.clone() : sectionElement;
     let metadata: ArticleMetadata;
 
     switch (type) {
