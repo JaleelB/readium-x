@@ -6,7 +6,6 @@ import * as cheerio from "cheerio";
 
 export type UrlType =
   | "medium"
-  | "webcache"
   | "archive"
   | "freedium"
   | "original";
@@ -53,17 +52,21 @@ export const getUrlWithoutPaywall = async (
         return isFree;
       }
       if (isFree) {
-        return [{ url: validatedUrl, type: "medium" }]; // Return original URL for free articles
+        return [
+          { url: validatedUrl, type: "medium" }, // Try original URL first
+          {
+            url: `https://freedium-mirror.cfd/${validatedUrl}`,
+            type: "freedium",
+          },
+        ];
       }
 
       // For paywalled articles, return the fallback sequence
       return [
         {
-          url: `https://webcache.googleusercontent.com/search?q=cache:${validatedUrl}`,
-          type: "webcache",
+          url: `https://freedium-mirror.cfd/${validatedUrl}`,
+          type: "freedium",
         },
-        { url: `https://freedium.cfd/${validatedUrl}`, type: "freedium" },
-        { url: validatedUrl, type: "archive" }, // We pass original URL here and resolve in the loop
         { url: validatedUrl, type: "original" },
       ];
     }
@@ -117,6 +120,8 @@ export async function validateMediumArticle(url: string) {
   }
 }
 
+import { hasPaywallIndicators } from "@/lib/parser";
+
 export async function isMediumArticleFree(
   url: string,
 ): Promise<boolean | Error> {
@@ -135,32 +140,7 @@ export async function isMediumArticleFree(
 
     const html = await response.text();
 
-    // Check for indicators of a paywalled article
-    const paywallIndicators = [
-      'class="meteredContent"',
-      'id="paywall-upsell-button-upgrade"',
-      'class="paywall-upsell-button-upgrade"',
-      "Your membership has expired",
-      "Become a member to read this story",
-      "Get unlimited access to Medium",
-      "The writer made this a member-only story.",
-    ];
-
-    for (const indicator of paywallIndicators) {
-      if (html.includes(indicator)) {
-        return false; // Article is behind a paywall
-      }
-    }
-
-    // Check for "Upgrade now" link using regex
-    const upgradeNowRegex =
-      /<a[^>]*href="\/plans\?source=upgrade_membership[^>]*>Upgrade now<\/a>/i;
-    if (upgradeNowRegex.test(html)) {
-      return false; // Article is behind a paywall
-    }
-
-    // If none of the paywall indicators are found, assume the article is free
-    return true;
+    return !hasPaywallIndicators(html);
   } catch (error) {
     console.error("Error checking Medium article accessibility:", error);
     return new Error("Failed to determine article accessibility");

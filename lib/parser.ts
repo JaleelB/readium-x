@@ -40,6 +40,35 @@ interface Article {
   text: string;
 }
 
+export function hasPaywallIndicators(html: string): boolean {
+  const paywallIndicators = [
+    'class="meteredContent"',
+    'id="paywall-upsell-button-upgrade"',
+    'class="paywall-upsell-button-upgrade"',
+    "Your membership has expired",
+    "Become a member to read this story",
+    "Get unlimited access to Medium",
+    "The writer made this a member-only story.",
+    "The author made this story available to Medium members only.",
+    "Create an account to read the full story.",
+  ];
+
+  for (const indicator of paywallIndicators) {
+    if (html.includes(indicator)) {
+      return true; // Article is behind a paywall
+    }
+  }
+
+  // Check for "Upgrade now" link using regex
+  const upgradeNowRegex =
+    /<a[^>]*href="\/plans\?source=upgrade_membership[^>]*>Upgrade now<\/a>/i;
+  if (upgradeNowRegex.test(html)) {
+    return true; // Article is behind a paywall
+  }
+
+  return false;
+}
+
 export class MediumArticleProcessor {
   constructor() {}
 
@@ -430,11 +459,11 @@ export class MediumArticleProcessor {
   ): Promise<ArticleMetadata | null> {
     const $ = cheerio.load(html);
     const sectionElement = $("article").first();
-    if (!sectionElement.length) {
+    if (type !== "freedium" && !sectionElement.length) {
       return null;
     }
 
-    const sectionElementClone = sectionElement.clone();
+    const sectionElementClone = sectionElement.length > 0 ? sectionElement.clone() : sectionElement;
     let metadata: ArticleMetadata;
 
     switch (type) {
@@ -764,7 +793,6 @@ export class MediumArticleProcessor {
           },
         };
         break;
-      case "webcache":
       case "medium":
       case "original":
       default:

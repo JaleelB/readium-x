@@ -3,6 +3,7 @@ import { getUrlWithoutPaywall } from "@/app/article/actions/url";
 import { getCachedArticle, setCachedArticle } from "@/lib/article-cache";
 import { rateLimitByIp } from "@/lib/limiter";
 import { scrapeArticleContent } from "@/lib/article-content";
+import type { UrlType } from "@/app/article/actions/url";
 
 vi.mock("@/lib/article-cache", () => ({
   getCachedArticle: vi.fn(),
@@ -42,6 +43,11 @@ const articleHtml = [
   "</article>",
 ].join("");
 
+const resolvedUrl = {
+  url: "https://medium.com/example/story",
+  type: "medium" as UrlType,
+};
+
 describe("scrapeArticleContent", () => {
   beforeEach(() => {
     vi.clearAllMocks();
@@ -75,10 +81,7 @@ describe("scrapeArticleContent", () => {
 
   it("scrapes on cache miss and writes successful extraction to KV", async () => {
     vi.mocked(getCachedArticle).mockResolvedValue(null);
-    vi.mocked(getUrlWithoutPaywall).mockResolvedValue({
-      url: "https://medium.com/example/story",
-      type: "medium",
-    });
+    vi.mocked(getUrlWithoutPaywall).mockResolvedValue([resolvedUrl]);
 
     const result = await scrapeArticleContent(
       "https://medium.com/example/story",
@@ -98,10 +101,7 @@ describe("scrapeArticleContent", () => {
 
   it("does not cache failed scrapes", async () => {
     vi.mocked(getCachedArticle).mockResolvedValue(null);
-    vi.mocked(getUrlWithoutPaywall).mockResolvedValue({
-      url: "https://medium.com/example/story",
-      type: "medium",
-    });
+    vi.mocked(getUrlWithoutPaywall).mockResolvedValue([resolvedUrl]);
     vi.stubGlobal(
       "fetch",
       vi.fn(async () => ({
@@ -114,7 +114,9 @@ describe("scrapeArticleContent", () => {
       "https://medium.com/example/story",
     );
 
-    expect(result).toEqual({ error: "Unable to locate article content" });
+    expect(result).toEqual({
+      error: "Unable to locate article content after trying all bypass methods",
+    });
     expect(setCachedArticle).not.toHaveBeenCalled();
   });
 });

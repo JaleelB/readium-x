@@ -1,6 +1,9 @@
-import { MediumArticleProcessor } from "@/lib/parser";
+import { MediumArticleProcessor, hasPaywallIndicators } from "@/lib/parser";
 import { urlSchema } from "@/schemas/url";
-import { getUrlWithoutPaywall, resolveArchiveUrl } from "@/app/article/actions/url";
+import {
+  getUrlWithoutPaywall,
+  resolveArchiveUrl,
+} from "@/app/article/actions/url";
 import { rateLimitByIp } from "@/lib/limiter";
 import { getCachedArticle, setCachedArticle } from "@/lib/article-cache";
 
@@ -81,6 +84,13 @@ export async function scrapeArticleContent(
         }
 
         const html = await response.text();
+
+        if (hasPaywallIndicators(html)) {
+          console.log(
+            `Service ${service.type} returned paywalled teaser content. Skipping...`,
+          );
+          continue;
+        }
 
         const processor = new MediumArticleProcessor();
         const articleMetadata = (await processor.extractArticleMetadata(
