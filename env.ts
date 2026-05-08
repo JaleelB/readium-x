@@ -8,8 +8,7 @@ export const env = createEnv({
     DB_AUTH_TOKEN: z.string().optional(),
     CLERK_SECRET_KEY: z.string().min(1),
     CLERK_WEBHOOK_SECRET: z.string().optional(),
-    UMAMI_URL: z.string().min(1),
-    UMAMI_DATA_WEBSITE_ID: z.string().min(1),
+    ENCRYPTION_KEY: z.string().length(32),
   },
   client: {
     NEXT_PUBLIC_APP_URL: z.string().min(1),
@@ -26,7 +25,6 @@ export const env = createEnv({
     DB_AUTH_TOKEN: process.env.DB_AUTH_TOKEN,
     CLERK_SECRET_KEY: process.env.CLERK_SECRET_KEY,
     CLERK_WEBHOOK_SECRET: process.env.CLERK_WEBHOOK_SECRET,
-    UMAMI_URL: process.env.UMAMI_URL,
-    UMAMI_DATA_WEBSITE_ID: process.env.UMAMI_DATA_WEBSITE_ID,
+    ENCRYPTION_KEY: process.env.ENCRYPTION_KEY,
   },
 });

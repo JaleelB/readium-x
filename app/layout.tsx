@@ -5,7 +5,6 @@ import "./globals.css";
 import { ThemeProvider } from "@/components/theme-provider";
 // import { Toaster } from "@/components/ui/toaster";
 import { siteConfig } from "@/app-config";
-import Script from "next/script";
 import type { Viewport } from "next";
 import { Toaster } from "@/components/ui/sonner";
 import { ClerkProvider } from "@clerk/nextjs";
@@ -110,11 +109,6 @@ export default function RootLayout({
             </QueryProvider>
           </ThemeProvider>
         </ClerkProvider>
-        <Script
-          async
-          src={process.env.UMAMI_URL}
-          data-website-id={process.env.UMAMI_DATA_WEBSITE_ID}
-        />
       </body>
     </html>
   );
