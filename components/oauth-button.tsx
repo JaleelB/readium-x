@@ -5,8 +5,9 @@ import { cn } from "@/lib/utils";
 import { buttonVariants } from "@/components/ui/button";
 import { LoaderButton } from "./loader-button";
 import { Icons } from "./icons";
-import { useSignIn } from "@clerk/nextjs";
+import { useAuth, useSignIn } from "@clerk/nextjs";
 import { afterLoginUrl } from "@/app-config";
+import { useRouter } from "next/navigation";
 
 export function OAuthButton({
   provider,
@@ -17,9 +18,16 @@ export function OAuthButton({
 }) {
   const [isLoading, setIsLoading] = useState(false);
   const { signIn } = useSignIn();
+  const { isLoaded, isSignedIn } = useAuth();
+  const router = useRouter();
 
   const handleClick = async () => {
-    if (!signIn) {
+    if (!isLoaded || !signIn) {
+      return;
+    }
+
+    if (isSignedIn) {
+      router.replace(afterLoginUrl);
       return;
     }
 
@@ -44,6 +52,7 @@ export function OAuthButton({
   return (
     <LoaderButton
       isLoading={isLoading}
+      disabled={!isLoaded || isLoading}
       onClick={handleClick}
       className={cn(
         buttonVariants({
