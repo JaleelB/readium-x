@@ -3,9 +3,10 @@ import { db } from "@/server/db/db";
 import { bookmarks } from "@/server/db/schema";
 import { eq } from "drizzle-orm";
 import { z } from "zod";
+import { UserId } from "@/use-cases/types";
 
 export async function createBookark(
-  userId: number,
+  userId: UserId,
   articleDetails: z.infer<typeof articleSchema>,
 ) {
   const existingBookmark = await db.query.bookmarks.findFirst({
@@ -41,7 +42,7 @@ export async function createBookark(
   return bookmark;
 }
 
-export async function getBookmarks(userId: number) {
+export async function getBookmarks(userId: UserId) {
   const userBookmarks = await db
     .select()
     .from(bookmarks)
@@ -50,7 +51,7 @@ export async function getBookmarks(userId: number) {
   return userBookmarks;
 }
 
-export async function getBookmarkById(userId: number, bookmarkId: number) {
+export async function getBookmarkById(userId: UserId, bookmarkId: number) {
   const bookmark = await db.query.bookmarks.findFirst({
     where: eq(bookmarks.userId, userId) && eq(bookmarks.id, bookmarkId),
   });
@@ -58,14 +59,14 @@ export async function getBookmarkById(userId: number, bookmarkId: number) {
   return bookmark;
 }
 
-export async function deleteBookmark(userId: number, bookmarkId: number) {
+export async function deleteBookmark(userId: UserId, bookmarkId: number) {
   await db
     .delete(bookmarks)
     .where(eq(bookmarks.userId, userId) && eq(bookmarks.id, bookmarkId));
 }
 
 export async function updateBookmark(
-  userId: number,
+  userId: UserId,
   bookmarkId: number,
   articleDetails: z.infer<typeof articleSchema>,
 ) {

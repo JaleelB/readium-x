@@ -10,6 +10,7 @@ import { OptionsMenu } from "./menu";
 import { siteConfig } from "@/app-config";
 import { Profile, User } from "@/server/db/schema";
 import { usePathname } from "next/navigation";
+import { useUser } from "@clerk/nextjs";
 
 export default function Nav({
   user,
@@ -22,6 +23,15 @@ export default function Nav({
   const lastScrollY = useRef(0);
   const [isScrolled, setIsScrolled] = useState(false);
   const pathname = usePathname();
+  const { isLoaded, isSignedIn, user: clerkUser } = useUser();
+  const effectiveUser =
+    user ??
+    (isSignedIn && clerkUser
+      ? {
+          id: clerkUser.id,
+          email: clerkUser.primaryEmailAddress?.emailAddress ?? null,
+        }
+      : undefined);
 
   useEffect(() => {
     const handleScroll = () => {
@@ -70,7 +80,7 @@ export default function Nav({
           </Link>
 
           <div className={`flex h-full w-1/2 items-center justify-end gap-2`}>
-            {!user && (
+            {isLoaded && !effectiveUser && (
               <Link
                 href="/signin"
                 className={cn(
@@ -82,7 +92,7 @@ export default function Nav({
                 <span>Sign in</span>
               </Link>
             )}
-            <OptionsMenu user={user} profile={profile} />
+            <OptionsMenu user={effectiveUser} profile={profile} />
           </div>
         </div>
       </div>

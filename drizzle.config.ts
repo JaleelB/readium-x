@@ -7,9 +7,14 @@ export default defineConfig({
   schema: "./server/db/schema.ts",
   out: "./migrations",
   dialect: "sqlite",
-  driver: "turso",
   dbCredentials: {
-    url: process.env.DATABASE_URL!,
-    authToken: process.env.DB_AUTH_TOKEN!,
+    url:
+      process.env.NODE_ENV === "development"
+        ? "file:./server/db/local.db"
+        : process.env.DATABASE_URL!,
+    authToken:
+      process.env.NODE_ENV === "development"
+        ? undefined
+        : process.env.DB_AUTH_TOKEN,
   },
 });

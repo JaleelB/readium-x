@@ -2,14 +2,13 @@
 
 import { Card, CardContent, CardDescription } from "@/components/ui/card";
 import Balancer from "react-wrap-balancer";
-import { deleteBookmarkAction } from "../bookmark";
 import { Icons } from "@/components/icons";
 import { Button } from "@/components/ui/button";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { AvatarImage } from "@radix-ui/react-avatar";
 import Link from "next/link";
 import Cookies from "js-cookie";
-import { cn, formatDate, getLocalStorageItem } from "@/lib/utils";
+import { cn, formatDate } from "@/lib/utils";
 import { v4 as uuidv4 } from "uuid";
 import {
   AlertDialog,
@@ -19,10 +18,10 @@ import {
   AlertDialogFooter,
   AlertDialogHeader,
 } from "@/components/ui/alert-dialog";
-import { Bookmark } from "../bookmark-wrapper";
+import type { Bookmark } from "../bookmark-wrapper";
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import * as cheerio from "cheerio";
-import { useEffect, useMemo, useState } from "react";
+import { useMemo, useState } from "react";
 import { BookmarksSearchBox } from "./bookmarks-search-box";
 import { BookmarksDisplayMenu } from "./bookmarks-display";
 import { BookmarkButton } from "./bookmark-button";
@@ -36,6 +35,11 @@ import {
   DropdownMenuSeparator,
   DropdownMenuGroup,
 } from "@/components/ui/dropdown-menu";
+import { useLocalStorage } from "@/hooks/use-local-storage";
+import {
+  useBookmarksQuery,
+  useDeleteBookmarkMutation,
+} from "@/hooks/use-bookmarks-query";
 
 export type Layout = "grid" | "rows";
 export type OrderBy = "date" | "readTime" | "title";
@@ -61,39 +65,49 @@ export default function BookmarksList({
   userId,
 }: {
   bookmarks: Bookmark[];
-  userId: number;
+  userId: string;
 }) {
   const id = uuidv4();
   const router = useRouter();
   const pathname = usePathname();
   const searchParams = useSearchParams();
   const searchTerm = searchParams.get("search") || "";
+  const { data = bookmarks } = useBookmarksQuery(bookmarks);
 
-  const [layout, setLayout] = useState<"grid" | "rows">("grid");
-  const [orderBy, setOrderBy] = useState<OrderBy>("date");
+  // const [layout, setLayout] = useState<"grid" | "rows">("grid");
+  // const [orderBy, setOrderBy] = useState<OrderBy>("date");
 
-  useEffect(() => {
-    setLayout(getLocalStorageItem("layout", "grid") as Layout);
-    setOrderBy(getLocalStorageItem("orderBy", "date") as OrderBy);
-  }, []);
+  // useEffect(() => {
+  //   setLayout(getLocalStorageItem("layout", "grid") as Layout);
+  //   setOrderBy(getLocalStorageItem("orderBy", "date") as OrderBy);
+  // }, []);
 
-  useEffect(() => {
-    localStorage.setItem("layout", layout);
-  }, [layout]);
+  // useEffect(() => {
+  //   localStorage.setItem("layout", layout);
+  // }, [layout]);
 
-  useEffect(() => {
-    localStorage.setItem("orderBy", orderBy);
-  }, [orderBy]);
+  // useEffect(() => {
+  //   localStorage.setItem("orderBy", orderBy);
+  // }, [orderBy]);
+
+  const [layout, setLayout] = useLocalStorage<Layout>(
+    "readiumx-bookmarks-layout",
+    "grid",
+  );
+  const [orderBy, setOrderBy] = useLocalStorage<OrderBy>(
+    "readiumx-bookmarks-order-by",
+    "date",
+  );
 
   const sortedAndFilteredBookmarks = useMemo(() => {
-    let filtered = bookmarks;
+    let filtered = data;
     if (searchTerm) {
-      filtered = bookmarks.filter((bookmark) =>
+      filtered = data.filter((bookmark) =>
         bookmark.title.toLowerCase().includes(searchTerm.toLowerCase()),
       );
     }
 
-    return filtered.sort((a, b) => {
+    return [...filtered].sort((a, b) => {
       switch (orderBy) {
         case "date":
           return b.createdAt && a.createdAt
@@ -107,7 +121,7 @@ export default function BookmarksList({
           return 0;
       }
     });
-  }, [bookmarks, searchTerm, orderBy]);
+  }, [data, searchTerm, orderBy]);
 
   return (
     <div className="mx-auto flex w-full max-w-screen-2xl flex-1 flex-col gap-12 lg:px-20">
@@ -171,24 +185,32 @@ export default function BookmarksList({
               height={200}
             />
             <div className="flex flex-col items-center space-y-2">
-              <h3 className="font-heading text-xl">Bookmark not found!</h3>
+              <h3 className="font-heading text-xl">
+                {data.length === 0
+                  ? "No bookmarked articles"
+                  : "Bookmark not found!"}
+              </h3>
               <p className="max-w-md pb-2 text-center text-base text-muted-foreground">
-                Bummer! The bookmark you are looking for does not exist. You
-                either typed in the wrong article name or you didn&apos;t
-                bookmark the article.
+                {data.length === 0
+                  ? "You haven't bookmarked any articles yet."
+                  : "Bummer! The bookmark you are looking for does not exist. You either typed in the wrong article name or you didn't bookmark the article."}
               </p>
-              <Button
-                className="w-full max-w-[180px] px-10 font-bold"
-                onClick={() => {
-                  const params = new URLSearchParams(searchParams);
-                  params.delete("search");
-                  router.push(`${pathname}?${params.toString()}`, {
-                    scroll: false,
-                  });
-                }}
-              >
-                Back to my bookmarks
-              </Button>
+              {data.length === 0 ? (
+                <BookmarkButton text="Create a new bookmark" />
+              ) : (
+                <Button
+                  className="w-full max-w-[180px] px-10 font-bold"
+                  onClick={() => {
+                    const params = new URLSearchParams(searchParams);
+                    params.delete("search");
+                    router.push(`${pathname}?${params.toString()}`, {
+                      scroll: false,
+                    });
+                  }}
+                >
+                  Back to my bookmarks
+                </Button>
+              )}
             </div>
           </Card>
         )}
@@ -205,7 +227,7 @@ function BookmarkCard({
   layout,
 }: {
   bookmark: Bookmark;
-  userId: number;
+  userId: string;
   articleId: string;
   pathname: string;
   layout: Layout;
@@ -213,6 +235,7 @@ function BookmarkCard({
   const [dialogState, setDialogState] = useState<
     "closed" | "dropdown" | "alert"
   >("closed");
+  const deleteBookmarkMutation = useDeleteBookmarkMutation();
 
   return (
     <Card
@@ -457,19 +480,19 @@ function BookmarkCard({
                         "border-red-500 bg-red-500 text-white ring-offset-red-100 hover:bg-red-600 hover:ring-4 hover:ring-red-100 focus:ring-red-100",
                       )}
                       onClick={async () => {
-                        const [_, error] = await deleteBookmarkAction({
-                          path: pathname,
-                          id: bookmark.id,
-                          userId: userId,
-                        });
-
-                        if (error) {
+                        try {
+                          await deleteBookmarkMutation.mutateAsync({
+                            path: pathname,
+                            id: bookmark.id,
+                            userId: userId,
+                          });
+                          toast.success(
+                            "Bookmark has been successfully deleted",
+                          );
+                          setDialogState("closed");
+                        } catch {
                           toast.error("Failed to delete bookmark");
-                          return;
                         }
-
-                        toast.success("Bookmark has been successfully deleted");
-                        setDialogState("closed");
                       }}
                     >
                       Delete Bookmark

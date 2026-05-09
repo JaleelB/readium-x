@@ -1,0 +1,6 @@
+.next
+.open-next
+node_modules
+dist
+coverage
+cloudflare-env.d.ts

@@ -5,7 +5,7 @@ import { useEffect, useState, useRef, useCallback } from "react";
 interface ReadingProgressHook {
   progress: number;
   isScrolling: boolean;
-  articleRef: React.RefObject<HTMLElement>;
+  articleRef: React.RefObject<HTMLElement | null>;
 }
 
 export const useReadingProgress = (

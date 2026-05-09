@@ -4,23 +4,22 @@ import { cookies } from "next/headers";
 import { getCurrentUser } from "@/lib/session";
 import { ArticleWrapper } from "../article-wrapper";
 
-export default async function Page({
-  params,
-  searchParams,
-}: {
-  params: {
+export default async function Page(props: {
+  params: Promise<{
     id: string;
-  };
-  searchParams: {
+  }>;
+  searchParams: Promise<{
     [key: string]: string | string[] | undefined;
-  };
+  }>;
 }) {
+  const searchParams = await props.searchParams;
+  const params = await props.params;
   if (!params.id) {
     redirect("/");
   }
 
   const articleId = params.id;
-  const cookieStore = cookies();
+  const cookieStore = await cookies();
 
   const url = cookieStore.get(articleId)?.value;
 

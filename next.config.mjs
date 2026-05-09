@@ -1,6 +1,7 @@
+import { initOpenNextCloudflareForDev } from "@opennextjs/cloudflare";
+
 /** @type {import('next').NextConfig} */
 const nextConfig = {
-  output: "standalone",
   async headers() {
     return [
       {
@@ -58,6 +59,11 @@ const nextConfig = {
       },
     ],
   },
+  turbopack: {
+    root: ".",
+  },
 };
 
 export default nextConfig;
+
+initOpenNextCloudflareForDev();

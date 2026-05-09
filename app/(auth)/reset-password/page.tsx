@@ -1,5 +1,7 @@
 "use client";
 
+import { use } from "react";
+
 import { z } from "zod";
 
 import { Input } from "@/components/ui/input";
@@ -18,17 +20,18 @@ import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import { Terminal } from "lucide-react";
 import Link from "next/link";
 import { buttonVariants } from "@/components/ui/button";
-import { changePasswordAction } from "./actions";
 import { LoaderButton } from "@/components/loader-button";
-import { useServerAction } from "zsa-react";
 import { Icons } from "@/components/icons";
 import Balancer from "react-wrap-balancer";
 import { SparkleBg } from "@/components/sparkle-bg";
+import { useSignIn } from "@clerk/nextjs/legacy";
+import { useState } from "react";
 
 const registrationSchema = z
   .object({
+    email: z.string().email(),
+    code: z.string().min(1),
     password: z.string().min(8),
-    token: z.string(),
     passwordConfirmation: z.string().min(8),
   })
   .refine((data) => data.password === data.passwordConfirmation, {
@@ -36,28 +39,53 @@ const registrationSchema = z
     path: ["passwordConfirmation"],
   });
 
-export default function ResetPasswordPage({
-  searchParams,
-}: {
-  searchParams: { token: string };
+export default function ResetPasswordPage(props: {
+  searchParams: Promise<{ email?: string }>;
 }) {
+  const searchParams = use(props.searchParams);
+  const { isLoaded, signIn, setActive } = useSignIn();
+  const [isPending, setIsPending] = useState(false);
+  const [isSuccess, setIsSuccess] = useState(false);
+  const [error, setError] = useState<string | null>(null);
   const form = useForm<z.infer<typeof registrationSchema>>({
     resolver: zodResolver(registrationSchema),
     defaultValues: {
+      email: searchParams.email ?? "",
+      code: "",
       password: "",
-      token: searchParams.token,
       passwordConfirmation: "",
     },
   });
 
-  const { execute, isPending, isSuccess, error } =
-    useServerAction(changePasswordAction);
+  async function onSubmit(values: z.infer<typeof registrationSchema>) {
+    if (!isLoaded || !signIn) {
+      return;
+    }
 
-  function onSubmit(values: z.infer<typeof registrationSchema>) {
-    execute({
-      token: values.token,
-      password: values.password,
-    });
+    setIsPending(true);
+    setError(null);
+    try {
+      const result = await signIn.attemptFirstFactor({
+        strategy: "reset_password_email_code",
+        code: values.code,
+        password: values.password,
+      });
+
+      if (result.status === "complete") {
+        await setActive({ session: result.createdSessionId });
+        setIsSuccess(true);
+      } else {
+        setError("Additional verification is required to reset your password.");
+      }
+    } catch (error: any) {
+      setError(
+        error?.errors?.[0]?.longMessage ??
+          error?.errors?.[0]?.message ??
+          "Unable to reset password",
+      );
+    } finally {
+      setIsPending(false);
+    }
   }
 
   return (
@@ -120,7 +148,7 @@ export default function ResetPasswordPage({
             <Alert variant="destructive">
               <Terminal className="h-4 w-4" />
               <AlertTitle>Uhoh, something went wrong</AlertTitle>
-              <AlertDescription>{error.message}</AlertDescription>
+              <AlertDescription>{error}</AlertDescription>
             </Alert>
           )}
 
@@ -154,6 +182,25 @@ export default function ResetPasswordPage({
                   Your new password must be atleast 8 characters long.
                 </Balancer>
               </div>
+              <FormField
+                control={form.control}
+                name="code"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Reset Code</FormLabel>
+                    <FormControl>
+                      <Input
+                        {...field}
+                        className="w-full"
+                        placeholder="Enter your reset code"
+                        type="text"
+                      />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+
               <FormField
                 control={form.control}
                 name="password"
@@ -203,7 +250,7 @@ export default function ResetPasswordPage({
           </Form>
           <Link
             href="/signin"
-            className="flex items-center text-muted-foreground underline"
+            className="z-20 flex items-center text-muted-foreground underline"
           >
             <Icons.arrowLeft className="mr-2 h-4 w-4" />
             Back to sign in

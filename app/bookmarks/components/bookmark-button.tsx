@@ -12,10 +12,10 @@ import { SparkleBg } from "@/components/sparkle-bg";
 import { CreateBookmarkForm } from "./create-bookmark-form";
 // import { Icons } from "@/components/icons";
 
-export async function BookmarkButton({ text = "New" }: { text?: string }) {
+export function BookmarkButton({ text = "New" }: { text?: string }) {
   return (
     <Dialog>
-      <DialogTrigger>
+      <DialogTrigger asChild>
         <Button
           className={cn(
             "relative h-10 w-full items-center overflow-hidden rounded-[0.5rem] border border-input/25 bg-[#1d1c20] p-0 dark:border-white/15 dark:bg-[#1a1a1a] dark:text-white md:w-fit",

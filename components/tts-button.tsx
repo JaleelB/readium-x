@@ -56,7 +56,7 @@ export const TTS = ({
   useIcon,
 }: {
   text: string;
-  userId?: number;
+  userId?: string;
   useIcon?: boolean;
 }) => {
   const {

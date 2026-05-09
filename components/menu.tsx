@@ -23,6 +23,7 @@ import { siteConfig } from "@/app-config";
 import { UserInfo } from "./site-header";
 import { Profile } from "@/server/db/schema";
 import { Avatar, AvatarFallback, AvatarImage } from "./ui/avatar";
+import { useClerk } from "@clerk/nextjs";
 
 export function OptionsMenu({
   user,
@@ -33,6 +34,7 @@ export function OptionsMenu({
 }) {
   const [open, setOpen] = useState(false);
   const { setTheme } = useTheme();
+  const { signOut } = useClerk();
 
   return (
     <DropdownMenu open={open} onOpenChange={(isOpen) => setOpen(isOpen)}>
@@ -164,15 +166,14 @@ export function OptionsMenu({
         </Link>
         <DropdownMenuSeparator />
         {user && (
-          <form action="/api/sign-out" method="POST">
-            <Button
-              className="flex h-fit cursor-pointer items-center p-0 px-2 py-1.5 hover:bg-transparent"
-              variant="ghost"
-            >
-              <Icons.logout className="mr-2 h-4 w-4" />
-              Sign Out
-            </Button>
-          </form>
+          <Button
+            className="flex h-fit cursor-pointer items-center p-0 px-2 py-1.5 hover:bg-transparent"
+            variant="ghost"
+            onClick={() => signOut({ redirectUrl: "/signin" })}
+          >
+            <Icons.logout className="mr-2 h-4 w-4" />
+            Sign Out
+          </Button>
         )}
       </DropdownMenuContent>
     </DropdownMenu>

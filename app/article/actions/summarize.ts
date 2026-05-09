@@ -3,7 +3,6 @@
 import OpenAI from "openai";
 import { z } from "zod";
 import { authenticatedAction } from "@/lib/safe-action";
-import { getUser } from "@/data-access/users";
 import { db } from "@/server/db/db";
 import { users } from "@/server/db/schema";
 import { eq } from "drizzle-orm";
@@ -11,25 +10,20 @@ import { decrypt } from "@/lib/encryption";
 import { rateLimitByIp } from "@/lib/limiter";
 
 const summarizeArticleSchema = z.object({
-  userId: z.number(),
+  userId: z.string(),
   content: z.string(),
 });
 
 export const summarizeArticleAction = authenticatedAction
   .createServerAction()
   .input(summarizeArticleSchema)
-  .handler(async ({ input }) => {
+  .handler(async ({ input, ctx }) => {
     await rateLimitByIp({ key: "summarize-article", limit: 2, window: 60000 });
-
-    const authenticatedUser = await getUser(input.userId);
-    if (!authenticatedUser) {
-      throw new Error("User not found");
-    }
 
     const user = await db
       .select({ openaiApiKey: users.openaiApiKey })
       .from(users)
-      .where(eq(users.email, authenticatedUser.email as string))
+      .where(eq(users.id, ctx.user.id))
       .then((rows) => rows[0]);
 
     if (!user?.openaiApiKey) {

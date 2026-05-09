@@ -3,14 +3,13 @@
 import { FormControl, FormField, FormItem, Form } from "@/components/ui/form";
 import { z } from "zod";
 import Balancer from "react-wrap-balancer";
-import { useForm } from "react-hook-form";
+import { useForm, useWatch } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { Input } from "@/components/ui/input";
 import { toast } from "sonner";
 import { useServerAction } from "zsa-react";
 import { saveApiKeyAction, getApiKeyStatusAction } from "./actions";
 import { LoaderButton } from "@/components/loader-button";
-import { useEffect, useState } from "react";
 import { usePathname } from "next/navigation";
 
 const FormSchema = z
@@ -28,11 +27,9 @@ export default function TokensForm({
   userId,
   initialMaskedKey,
 }: {
-  userId: number;
+  userId: string;
   initialMaskedKey: string | null;
 }) {
-  const [isChanged, setIsChanged] = useState(false);
-
   const pathname = usePathname();
 
   const form = useForm<z.infer<typeof FormSchema>>({
@@ -58,18 +55,13 @@ export default function TokensForm({
     },
   );
 
-  useEffect(() => {
-    const subscription = form.watch((value, { name, type }) => {
-      if (name === "apiKey") {
-        setIsChanged(
-          value.apiKey !== undefined &&
-            value.apiKey !== initialMaskedKey &&
-            value.apiKey.length > 0,
-        );
-      }
-    });
-    return () => subscription.unsubscribe();
-  }, [form, form.watch, initialMaskedKey]);
+  const apiKey = useWatch({
+    control: form.control,
+    name: "apiKey",
+  });
+
+  const isChanged =
+    apiKey !== undefined && apiKey !== initialMaskedKey && apiKey.length > 0;
 
   function onSubmit(values: z.infer<typeof FormSchema>) {
     toast.loading("Saving API key...");

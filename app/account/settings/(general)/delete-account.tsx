@@ -12,7 +12,7 @@ import {
 import { Button } from "@/components/ui/button";
 import { env } from "@/env";
 import { cn } from "@/lib/utils";
-import { redirect, usePathname } from "next/navigation";
+import { usePathname, useRouter } from "next/navigation";
 import {
   Dispatch,
   SetStateAction,
@@ -24,7 +24,7 @@ import { Balancer } from "react-wrap-balancer";
 import { toast } from "sonner";
 import { deleteUserAction } from "../actions";
 
-export default function DeleteAccount({ id }: { id: number }) {
+export default function DeleteAccount({ id }: { id: string }) {
   const { setShowDeleteAccountModal, DeleteAccountModal } =
     useDeleteAccountModal(id);
 
@@ -62,9 +62,10 @@ function DeleteAccountModal({
 }: {
   showDeleteAccountModal: boolean;
   setShowDeleteAccountModal: Dispatch<SetStateAction<boolean>>;
-  userId: number;
+  userId: string;
 }) {
   const pathname = usePathname();
+  const router = useRouter();
 
   return (
     <AlertDialog
@@ -115,7 +116,7 @@ function DeleteAccountModal({
                 }
 
                 toast.success("Account has been successfully deleted");
-                redirect("/signup");
+                router.push("/signup");
               }}
             >
               Delete Account
@@ -127,7 +128,7 @@ function DeleteAccountModal({
   );
 }
 
-function useDeleteAccountModal(userId: number) {
+function useDeleteAccountModal(userId: string) {
   const [showDeleteAccountModal, setShowDeleteAccountModal] = useState(false);
 
   const DeleteAccountModalCallback = useCallback(() => {

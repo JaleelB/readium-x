@@ -1,6 +1,7 @@
 import crypto from "crypto";
+import { env } from "@/env";
 
-const ENCRYPTION_KEY = process.env.ENCRYPTION_KEY as string; // 32 bytes key
+const ENCRYPTION_KEY = env.ENCRYPTION_KEY; // 32 bytes key
 const IV_LENGTH = 16; // For AES, this is always 16
 
 export function encrypt(text: string): string {

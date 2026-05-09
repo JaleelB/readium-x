@@ -6,7 +6,6 @@ import { eq } from "drizzle-orm";
 import { rateLimitByIp } from "@/lib/limiter";
 import { db } from "@/server/db/db";
 import { decrypt, encrypt } from "@/lib/encryption";
-import { getUser } from "@/data-access/users";
 import { authenticatedAction } from "@/lib/safe-action";
 import { z } from "zod";
 import { revalidatePath } from "next/cache";
@@ -46,19 +45,14 @@ export const saveApiKeyAction = authenticatedAction
     z.object({
       apiKey: z.string().min(1, "API key is required"),
       path: z.string(),
-      userId: z.number(),
+      userId: z.string(),
     }),
   )
-  .handler(async ({ input }) => {
+  .handler(async ({ input, ctx }) => {
     await rateLimitByIp({ key: "save-api-key", limit: 5, window: 60000 });
 
     if (!input.apiKey) {
       throw new Error("API key is missing");
-    }
-
-    const authenticatedUser = await getUser(input.userId);
-    if (!authenticatedUser) {
-      throw new Error("User not found");
     }
 
     // Verify the API key
@@ -72,7 +66,7 @@ export const saveApiKeyAction = authenticatedAction
     await db
       .update(users)
       .set({ openaiApiKey: encryptedKey })
-      .where(eq(users.email, authenticatedUser.email as string));
+      .where(eq(users.id, ctx.user.id));
 
     revalidatePath(input.path);
   });
@@ -81,25 +75,20 @@ export const convertTextToSpeechAction = authenticatedAction
   .createServerAction()
   .input(
     z.object({
-      userId: z.number(),
+      userId: z.string(),
       text: z.string(),
       model: z.string(),
       voice: z.string(),
       speed: z.number(),
     }),
   )
-  .handler(async ({ input }) => {
+  .handler(async ({ input, ctx }) => {
     await rateLimitByIp({ key: "text-to-speech", limit: 10, window: 60000 });
-
-    const authenticatedUser = await getUser(input.userId);
-    if (!authenticatedUser) {
-      throw new Error("User not found");
-    }
 
     const user = await db
       .select({ openaiApiKey: users.openaiApiKey })
       .from(users)
-      .where(eq(users.email, authenticatedUser.email as string))
+      .where(eq(users.id, ctx.user.id))
       .then((rows) => rows[0]);
 
     if (!user?.openaiApiKey) {
@@ -160,21 +149,16 @@ export const getApiKeyStatusAction = authenticatedAction
   .input(
     z.object({
       path: z.string(),
-      userId: z.number(),
+      userId: z.string(),
     }),
   )
-  .handler(async ({ input }) => {
+  .handler(async ({ input, ctx }) => {
     await rateLimitByIp({ key: "get-api-key", limit: 10, window: 60000 });
-
-    const authenticatedUser = await getUser(input.userId);
-    if (!authenticatedUser) {
-      throw new Error("User not found");
-    }
 
     const user = await db
       .select({ openaiApiKey: users.openaiApiKey })
       .from(users)
-      .where(eq(users.email, authenticatedUser.email as string))
+      .where(eq(users.id, ctx.user.id))
       .then((rows) => rows[0]);
 
     let maskedKey = null;

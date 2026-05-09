@@ -1,7 +1,7 @@
 import { getCurrentUser } from "@/lib/session";
 import { redirect } from "next/navigation";
 import HistoryWrapper from "./history-wrapper";
-import { User } from "lucia";
+import { User } from "@/server/db/schema";
 
 export default async function HistoryPage() {
   const user = await getCurrentUser();

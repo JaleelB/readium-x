@@ -1,35 +1,40 @@
-import {
-  ArticleDetails,
-  scrapeArticleContent,
-} from "@/app/article/actions/article";
-import { headers } from "next/headers";
-import { SuspenseIf } from "../../components/suspense-if";
+import { ArticleDetails, scrapeArticleContent } from "@/lib/article-content";
 import { Article } from "./article";
-import { unstable_cache } from "next/cache";
-import { ArticleSkeleton } from "./article-skeleton";
 import { ErrorCard } from "../../components/error-card";
 import { getCurrentUser } from "@/lib/session";
 import { getUser } from "@/data-access/users";
-import { notFound, redirect } from "next/navigation";
+import { redirect } from "next/navigation";
 import { createReadingHistoryLogAction } from "../history/history";
 import { bookmarkSchema } from "@/schemas/article";
 import { getBookmarkByIdUseCase } from "@/use-cases/bookmarks";
+import type { BookmarkStatus } from "@/lib/client-types";
+import { calculateReadTime } from "@/lib/utils";
 
-export const getCachedArticle = unstable_cache(
-  async (url) => scrapeArticleContent(url),
-  ["url"],
-  {
-    revalidate: 60 * 60, // 1 hour
-  },
-);
+function mapBookmarkToArticle(bookmark: unknown): ArticleDetails {
+  const bookmarkContent = bookmarkSchema.parse(bookmark);
 
-async function ArticleLoader({
+  return {
+    title: bookmarkContent.title,
+    htmlContent: bookmarkContent.htmlContent,
+    textContent: bookmarkContent.textContent,
+    authorInformation: {
+      authorName: bookmarkContent.authorName,
+      authorImageURL: bookmarkContent.authorImageURL,
+      authorProfileURL: bookmarkContent.authorProfileURL,
+    },
+    publicationInformation: {
+      publicationName: bookmarkContent.publicationName,
+      readTime: bookmarkContent.readTime,
+      publishDate: bookmarkContent.publishDate,
+    },
+  };
+}
+
+export async function ArticleWrapper({
   url,
-  // urlWithoutPaywall,
   bookmarkId,
 }: {
   url: string;
-  // urlWithoutPaywall: string;
   bookmarkId?: string;
 }) {
   const userSession = await getCurrentUser();
@@ -43,53 +48,49 @@ async function ArticleLoader({
   }
 
   let content: ArticleDetails | { error: string } | null = null;
+  let initialBookmarkStatus: BookmarkStatus | undefined;
 
-  // if article is bookmarked, get the bookmark content from the database
-  if (!bookmarkId) {
-    content = await scrapeArticleContent(url);
-    if ("error" in content) {
-      return (
-        <ErrorCard title="Failed to fetch article" message={content.error} />
-      );
-    }
-  } else {
+  if (bookmarkId) {
     const bookmark = await getBookmarkByIdUseCase(user.id, Number(bookmarkId));
     if (bookmark) {
-      const { createdAt, updatedAt, ...bookmarkWithoutTimestamps } = bookmark;
-      const bookmarkContent = bookmarkSchema.parse(bookmarkWithoutTimestamps);
-      content = {
-        title: bookmarkContent.title,
-        htmlContent: bookmarkContent.htmlContent,
-        textContent: bookmarkContent.textContent,
-        authorInformation: {
-          authorName: bookmarkContent.authorName,
-          authorImageURL: bookmarkContent.authorImageURL,
-          authorProfileURL: bookmarkContent.authorProfileURL,
-        },
-        publicationInformation: {
-          publicationName: bookmarkContent.publicationName,
-          readTime: bookmarkContent.readTime,
-          publishDate: bookmarkContent.publishDate,
-        },
+      content = mapBookmarkToArticle(bookmark);
+      initialBookmarkStatus = {
+        isBookmarked: true,
+        bookmarkId: bookmark.id,
       };
-    } else {
-      content = null;
     }
+  } else {
+    content = await scrapeArticleContent(url);
   }
 
   if (!content) {
     return <ErrorCard />;
   }
 
+  if ("error" in content) {
+    return (
+      <ErrorCard title="Failed to fetch article" message={content.error} />
+    );
+  }
+
+  const authorName = content.authorInformation.authorName ?? "Unknown author";
+  const authorImageURL =
+    content.authorInformation.authorImageURL ??
+    "https://illustrations.popsy.co/white/genius.svg";
+  const authorProfileURL = content.authorInformation.authorProfileURL ?? url;
+  const readTime =
+    content.publicationInformation.readTime ??
+    calculateReadTime(content.htmlContent);
+
   const [data, err] = await createReadingHistoryLogAction({
     userId: user.id,
     articleDetails: {
       title: content.title,
-      authorName: content.authorInformation.authorName as string,
+      authorName,
       articleURL: url,
-      authorImageURL: content.authorInformation.authorImageURL as string,
-      authorProfileURL: content.authorInformation.authorProfileURL as string,
-      readTime: content.publicationInformation.readTime as string,
+      authorImageURL,
+      authorProfileURL,
+      readTime,
       accessTime: new Date(),
       progress: "0%",
     },
@@ -110,37 +111,7 @@ async function ArticleLoader({
       user={user}
       readingHistoryId={data.id}
       url={url}
+      initialBookmarkStatus={initialBookmarkStatus}
     />
-  );
-}
-
-export async function ArticleWrapper({
-  url,
-  bookmarkId,
-}: {
-  url: string;
-  bookmarkId?: string;
-}) {
-  let article: ArticleDetails | { error: string } | null = null;
-
-  // if browser is requesting html it means it's the first page load
-  if (headers().get("accept")?.includes("text/html")) {
-    // article = await getCachedArticle(url);
-    article = await scrapeArticleContent(url);
-    if ("error" in article) {
-      return (
-        <ErrorCard title="Failed to scrape article" message={article.error} />
-      );
-    }
-  }
-
-  return (
-    <SuspenseIf condition={!article} fallback={<ArticleSkeleton />}>
-      <ArticleLoader
-        url={url}
-        // urlWithoutPaywall={urlWithoutPaywall}
-        bookmarkId={bookmarkId}
-      />
-    </SuspenseIf>
   );
 }

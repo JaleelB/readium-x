@@ -5,9 +5,10 @@ import "./globals.css";
 import { ThemeProvider } from "@/components/theme-provider";
 // import { Toaster } from "@/components/ui/toaster";
 import { siteConfig } from "@/app-config";
-import Script from "next/script";
 import type { Viewport } from "next";
 import { Toaster } from "@/components/ui/sonner";
+import { ClerkProvider } from "@clerk/nextjs";
+import { QueryProvider } from "@/components/query-provider";
 
 export const viewport: Viewport = {
   themeColor: [
@@ -90,20 +91,24 @@ export default function RootLayout({
           fontMono.variable,
         )}
       >
-        <ThemeProvider
-          attribute="class"
-          defaultTheme="system"
-          enableSystem
-          disableTransitionOnChange
+        <ClerkProvider
+          dynamic
+          signInUrl="/signin"
+          signUpUrl="/signup"
+          afterSignOutUrl="/signin"
         >
-          {children}
-          <Toaster richColors />
-        </ThemeProvider>
-        <Script
-          async
-          src={process.env.UMAMI_URL}
-          data-website-id={process.env.UMAMI_DATA_WEBSITE_ID}
-        />
+          <ThemeProvider
+            attribute="class"
+            defaultTheme="system"
+            enableSystem
+            disableTransitionOnChange
+          >
+            <QueryProvider>
+              {children}
+              <Toaster richColors />
+            </QueryProvider>
+          </ThemeProvider>
+        </ClerkProvider>
       </body>
     </html>
   );

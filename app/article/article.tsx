@@ -1,43 +1,27 @@
 "use client";
 
-import { useState, useEffect, useCallback } from "react";
-import { ArticleDetails } from "@/app/article/actions/article";
+import { useState, useEffect } from "react";
+import type { ArticleDetails } from "@/lib/article-content";
 import {
   Avatar,
   AvatarFallback,
   AvatarImage,
 } from "../../components/ui/avatar";
 import Link from "next/link";
-import {
-  calculateReadTime,
-  fetchFromLocalStorage,
-  formatDate,
-  setLocalStorageItem,
-} from "@/lib/utils";
+import { calculateReadTime, formatDate } from "@/lib/utils";
 import { Button } from "../../components/ui/button";
 import { Icons } from "../../components/icons";
 import { ArticleViewer } from "./article-viewer";
 import DOMPurify from "dompurify";
 import Balancer from "react-wrap-balancer";
-import {
-  createBookmarkAction,
-  deleteBookmarkAction,
-  getBookmarkAction,
-} from "@/app/bookmarks/bookmark";
 import { generateRandomName } from "@/lib/names";
 import { toast } from "sonner";
 import { usePathname } from "next/navigation";
-import { useReadingProgress } from "@/hooks/use-reading-progress";
-import { debounce } from "lodash";
 import { TTS } from "@/components/tts-button";
 import { useLocalStorage } from "@/hooks/use-local-storage";
 
 import { translateArticleAction } from "./actions/translate";
 import { DynamicToolbar } from "@/components/article-toolbar";
-import {
-  getReadingHistoryProgressAction,
-  updateReadingHistoryProgressAction,
-} from "@/app/history/history";
 import { useServerAction } from "zsa-react";
 import { summarizeArticleAction } from "./actions/summarize";
 import {
@@ -46,23 +30,27 @@ import {
   useSetSummary,
   useSetTranslatedContent,
   useSetSelectedLanguage,
-  // useSetReadingHistoryId,
 } from "@/stores/article-store";
+import type { BookmarkStatus } from "@/lib/client-types";
+import { useArticleBookmark } from "@/hooks/use-bookmarks-query";
+import { useReadingProgressSync } from "@/hooks/use-reading-progress-sync";
+import { cacheArticleInSession } from "@/lib/article-session-cache";
 
 export function Article({
   content,
   user,
   readingHistoryId,
   url,
+  initialBookmarkStatus,
 }: {
   content: ArticleDetails;
   user: {
     email: string | null;
-    id: number;
-    emailVerified: Date | null;
+    id: string;
   };
   url: string;
   readingHistoryId: number;
+  initialBookmarkStatus?: BookmarkStatus;
 }) {
   const translatedContent = useTranslatedContent();
   const selectedLanguage = useSelectedLanguage();
@@ -103,10 +91,11 @@ export function Article({
   });
 
   const pathname = usePathname();
-  const [isBookmarked, setIsBookmarked] = useState<boolean>(false);
-  const [bookmarkId, setBookmarkId] = useState<number | null>(null);
-  const [initialProgress, setInitialProgress] = useState<number>(0);
   const [showScrollTop, setShowScrollTop] = useState(false);
+  const { statusQuery, createBookmark, deleteBookmark, isPending } =
+    useArticleBookmark(url, initialBookmarkStatus);
+  const isBookmarked = statusQuery.data?.isBookmarked ?? false;
+  const bookmarkId = statusQuery.data?.bookmarkId ?? null;
 
   // Translation
   const [allTranslations, setAllTranslations] = useLocalStorage<
@@ -131,116 +120,14 @@ export function Article({
     }
   }, [allSummaries, readingHistoryId, setSummary]);
 
-  // Reading Progress
-  const getArticleProgressFromLocalStorage = () => {
-    const progressObj = fetchFromLocalStorage("readiumx-article-progress");
-    return progressObj;
-  };
-
-  useEffect(() => {
-    const progressObj = getArticleProgressFromLocalStorage();
-    const savedProgress = progressObj[readingHistoryId];
-    if (savedProgress) {
-      setInitialProgress(parseFloat(savedProgress));
-    } else {
-      getReadingHistoryProgressAction({
-        userId: user.id,
-        readingHistoryId,
-      }).then(([progress, error]) => {
-        if (error) {
-          toast.error("Failed to retrieve reading progress from database");
-          return;
-        }
-        if (progress) {
-          const newProgressObj = {
-            ...progressObj,
-            [readingHistoryId]: progress,
-          };
-          setLocalStorageItem(
-            "readiumx-article-progress",
-            JSON.stringify(newProgressObj),
-          );
-          setInitialProgress(parseFloat(progress));
-        }
-      });
-    }
-  }, [readingHistoryId, user.id]);
-
-  const { progress, articleRef } = useReadingProgress(initialProgress);
-
-  const updateLocalStorage = debounce((progress: number) => {
-    const progressObj = getArticleProgressFromLocalStorage();
-    const newProgressObj = {
-      ...progressObj,
-      [readingHistoryId]: progress.toString(),
-    };
-    setLocalStorageItem(
-      "readiumx-article-progress",
-      JSON.stringify(newProgressObj),
-    );
-  }, 1000);
-
-  const saveProgress = useCallback(async () => {
-    const progressString = `${progress.toFixed(2)}%`;
-    const [_, error] = await updateReadingHistoryProgressAction({
-      readingHistoryId,
-      userId: user.id,
-      progress: progressString,
-    });
-
-    if (error) {
-      toast.error("Failed to save reading progress");
-    }
-  }, [progress, readingHistoryId, user.id]);
-
-  useEffect(() => {
-    const fetchBookmarkStatus = async () => {
-      const [data, error] = await getBookmarkAction({
-        userId: user.id,
-        title: content?.title as string,
-        publishDate: content?.publicationInformation.publishDate as string,
-      });
-
-      if (error) {
-        setIsBookmarked(false);
-        return;
-      }
-
-      if (data) {
-        setIsBookmarked(true);
-        setBookmarkId(data.id);
-      }
-    };
-
-    fetchBookmarkStatus();
-  }, [
-    user.id,
+  const { progress, articleRef } = useReadingProgressSync({
     readingHistoryId,
-    content?.title,
-    content?.publicationInformation.publishDate,
-  ]);
+    userId: user.id,
+  });
 
   useEffect(() => {
-    updateLocalStorage(progress);
-
-    const handleUnload = () => {
-      saveProgress();
-    };
-
-    const handleVisibilityChange = () => {
-      if (document.visibilityState === "hidden") {
-        saveProgress();
-      }
-    };
-
-    window.addEventListener("beforeunload", handleUnload);
-    document.addEventListener("visibilitychange", handleVisibilityChange);
-
-    return () => {
-      window.removeEventListener("beforeunload", handleUnload);
-      document.removeEventListener("visibilitychange", handleVisibilityChange);
-    };
-  }, [progress, readingHistoryId, saveProgress, updateLocalStorage, user.id]);
+    cacheArticleInSession(url, content);
+  }, [content, url]);
 
   useEffect(() => {
     const handleScroll = () => {
@@ -295,13 +182,6 @@ export function Article({
       },
     );
   };
-
-  // const [allSummaries, setAllSummaries] = useLocalStorage<
-  //   Record<number, string>
-  // >("readiumx-article-summaries", {});
-
-  // const { execute: executeSummarize, isPending: isSummarizing } =
-  //   useServerAction(summarizeArticleAction);
 
   const handleSummarize = async () => {
     if (allSummaries[readingHistoryId]) {
@@ -390,50 +270,45 @@ export function Article({
                 variant="outline"
                 size="icon"
                 className="rounded-full"
+                disabled={isPending}
                 onClick={async () => {
                   if (isBookmarked === false && !bookmarkId) {
-                    const [_, err] = await createBookmarkAction({
-                      path: pathname,
-                      userId: user.id,
-                      title: content?.title || generateRandomName(),
-                      htmlContent: safeHTMLContent,
-                      textContent: content?.textContent as string,
-                      authorName: content?.authorInformation.authorName || "",
-                      authorImageURL:
-                        content?.authorInformation.authorImageURL || "",
-                      authorProfileURL:
-                        content?.authorInformation.authorProfileURL || "",
-                      publicationName:
-                        content?.publicationInformation.publicationName || "",
-                      articleUrl: url,
-                      readTime:
-                        content?.publicationInformation.readTime ||
-                        calculateReadTime(content?.htmlContent as string),
-                      publishDate:
-                        content?.publicationInformation.publishDate || "",
-                    });
-
-                    if (err) {
+                    try {
+                      await createBookmark({
+                        path: pathname,
+                        userId: user.id,
+                        title: content?.title || generateRandomName(),
+                        htmlContent: safeHTMLContent,
+                        textContent: content?.textContent as string,
+                        authorName: content?.authorInformation.authorName || "",
+                        authorImageURL:
+                          content?.authorInformation.authorImageURL || "",
+                        authorProfileURL:
+                          content?.authorInformation.authorProfileURL || "",
+                        publicationName:
+                          content?.publicationInformation.publicationName || "",
+                        articleUrl: url,
+                        readTime:
+                          content?.publicationInformation.readTime ||
+                          calculateReadTime(content?.htmlContent as string),
+                        publishDate:
+                          content?.publicationInformation.publishDate || "",
+                      });
+                      toast.success("Article bookmarked");
+                    } catch {
                       toast.error("Failed to bookmark article");
-                      return;
                     }
-
-                    toast.success("Article bookmarked");
-
-                    window.location.reload();
                   } else {
-                    const [_, err] = await deleteBookmarkAction({
-                      userId: user.id,
-                      id: bookmarkId as number,
-                      path: pathname,
-                    });
-
-                    if (err) {
+                    try {
+                      await deleteBookmark({
+                        userId: user.id,
+                        id: bookmarkId as number,
+                        path: pathname,
+                      });
+                      toast.success("Bookmark removed");
+                    } catch {
                       toast.error("Failed to remove bookmark");
-                      return;
                     }
-
-                    toast.success("Bookmark removed");
                   }
                 }}
               >

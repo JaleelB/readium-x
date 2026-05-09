@@ -1,6 +1,10 @@
 import * as cheerio from "cheerio";
-import { type ArticleDetails as ArticleMetadata } from "@/app/article/actions/article";
+import { type ArticleDetails as ArticleMetadata } from "@/lib/article-content";
 import { UrlType } from "@/app/article/actions/url";
+
+type CheerioRoot = ReturnType<typeof cheerio.load>;
+type CheerioAny = ReturnType<CheerioRoot>;
+type CheerioElement = any;
 
 type ElementsType =
   | "H1"
@@ -34,6 +38,35 @@ export interface ArticleElement {
 interface Article {
   html: string;
   text: string;
+}
+
+export function hasPaywallIndicators(html: string): boolean {
+  const paywallIndicators = [
+    'class="meteredContent"',
+    'id="paywall-upsell-button-upgrade"',
+    'class="paywall-upsell-button-upgrade"',
+    "Your membership has expired",
+    "Become a member to read this story",
+    "Get unlimited access to Medium",
+    "The writer made this a member-only story.",
+    "The author made this story available to Medium members only.",
+    "Create an account to read the full story.",
+  ];
+
+  for (const indicator of paywallIndicators) {
+    if (html.includes(indicator)) {
+      return true; // Article is behind a paywall
+    }
+  }
+
+  // Check for "Upgrade now" link using regex
+  const upgradeNowRegex =
+    /<a[^>]*href="\/plans\?source=upgrade_membership[^>]*>Upgrade now<\/a>/i;
+  if (upgradeNowRegex.test(html)) {
+    return true; // Article is behind a paywall
+  }
+
+  return false;
 }
 
 export class MediumArticleProcessor {
@@ -94,7 +127,7 @@ export class MediumArticleProcessor {
     this.textsToRemove.forEach((text) => {
       $("*")
         .contents()
-        .filter(function (this: cheerio.Element) {
+        .filter(function (this: CheerioElement) {
           // Explicitly return a boolean
           return (
             this.type === "text" && !!this.data && this.data.includes(text)
@@ -105,8 +138,8 @@ export class MediumArticleProcessor {
     });
 
     // Recursively remove empty elements
-    const removeEmptyElements = (element: cheerio.Cheerio) => {
-      element.each((index, elem) => {
+    const removeEmptyElements = (element: CheerioAny) => {
+      element.each((_index: number, elem: CheerioElement) => {
         const $elem = $(elem);
         if ($elem.children().length > 0) {
           removeEmptyElements($elem.children());
@@ -138,8 +171,8 @@ export class MediumArticleProcessor {
     const $ = cheerio.load(html);
     let extractedText = "";
 
-    function processElement(element: cheerio.Cheerio) {
-      element.contents().each((_, el) => {
+    function processElement(element: CheerioAny) {
+      element.contents().each((_index: number, el: CheerioElement) => {
         if (el.type === "text") {
           const text = $(el).text().trim();
           if (text) {
@@ -188,13 +221,13 @@ export class MediumArticleProcessor {
   }
 
   private processElement(
-    $: cheerio.Root,
-    element: cheerio.Cheerio,
-    captured: Set<cheerio.Element>,
+    $: CheerioRoot,
+    element: CheerioAny,
+    captured: Set<CheerioElement>,
     elements: ArticleElement[],
     supportedTypes: ElementsType[],
   ): void {
-    element.children().each((_, child) => {
+    element.children().each((_index: number, child: CheerioElement) => {
       if (child.type !== "tag") return;
 
       const $child = $(child);
@@ -232,7 +265,7 @@ export class MediumArticleProcessor {
       // If the div contains text or links, convert it to a p tag. this is to grab the text from archive.ph
       if (tagName === "div") {
         const textContent = $child.contents().filter(function (
-          this: cheerio.Element,
+          this: CheerioElement,
         ) {
           return (
             this.type === "text" || (this.type === "tag" && this.name === "a")
@@ -357,6 +390,10 @@ export class MediumArticleProcessor {
 
   private async processArticleContent(html: string): Promise<Article> {
     try {
+      if (typeof html !== "string" || !html.trim()) {
+        throw new Error("Unable to locate article content");
+      }
+
       const $ = cheerio.load(html);
       // console.log("Processing article content:", html);
       const elements: ArticleElement[] = [];
@@ -385,12 +422,12 @@ export class MediumArticleProcessor {
       ];
 
       // Initial empty set to keep track of captured elements
-      const capturedElements = new Set<cheerio.Element>();
+      const capturedElements = new Set<CheerioElement>();
       const sectionElement = $("section");
       const sectionHtmlContent = this.stripHTML($.html(sectionElement));
 
       // Start processing from the section level
-      $(sectionHtmlContent).each((_, section) => {
+      $(sectionHtmlContent).each((_index: number, section: CheerioElement) => {
         const $section = cheerio.load(section);
         this.processElement(
           $,
@@ -402,13 +439,16 @@ export class MediumArticleProcessor {
       });
 
       const finalHtml = elements.map((el) => el.content).join("");
+      if (!finalHtml.trim()) {
+        throw new Error("Unable to locate article content");
+      }
+
       const wrappedHtml = `<div class="main-content mt-6">${finalHtml}</div>`;
 
       const textContent = this.extractTextContent(wrappedHtml);
 
       return { html: wrappedHtml, text: textContent };
     } catch (error) {
-      console.error("Error scraping article:", error);
       throw error;
     }
   }
@@ -419,7 +459,12 @@ export class MediumArticleProcessor {
   ): Promise<ArticleMetadata | null> {
     const $ = cheerio.load(html);
     const sectionElement = $("article").first();
-    const sectionElementClone = sectionElement.clone();
+    if (type !== "freedium" && !sectionElement.length) {
+      return null;
+    }
+
+    const sectionElementClone =
+      sectionElement.length > 0 ? sectionElement.clone() : sectionElement;
     let metadata: ArticleMetadata;
 
     switch (type) {
@@ -435,6 +480,7 @@ export class MediumArticleProcessor {
               .trim() || "No title available",
           htmlContent: (() => {
             const mainContentElement = $("div.main-content.mt-8");
+            const mainContentHtml = $.html(mainContentElement) ?? "";
             const previewImage = $(
               'img[alt="Preview image"][loading="eager"][role="presentation"][src^="https://miro.medium.com/"]',
             ).first();
@@ -443,13 +489,13 @@ export class MediumArticleProcessor {
                 "style",
                 "max-height: 65vh; width: auto; margin: auto",
               );
-              return `<div class="main-content mt-6">${previewImage.prop("outerHTML") + $.html(mainContentElement)}</div>`;
+              return `<div class="main-content mt-6">${previewImage.prop("outerHTML") + mainContentHtml}</div>`;
             }
-            return $.html(mainContentElement);
+            return mainContentHtml;
           })(),
           textContent: (() => {
             const mainContentElement = $("div.main-content.mt-8");
-            return this.extractTextContent($.html(mainContentElement));
+            return this.extractTextContent($.html(mainContentElement) ?? "");
           })(),
           authorInformation: {
             authorName:
@@ -518,8 +564,16 @@ export class MediumArticleProcessor {
             'div[style*="box-sizing:border-box"][style*="display:flex"][style*="justify-content:space-between"]',
           )
           .first();
-        sectionElementClone.find($(articleAuthorDetails.html())).remove();
-        sectionElementClone.find($(actionBar.html())).remove();
+        const articleAuthorHtml = articleAuthorDetails.html();
+        const actionBarHtml = actionBar.html();
+
+        if (articleAuthorHtml) {
+          sectionElementClone.find($(articleAuthorHtml) as any).remove();
+        }
+
+        if (actionBarHtml) {
+          sectionElementClone.find($(actionBarHtml) as any).remove();
+        }
         sectionElementClone.find("h1").first().remove();
         sectionElementClone.find("h2").first().remove();
 
@@ -541,6 +595,10 @@ export class MediumArticleProcessor {
           )
           .remove();
 
+        const archiveArticle = await this.processArticleContent(
+          sectionElementClone.html() ?? "",
+        );
+
         metadata = {
           title: (() => {
             const specificH1 = sectionElement
@@ -560,18 +618,8 @@ export class MediumArticleProcessor {
 
             return "No title available";
           })(),
-          htmlContent: await (async () => {
-            const article = await this.processArticleContent(
-              sectionElementClone.html() as string,
-            );
-            return article.html;
-          })(),
-          textContent: await (async () => {
-            const article = await this.processArticleContent(
-              sectionElementClone.html() as string,
-            );
-            return article.text;
-          })(),
+          htmlContent: archiveArticle.html,
+          textContent: archiveArticle.text,
           authorInformation: {
             authorName: (() => {
               const authorLink = articleAuthorDetails
@@ -746,30 +794,35 @@ export class MediumArticleProcessor {
           },
         };
         break;
-      case "webcache":
       case "medium":
       case "original":
       default:
+        const articleHtml = sectionElement.html();
+        if (!articleHtml?.trim()) {
+          return null;
+        }
+
+        const article = await this.processArticleContent(articleHtml);
+        const authorHref = sectionElement
+          .find('a[data-testid="authorName"]')
+          .attr("href");
+
         metadata = {
           title:
             sectionElement.find('[data-testid="storyTitle"]').text().trim() ||
             sectionElement.find("h1").first().text().trim() ||
             "No title available",
-          htmlContent: (
-            await this.processArticleContent(sectionElement.html() as string)
-          ).html,
-          textContent: (
-            await this.processArticleContent(sectionElement.html() as string)
-          ).text,
+          htmlContent: article.html,
+          textContent: article.text,
           authorInformation: {
             authorName:
               sectionElement
                 .find('a[data-testid="authorName"]')
                 .text()
                 .trim() || null,
-            authorProfileURL:
-              `https://medium.com${sectionElement.find('a[data-testid="authorName"]').attr("href")}` ||
-              null,
+            authorProfileURL: authorHref
+              ? new URL(authorHref, "https://medium.com").toString()
+              : null,
             authorImageURL:
               sectionElement
                 .find('img[data-testid="authorPhoto"]')

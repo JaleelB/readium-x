@@ -29,12 +29,11 @@ ReadiumX is an open source tool that provides access to premium Medium articles 
 - [TypeScript](https://www.typescriptlang.org/) – language
 - [Tailwind](https://tailwindcss.com/) – CSS
 - [TursoDB](https://turso.tech/) – database
-- [Lucia Auth](https://lucia-auth.com//) – auth
-- [Resend](https://resend.com/) – emails
+- [Clerk](https://clerk.com/) – auth and auth emails
 - [DrizzleORM](https://orm.drizzle.team/) – ORM
 - [TipTap](https://www.tiptap.dev/) – editor
 - [Shadcn](https://ui.shadcn.com/) – component library
-- [Railway](https://railway.app/) – deployments
+- [Cloudflare Workers](https://developers.cloudflare.com/workers/) – deployments and article extraction cache
 
 ## Features
 
@@ -57,22 +56,76 @@ ReadiumX is an open source tool that provides access to premium Medium articles 
    pnpm install
    ```
 
-3. Copy the `.env.example` to `.env` and update the variables.
+3. Copy the `.env.example` to `.env.local` and update the variables.
 
    ```bash
-   cp .env.example .env
+   cp .env.example .env.local
    ```
 
-4. Start the development server
+4. Start the normal Next.js development server
 
    ```bash
    pnpm run dev
    ```
 
+   This runs at `http://localhost:3156`. In this mode, Cloudflare bindings are
+   simulated through OpenNext's local dev bridge when available. If the
+   `READIUMX_ARTICLE_CACHE` binding is not available, scraping still works; it
+   simply skips the server-side KV cache and uses the existing client session
+   cache.
+
 5. Push the database schema
 
    ```bash
    pnpm run db:push
+   ```
+
+6. To test the app in the Cloudflare Workers runtime locally, copy
+   `.dev.vars.example` to `.dev.vars`, fill in the values, then run:
+
+   ```bash
+   cp .dev.vars.example .dev.vars
+   pnpm preview
+   ```
+
+   `pnpm preview` builds the OpenNext worker and starts Wrangler, usually at
+   `http://localhost:8787`. This is the mode to use when you specifically want
+   to verify the Cloudflare KV cache behavior before deployment.
+
+## Cloudflare Deployment
+
+ReadiumX deploys to Cloudflare Workers through OpenNext.
+
+1. Create separate remote KV namespaces for production and preview:
+
+   ```bash
+   pnpm wrangler kv namespace create readiumx-article-cache
+   pnpm wrangler kv namespace create readiumx-article-cache-preview
+   ```
+
+   These commands create the real Cloudflare KV namespaces. They require
+   `wrangler login` locally or `CLOUDFLARE_API_TOKEN` in CI. For day-to-day
+   `pnpm dev`, you do not need to run them first; they are required before
+   deploying or testing against real Cloudflare resources.
+
+2. Put the generated namespace IDs into `wrangler.jsonc` for the
+   `READIUMX_ARTICLE_CACHE` binding. Keep the production namespace as `id` and
+   the preview namespace as `preview_id`. If Wrangler offers to add the binding
+   for you, use `READIUMX_ARTICLE_CACHE` as the binding name; the app does not
+   read lowercase binding names.
+
+3. Add the application variables and secrets from `.dev.vars.example` to Cloudflare Workers.
+
+4. Add these GitHub repository secrets for deployment:
+
+   - `CLOUDFLARE_ACCOUNT_ID`
+   - `CLOUDFLARE_API_TOKEN`
+
+5. Preview or deploy:
+
+   ```bash
+   pnpm preview
+   pnpm deploy
    ```
 
 ### Setting up Google Provider
