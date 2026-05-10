@@ -11,6 +11,16 @@
   "observability": {
     "enabled": true,
   },
+  "routes": [
+    {
+      "pattern": "readiumx.com",
+      "custom_domain": true,
+    },
+    {
+      "pattern": "www.readiumx.com",
+      "custom_domain": true,
+    },
+  ],
   "secrets": {
     "required": [
       "DATABASE_URL",
