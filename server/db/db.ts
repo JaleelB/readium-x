@@ -1,19 +1,12 @@
 import * as schema from "./schema";
 
 import { drizzle } from "drizzle-orm/libsql";
-import { createClient } from "@libsql/client";
+import { createClient } from "@libsql/client/http";
 import { env } from "@/env";
 
-const url =
-  process.env.NODE_ENV === "development"
-    ? "file:./server/db/local.db"
-    : env.DATABASE_URL;
-const authToken =
-  process.env.NODE_ENV === "development" ? undefined : env.DB_AUTH_TOKEN;
-
 export const client = createClient({
-  url: url!,
-  authToken: authToken,
+  url: env.DATABASE_URL,
+  authToken: env.DB_AUTH_TOKEN,
 });
 
 export const db = drizzle(client, { schema });
