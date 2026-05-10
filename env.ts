@@ -7,7 +7,7 @@ export const env = createEnv({
     DATABASE_URL: z.string().min(1),
     DB_AUTH_TOKEN: z.string().optional(),
     CLERK_SECRET_KEY: z.string().min(1),
-    CLERK_WEBHOOK_SECRET: z.string().optional(),
+    CLERK_WEBHOOK_SIGNING_SECRET: z.string().optional(),
     ENCRYPTION_KEY: z.string().length(32),
   },
   client: {
@@ -24,7 +24,7 @@ export const env = createEnv({
     DATABASE_URL: process.env.DATABASE_URL,
     DB_AUTH_TOKEN: process.env.DB_AUTH_TOKEN,
     CLERK_SECRET_KEY: process.env.CLERK_SECRET_KEY,
-    CLERK_WEBHOOK_SECRET: process.env.CLERK_WEBHOOK_SECRET,
+    CLERK_WEBHOOK_SIGNING_SECRET: process.env.CLERK_WEBHOOK_SIGNING_SECRET,
     ENCRYPTION_KEY: process.env.ENCRYPTION_KEY,
   },
 });
