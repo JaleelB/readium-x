@@ -91,8 +91,12 @@ export default function RootLayout({
           fontMono.variable,
         )}
       >
+        {/*
+          Do not pass `dynamic`. It opts every route into request-time auth()
+          and forces SSR for public HTML. Protected routes call auth()
+          themselves; public pages hydrate Clerk on the client.
+        */}
         <ClerkProvider
-          dynamic
           signInUrl="/signin"
           signUpUrl="/signup"
           afterSignOutUrl="/signin"

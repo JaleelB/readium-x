@@ -1,0 +1,18 @@
+# Applied by Workers Static Assets when run_worker_first is false.
+# Hashed Next assets stay immutable. Crawler files are static, so they never
+# need to boot the Worker.
+
+/_next/static/*
+  Cache-Control: public, max-age=31536000, immutable
+
+/robots.txt
+  Cache-Control: public, max-age=86400
+
+/sitemap.xml
+  Cache-Control: public, max-age=86400
+
+/site.webmanifest
+  Cache-Control: public, max-age=86400
+
+/manifest.webmanifest
+  Cache-Control: public, max-age=86400

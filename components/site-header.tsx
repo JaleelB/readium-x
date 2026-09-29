@@ -7,7 +7,15 @@ import { getUserProfileUseCase } from "@/use-cases/users";
 
 export type UserInfo = { id: string; email: string | null } | null | undefined;
 
-async function SiteHeader() {
+async function SiteHeader({
+  loadServerUser = true,
+}: {
+  loadServerUser?: boolean;
+}) {
+  if (!loadServerUser) {
+    return <Nav user={undefined} profile={undefined} />;
+  }
+
   const userSession = await getCurrentUser();
 
   const [user, profile] = await Promise.all([

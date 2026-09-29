@@ -1,15 +1,7 @@
 import UrlForm from "@/components/url-form";
-import { getCurrentUser } from "@/lib/session";
 import { Balancer } from "react-wrap-balancer";
 
-export default async function Home() {
-  let userSession = await getCurrentUser();
-  let user = true;
-
-  if (!userSession) {
-    user = false;
-  }
-
+export default function Home() {
   return (
     <section className="relative mb-4 flex w-full flex-col items-center justify-center gap-7 px-4 py-[22vh] pt-[18vh] sm:pt-[20vh] md:px-8">
       <svg
@@ -332,7 +324,7 @@ export default async function Home() {
         paywalls, and managing your reading across devices.
       </Balancer>
 
-      <UrlForm isUser={user} />
+      <UrlForm />
     </section>
   );
 }
