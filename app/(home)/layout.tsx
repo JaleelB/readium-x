@@ -10,7 +10,7 @@ export default async function MarketingLayout({
 }: MarketingLayoutProps) {
   return (
     <div className="flex flex-1 flex-col">
-      <SiteHeader />
+      <SiteHeader loadServerUser={false} />
       <main className="flex-1">{children}</main>
       <SiteFooter />
     </div>

@@ -1,12 +1,18 @@
 {
   "$schema": "./node_modules/wrangler/config-schema.json",
   "name": "readium-x",
-  "main": ".open-next/worker.js",
+  // Custom entry. Keep this pointed at worker.ts. OpenNext generates
+  // .open-next/worker.js, and worker.ts imports it only after cheap paths return.
+  "main": "worker.ts",
   "compatibility_date": "2026-05-06",
   "compatibility_flags": ["nodejs_compat"],
   "assets": {
     "directory": ".open-next/assets",
     "binding": "ASSETS",
+    // false: files in public/ (robots.txt, sitemap.xml, /_next/static) are
+    // served by Workers Static Assets and do not invoke the Worker at all.
+    // Do not flip this to true unless you also want those requests billed.
+    "run_worker_first": false,
   },
   "observability": {
     "enabled": true,

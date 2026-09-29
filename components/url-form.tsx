@@ -14,6 +14,7 @@ import {
   FormItem,
   FormMessage,
 } from "@/components/ui/form";
+import { useUser } from "@clerk/nextjs";
 import { useRouter } from "next/navigation";
 import { v4 as uuidv4 } from "uuid";
 import { urlSchema } from "@/schemas/url";
@@ -43,9 +44,12 @@ export default function UrlForm({
   const router = useRouter();
   const [openActionModal, setOpenActionModal] = useState(false);
   const { isSubmitting } = form.formState;
+  const { isLoaded, isSignedIn } = useUser();
 
   async function onSubmit(data: z.infer<typeof FormSchema>) {
-    if (!isUser) {
+    const signedIn = isUser === true || isSignedIn === true;
+    if (!signedIn) {
+      if (isUser === undefined && !isLoaded) return;
       setOpenActionModal(true);
       return;
     }

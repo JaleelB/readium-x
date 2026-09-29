@@ -117,7 +117,6 @@ ReadiumX deploys to Cloudflare Workers through OpenNext.
 3. Add the application variables and secrets from `.dev.vars.example` to Cloudflare Workers.
 
 4. Add these GitHub repository secrets for deployment:
-
    - `CLOUDFLARE_ACCOUNT_ID`
    - `CLOUDFLARE_API_TOKEN`
 
@@ -127,6 +126,45 @@ ReadiumX deploys to Cloudflare Workers through OpenNext.
    pnpm preview
    pnpm deploy
    ```
+
+### Worker CPU and Clerk
+
+Public files in `public/` (`robots.txt`, `sitemap.xml`, manifests) are served by
+Workers Static Assets because `wrangler.jsonc` sets `assets.run_worker_first`
+to `false`. Leave that `false`. `worker.ts` is a second line of defense for
+those paths, and it 404s scanner probes (`.php`, `.env`, `wp-login`, …) before
+Next.js or Clerk load. It does not block crawlers by User-Agent.
+
+Clerk stays installed. Middleware only runs on auth, account, article,
+bookmark, and history routes. The homepage does not call `auth()`, so anonymous
+and crawler traffic does not enter the handshake flow.
+
+Production Clerk keys cannot be set from this repo. In the Cloudflare Worker
+secrets for `readiumx.com`, set:
+
+- `CLERK_SECRET_KEY` to a live key (`sk_live_...`)
+- `NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY` to the matching live key (`pk_live_...`)
+
+Clerk decides development vs production from the publishable key: anything
+other than `pk_live_` is a development instance. Cookieless document GETs then
+redirect into the handshake, and a failed handshake token throws from
+`handleTokenVerificationErrorInDevelopment` (HTTP 500) on every route that
+still runs middleware (`/signin`, `/account`, …). `sk_test_` paired with
+`pk_live_` is also wrong — signature checks fail. The worker logs a warning
+when the production host is using non-live keys.
+Redeploy after changing `NEXT_PUBLIC_*` values so the client bundle picks them
+up; Worker secrets alone do not rewrite the already-built client script.
+
+There is no HTTP→HTTPS or www→apex redirect in the app. Both `readiumx.com` and
+`www.readiumx.com` are attached as Worker custom domains, so each host invokes
+the Worker once. Cloudflare's "Always Use HTTPS" runs before the Worker and
+does not double-execute it. If you want a single host, add a Cloudflare
+Redirect Rule (Bulk Redirects or Single Redirects), not a redirect inside
+middleware — a middleware redirect spends Worker CPU twice.
+
+Optional follow-up, not required for this fix: remove Clerk only if accounts,
+bookmarks, and history are going away. The app still uses it for sign-in,
+protected pages, and the Clerk webhook.
 
 ### Setting up Google Provider
 
