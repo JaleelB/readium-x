@@ -1,4 +1,5 @@
 User-agent: *
 Allow: /
+Disallow: /article/
 
 Sitemap: https://readiumx.com/sitemap.xml

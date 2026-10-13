@@ -127,6 +127,52 @@ ReadiumX deploys to Cloudflare Workers through OpenNext.
    pnpm deploy
    ```
 
+### OpenNext incremental cache and public document cache
+
+`open-next.config.ts` uses OpenNext's KV incremental cache instead of the dummy
+adapter. `wrangler.jsonc` binds `NEXT_INC_CACHE_KV` to the same production and
+preview namespace IDs as `READIUMX_ARTICLE_CACHE`; no new namespace is needed.
+If managing bindings in the dashboard, add a **KV namespace** binding named
+`NEXT_INC_CACHE_KV` to the existing article-cache namespace before the next
+approved deployment. Keep both bindings aligned if changing namespace IDs.
+OpenNext uses build-scoped keys; extracted articles use `article:v1:*`.
+The OpenNext deploy command populates prerendered cache entries automatically.
+
+KV is eventually consistent and shares the existing namespace's quotas. This
+is appropriate for the current public shells; it does not cache authenticated
+SSR article/account responses. No ISR queue or tag cache is added: the current
+`revalidatePath` calls concern dynamic protected pages. Adding cached data or
+ISR with time-based/on-demand revalidation later requires the corresponding
+queue/tag-cache setup described in the
+[OpenNext caching documentation](https://opennext.js.org/cloudflare/caching).
+
+The Worker also caches plain cookieless GET documents for `/`, `/signin`,
+`/signup`, `/forgot-password`, and `/reset-password` for one hour at each
+Cloudflare location, with separate keys for each host and path. Queries,
+any Cookie or Authorization header, RSC/navigation requests, prefetches,
+server actions, redirects, errors, Set-Cookie responses, and non-HTML responses
+bypass this cache. Auth callbacks and protected pages are excluded. Responses
+vary on Cookie and Authorization so browsers re-enter Clerk after sign-in.
+`x-readium-cache: hit|miss` identifies eligible responses. The edge cache is
+independent of OpenNext's incremental cache; purge the zone cache after a
+release if these public shells must update before their one-hour TTL expires.
+
+Anonymous `/article` and `/article/*` requests redirect to `/signin` before
+OpenNext loads. Clerk cookies (including suffixed names), bearer credentials,
+and Clerk handshake queries still reach the unchanged middleware for actual
+session validation. Cookie presence never grants article access.
+
+Scanner requests still count as Worker invocations when answered here, but
+avoid Next/Clerk CPU. To stop matching requests before the Worker, optionally
+add a zone [WAF custom rule](https://developers.cloudflare.com/waf/custom-rules/)
+that blocks known scanner paths such as `/wp-*`,
+`/.env`, `/.git`, `/admin`, and PHP endpoints. Check Security Events and test
+normal sign-in, callbacks, article reading, and the Clerk webhook first.
+[Bot Fight Mode](https://developers.cloudflare.com/bots/get-started/bot-fight-mode/)
+is another optional zone setting: monitor its challenges carefully because
+WAF Skip rules cannot exempt traffic from Bot Fight Mode. These dashboard
+changes are manual suggestions, not part of this PR's deployment.
+
 ### Worker CPU and Clerk
 
 Public files in `public/` (`robots.txt`, `sitemap.xml`, manifests) are served by

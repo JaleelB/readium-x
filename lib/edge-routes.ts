@@ -23,6 +23,11 @@ const PROBE_EXTENSIONS = [
   ".bak",
   ".sql",
   ".ini",
+  ".yaml",
+  ".yml",
+  ".log",
+  ".old",
+  ".orig",
 ];
 
 const PROBE_SEGMENTS = new Set([
@@ -31,6 +36,13 @@ const PROBE_SEGMENTS = new Set([
   ".hg",
   ".svn",
   "administrator",
+  ".docker",
+  ".vscode",
+  ".ssh",
+  ".ds_store",
+  "actuator",
+  "server-status",
+  "server-info",
   "boaform",
   "cgi-bin",
   "phpmyadmin",
@@ -79,6 +91,7 @@ const STATIC_EXTENSIONS = [
 
 export const ROBOTS_TXT = `User-agent: *
 Allow: /
+Disallow: /article/
 
 Sitemap: https://readiumx.com/sitemap.xml
 `;
@@ -158,18 +171,24 @@ export function normalizePath(pathname: string): string {
 
 export function isScannerProbe(pathname: string): boolean {
   const path = normalizePath(pathname);
-  if (PROBE_EXTENSIONS.some((extension) => path.endsWith(extension))) {
-    return true;
-  }
+  const segments = path.split("/");
   if (
-    path === "/.env" ||
-    path.startsWith("/.env.") ||
-    path.includes("/.env/")
+    segments.some((segment) =>
+      PROBE_EXTENSIONS.some((extension) => segment.endsWith(extension)),
+    )
   ) {
     return true;
   }
+  // Root admin endpoints are scanner targets, not application routes.
+  if (path === "/admin" || path.startsWith("/admin/")) return true;
 
-  return path.split("/").some((segment) => PROBE_SEGMENTS.has(segment));
+  return segments.some(
+    (segment) =>
+      PROBE_SEGMENTS.has(segment) ||
+      segment.startsWith("wp-") ||
+      segment === ".env" ||
+      segment.startsWith(".env."),
+  );
 }
 
 export function isStaticAssetPath(pathname: string): boolean {
@@ -191,27 +210,54 @@ export function classifyPath(pathname: string): RouteClass {
 
 export function requestHasSessionCookie(cookieHeader: string | null): boolean {
   if (!cookieHeader) return false;
-  return /(?:^|;\s*)(?:__session|__client_uat)=/.test(cookieHeader);
+  return /(?:^|;\s*)(?:__session|__client_uat)(?:_[A-Za-z0-9_-]+)?=/.test(
+    cookieHeader,
+  );
 }
 
-/**
- * True for anonymous document GETs of `/`, including a leftover
- * `?__clerk_handshake=` that Clerk appended. RSC, server actions, and
- * signed-in cookies stay on the Next server.
- */
+/** Only bypass Next when there is no possible Clerk authentication to verify. */
+export function shouldRedirectAnonymousArticle(
+  url: URL,
+  headers: Headers,
+): boolean {
+  if (url.pathname !== "/article" && !url.pathname.startsWith("/article/")) {
+    return false;
+  }
+  if (requestHasSessionCookie(headers.get("cookie"))) return false;
+  if (headers.has("authorization")) return false;
+  // Clerk can complete a signed-in handshake before the session cookie exists.
+  if ([...url.searchParams.keys()].some((key) => key.startsWith("__clerk_"))) {
+    return false;
+  }
+  return true;
+}
+
+// Explicitly list public document shells; never cache callback/protected pages.
+const PUBLIC_DOCUMENT_PATHS = new Set([
+  "/",
+  "/signin",
+  "/signup",
+  "/forgot-password",
+  "/reset-password",
+]);
+
+/** Cookieless document GETs only. Query-dependent auth flows bypass caching. */
 export function isCacheablePublicDocument(
   method: string,
   url: URL,
   headers: Headers,
 ): boolean {
   if (method !== "GET") return false;
-  if (normalizePath(url.pathname) !== "/") return false;
-  if (headers.get("rsc") === "1") return false;
-  if (headers.get("next-router-prefetch")) return false;
-  if (headers.get("next-action")) return false;
+  if (!PUBLIC_DOCUMENT_PATHS.has(url.pathname)) return false;
+  if (url.search) return false;
+  if (headers.has("cookie") || headers.has("authorization")) return false;
+  if (headers.has("rsc")) return false;
+  if (headers.has("next-router-state-tree")) return false;
+  if (headers.has("next-url")) return false;
+  if (headers.has("next-router-prefetch")) return false;
+  if (headers.has("next-action")) return false;
   if (headers.get("purpose") === "prefetch") return false;
-  if (url.searchParams.has("_rsc")) return false;
-  if (requestHasSessionCookie(headers.get("cookie"))) return false;
+  if (headers.get("sec-purpose")?.includes("prefetch")) return false;
   return true;
 }
 
