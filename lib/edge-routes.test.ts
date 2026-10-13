@@ -34,6 +34,20 @@ describe("classifyPath", () => {
       type: "probe",
     });
     expect(classifyPath("/%2eenv")).toEqual({ type: "probe" });
+    for (const path of [
+      "/wp-json/users",
+      "/admin",
+      "/admin/login",
+      "/.env/backup",
+      "/backup/.env.production",
+      "/index.php/login",
+      "/%2eGit/config",
+      "/actuator/health",
+      "/server-status",
+    ]) {
+      expect(classifyPath(path)).toEqual({ type: "probe" });
+    }
+    expect(classifyPath("/article/admin").type).toBe("app");
     expect(classifyPath("/api/bookmarks").type).toBe("app");
     expect(classifyPath("/_next/static/chunks/app.js").type).toBe("app");
   });
@@ -47,9 +61,9 @@ describe("classifyPath", () => {
 });
 
 describe("isCacheablePublicDocument", () => {
-  it("caches anonymous document GETs of the homepage, including a clerk handshake query", () => {
+  it("bypasses query-dependent Clerk handshakes", () => {
     const url = new URL("https://readiumx.com/?__clerk_handshake=token");
-    expect(isCacheablePublicDocument("GET", url, new Headers())).toBe(true);
+    expect(isCacheablePublicDocument("GET", url, new Headers())).toBe(false);
   });
 
   it("does not cache RSC, server actions, or signed-in requests", () => {
@@ -86,6 +100,11 @@ describe("requestHasSessionCookie", () => {
     expect(requestHasSessionCookie(null)).toBe(false);
     expect(requestHasSessionCookie("theme=dark")).toBe(false);
     expect(requestHasSessionCookie("__client_uat=0")).toBe(true);
+    expect(requestHasSessionCookie("theme=dark; __session_abc=token")).toBe(
+      true,
+    );
+    expect(requestHasSessionCookie("__client_uat_abc=1")).toBe(true);
+    expect(requestHasSessionCookie("other__session=token")).toBe(false);
   });
 });
 

@@ -40,6 +40,12 @@
     ],
   },
   "kv_namespaces": [
+    // OpenNext uses its own build-scoped keys, separate from article:v1:*.
+    {
+      "binding": "NEXT_INC_CACHE_KV",
+      "id": "4ea0e799b5a247f58c6483cbeda822b3",
+      "preview_id": "6d9d163ddb3f492db8190870e1a30cec",
+    },
     {
       "binding": "READIUMX_ARTICLE_CACHE",
       "id": "4ea0e799b5a247f58c6483cbeda822b3",
